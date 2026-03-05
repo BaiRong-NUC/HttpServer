@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-option(BUILD_EXAMPLES "Build example executables" ON)
+option(BUILD_API_TEST "Build Api Test Executables" ON)
 
-if(BUILD_EXAMPLES)
+if(BUILD_API_TEST)
 	add_executable(time_wheel api_test/time/time_wheel.cpp)
 	set_target_properties(time_wheel PROPERTIES
 	    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/api_test

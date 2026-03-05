@@ -129,29 +129,29 @@ time_wheel/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/build
 .PHONY : time_wheel/fast
 
-example/time/time_wheel.o: example/time/time_wheel.cpp.o
-.PHONY : example/time/time_wheel.o
+api_test/time/time_wheel.o: api_test/time/time_wheel.cpp.o
+.PHONY : api_test/time/time_wheel.o
 
 # target to build an object file
-example/time/time_wheel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/example/time/time_wheel.cpp.o
-.PHONY : example/time/time_wheel.cpp.o
+api_test/time/time_wheel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/api_test/time/time_wheel.cpp.o
+.PHONY : api_test/time/time_wheel.cpp.o
 
-example/time/time_wheel.i: example/time/time_wheel.cpp.i
-.PHONY : example/time/time_wheel.i
+api_test/time/time_wheel.i: api_test/time/time_wheel.cpp.i
+.PHONY : api_test/time/time_wheel.i
 
 # target to preprocess a source file
-example/time/time_wheel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/example/time/time_wheel.cpp.i
-.PHONY : example/time/time_wheel.cpp.i
+api_test/time/time_wheel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/api_test/time/time_wheel.cpp.i
+.PHONY : api_test/time/time_wheel.cpp.i
 
-example/time/time_wheel.s: example/time/time_wheel.cpp.s
-.PHONY : example/time/time_wheel.s
+api_test/time/time_wheel.s: api_test/time/time_wheel.cpp.s
+.PHONY : api_test/time/time_wheel.s
 
 # target to generate assembly for a file
-example/time/time_wheel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/example/time/time_wheel.cpp.s
-.PHONY : example/time/time_wheel.cpp.s
+api_test/time/time_wheel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/api_test/time/time_wheel.cpp.s
+.PHONY : api_test/time/time_wheel.cpp.s
 
 # Help Target
 help:
@@ -162,9 +162,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... time_wheel"
-	@echo "... example/time/time_wheel.o"
-	@echo "... example/time/time_wheel.i"
-	@echo "... example/time/time_wheel.s"
+	@echo "... api_test/time/time_wheel.o"
+	@echo "... api_test/time/time_wheel.i"
+	@echo "... api_test/time/time_wheel.s"
 .PHONY : help
 
 

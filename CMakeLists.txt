@@ -17,7 +17,7 @@ if(BUILD_API_TEST)
 	file(GLOB_RECURSE API_CPP_FILES ${API_TEST_DIR}/*.cpp)
 
 	# 设置生成的可执行文件输出目录
-	set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/api_test)
+	set(API_EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/api_test)
 
 	# 为每个cpp文件生成一个可执行文件
 	foreach(API_CPP_FILE ${API_CPP_FILES})
@@ -28,6 +28,6 @@ if(BUILD_API_TEST)
 		add_executable(${FILE_NAME} ${API_CPP_FILE})
 
 		# 设置可执行文件的输出目录
-		set_target_properties(${FILE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
+		set_target_properties(${FILE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${API_EXECUTABLE_OUTPUT_PATH})
 	endforeach()
 endif()

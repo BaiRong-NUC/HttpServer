@@ -9,8 +9,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_EXAMPLES "Build example executables" ON)
 
 if(BUILD_EXAMPLES)
-	add_executable(time_wheel example/time/time_wheel.cpp)
+	add_executable(time_wheel api_test/time/time_wheel.cpp)
 	set_target_properties(time_wheel PROPERTIES
-	    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/example
+	    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/api_test
 	)
 endif()

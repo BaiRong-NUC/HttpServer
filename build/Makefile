@@ -130,6 +130,19 @@ any_type/fast:
 .PHONY : any_type/fast
 
 #=============================================================================
+# Target rules for targets named bufferApi
+
+# Build rule for target.
+bufferApi: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bufferApi
+.PHONY : bufferApi
+
+# fast build rule for target.
+bufferApi/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/build
+.PHONY : bufferApi/fast
+
+#=============================================================================
 # Target rules for targets named regex_api
 
 # Build rule for target.
@@ -204,6 +217,30 @@ api_test/any/any_type.s: api_test/any/any_type.cpp.s
 api_test/any/any_type.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/any_type.dir/build.make CMakeFiles/any_type.dir/api_test/any/any_type.cpp.s
 .PHONY : api_test/any/any_type.cpp.s
+
+api_test/bufferApi.o: api_test/bufferApi.cpp.o
+.PHONY : api_test/bufferApi.o
+
+# target to build an object file
+api_test/bufferApi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.o
+.PHONY : api_test/bufferApi.cpp.o
+
+api_test/bufferApi.i: api_test/bufferApi.cpp.i
+.PHONY : api_test/bufferApi.i
+
+# target to preprocess a source file
+api_test/bufferApi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.i
+.PHONY : api_test/bufferApi.cpp.i
+
+api_test/bufferApi.s: api_test/bufferApi.cpp.s
+.PHONY : api_test/bufferApi.s
+
+# target to generate assembly for a file
+api_test/bufferApi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.s
+.PHONY : api_test/bufferApi.cpp.s
 
 api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
 .PHONY : api_test/regex/regex_api.o
@@ -310,6 +347,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... any_type"
+	@echo "... bufferApi"
 	@echo "... regex_api"
 	@echo "... regex_http_request"
 	@echo "... time_wheel"
@@ -317,6 +355,9 @@ help:
 	@echo "... api_test/any/any_type.o"
 	@echo "... api_test/any/any_type.i"
 	@echo "... api_test/any/any_type.s"
+	@echo "... api_test/bufferApi.o"
+	@echo "... api_test/bufferApi.i"
+	@echo "... api_test/bufferApi.s"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"

@@ -12,6 +12,10 @@ private:
 
     // 确保有size大小的可写空间
     bool _HaveSpace(uint64_t size) {}
+
+    // 获取新的缓冲区大小
+    uint64_t _GetNewSize(uint64_t size) {}
+
 public:
     Buffer(size_t size = BUFFER_DEFAULT_SIZE) {}
     // 获取当前写位置
@@ -32,4 +36,15 @@ public:
 
     // 写指针偏移len
     bool MoveWriteIndex(uint64_t len) {}
+
+    // 写入数据
+    bool Write(const void *data, uint64_t len) {}
+    bool Write(const std::string &data) {}
+    bool Write(const Buffer &buffer) {}
+    // 读取数据
+    bool Read(void *data, uint64_t len) {}
+    std::string Read(uint64_t len) {}
+
+    // 从当前读取位置读到\n(一行数据,不包括换行)
+    std::string ReadLine() {}
 };

@@ -14,8 +14,8 @@
 # EXTERNAL cache entries
 ########################
 
-//Build example executables
-BUILD_EXAMPLES:BOOL=ON
+//Build Api Test Executables
+BUILD_API_TEST:BOOL=ON
 
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line

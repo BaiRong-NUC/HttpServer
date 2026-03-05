@@ -117,6 +117,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named regex_api
+
+# Build rule for target.
+regex_api: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 regex_api
+.PHONY : regex_api
+
+# fast build rule for target.
+regex_api/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_api.dir/build.make CMakeFiles/regex_api.dir/build
+.PHONY : regex_api/fast
+
+#=============================================================================
 # Target rules for targets named time_wheel
 
 # Build rule for target.
@@ -128,6 +141,30 @@ time_wheel: cmake_check_build_system
 time_wheel/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/build
 .PHONY : time_wheel/fast
+
+api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
+.PHONY : api_test/regex/regex_api.o
+
+# target to build an object file
+api_test/regex/regex_api.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_api.dir/build.make CMakeFiles/regex_api.dir/api_test/regex/regex_api.cpp.o
+.PHONY : api_test/regex/regex_api.cpp.o
+
+api_test/regex/regex_api.i: api_test/regex/regex_api.cpp.i
+.PHONY : api_test/regex/regex_api.i
+
+# target to preprocess a source file
+api_test/regex/regex_api.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_api.dir/build.make CMakeFiles/regex_api.dir/api_test/regex/regex_api.cpp.i
+.PHONY : api_test/regex/regex_api.cpp.i
+
+api_test/regex/regex_api.s: api_test/regex/regex_api.cpp.s
+.PHONY : api_test/regex/regex_api.s
+
+# target to generate assembly for a file
+api_test/regex/regex_api.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_api.dir/build.make CMakeFiles/regex_api.dir/api_test/regex/regex_api.cpp.s
+.PHONY : api_test/regex/regex_api.cpp.s
 
 api_test/time/time_wheel.o: api_test/time/time_wheel.cpp.o
 .PHONY : api_test/time/time_wheel.o
@@ -161,7 +198,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... regex_api"
 	@echo "... time_wheel"
+	@echo "... api_test/regex/regex_api.o"
+	@echo "... api_test/regex/regex_api.i"
+	@echo "... api_test/regex/regex_api.s"
 	@echo "... api_test/time/time_wheel.o"
 	@echo "... api_test/time/time_wheel.i"
 	@echo "... api_test/time/time_wheel.s"

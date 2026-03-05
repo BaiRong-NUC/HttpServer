@@ -155,6 +155,19 @@ time_wheel/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/build
 .PHONY : time_wheel/fast
 
+#=============================================================================
+# Target rules for targets named timfd
+
+# Build rule for target.
+timfd: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 timfd
+.PHONY : timfd
+
+# fast build rule for target.
+timfd/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timfd.dir/build.make CMakeFiles/timfd.dir/build
+.PHONY : timfd/fast
+
 api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
 .PHONY : api_test/regex/regex_api.o
 
@@ -227,6 +240,30 @@ api_test/time/time_wheel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/time_wheel.dir/build.make CMakeFiles/time_wheel.dir/api_test/time/time_wheel.cpp.s
 .PHONY : api_test/time/time_wheel.cpp.s
 
+api_test/time/timfd.o: api_test/time/timfd.cpp.o
+.PHONY : api_test/time/timfd.o
+
+# target to build an object file
+api_test/time/timfd.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timfd.dir/build.make CMakeFiles/timfd.dir/api_test/time/timfd.cpp.o
+.PHONY : api_test/time/timfd.cpp.o
+
+api_test/time/timfd.i: api_test/time/timfd.cpp.i
+.PHONY : api_test/time/timfd.i
+
+# target to preprocess a source file
+api_test/time/timfd.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timfd.dir/build.make CMakeFiles/timfd.dir/api_test/time/timfd.cpp.i
+.PHONY : api_test/time/timfd.cpp.i
+
+api_test/time/timfd.s: api_test/time/timfd.cpp.s
+.PHONY : api_test/time/timfd.s
+
+# target to generate assembly for a file
+api_test/time/timfd.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timfd.dir/build.make CMakeFiles/timfd.dir/api_test/time/timfd.cpp.s
+.PHONY : api_test/time/timfd.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -238,6 +275,7 @@ help:
 	@echo "... regex_api"
 	@echo "... regex_http_request"
 	@echo "... time_wheel"
+	@echo "... timfd"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"
@@ -247,6 +285,9 @@ help:
 	@echo "... api_test/time/time_wheel.o"
 	@echo "... api_test/time/time_wheel.i"
 	@echo "... api_test/time/time_wheel.s"
+	@echo "... api_test/time/timfd.o"
+	@echo "... api_test/time/timfd.i"
+	@echo "... api_test/time/timfd.s"
 .PHONY : help
 
 

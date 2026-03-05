@@ -11,40 +11,40 @@ private:
     uint64_t _size;
 
     // 确保有size大小的可写空间
-    bool _HaveSpace(uint64_t size) {}
+    bool _HaveSpace(uint64_t size);
 
     // 获取新的缓冲区大小
-    uint64_t _GetNewSize(uint64_t size) {}
+    uint64_t _GetNewSize(uint64_t size);
 
 public:
-    Buffer(size_t size = BUFFER_DEFAULT_SIZE) {}
+    Buffer(size_t size = BUFFER_DEFAULT_SIZE);
     // 获取当前写位置
-    uint64_t GetWriteIndex() const {}
+    uint64_t GetWriteIndex() const;
     // 获取当前读位置
-    uint64_t GetReadIndex() const {}
+    uint64_t GetReadIndex() const;
     // 清空缓冲区
-    void Clear() {}
+    void Clear();
 
     // 获取当前可读数据大小
-    uint64_t GetReadableSize() const {}
+    uint64_t GetReadableSize() const;
 
     // 获取当前可写空间大小
-    uint64_t GetWriteableSize() const {}
+    uint64_t GetWriteableSize() const;
 
     // 读指针偏移len
-    bool MoveReadIndex(uint64_t len) {}
+    bool MoveReadIndex(uint64_t len);
 
     // 写指针偏移len
-    bool MoveWriteIndex(uint64_t len) {}
+    bool MoveWriteIndex(uint64_t len);
 
     // 写入数据
-    bool Write(const void *data, uint64_t len) {}
-    bool Write(const std::string &data) {}
-    bool Write(const Buffer &buffer) {}
+    bool Write(const void *data, uint64_t len);
+    bool Write(const std::string &data);
+    bool Write(const Buffer &buffer);
     // 读取数据
-    bool Read(void *data, uint64_t len) {}
-    std::string Read(uint64_t len) {}
+    bool Read(void *data, uint64_t len);
+    std::string Read(uint64_t len);
 
     // 从当前读取位置读到\n(一行数据,不包括换行)
-    std::string ReadLine() {}
+    std::string ReadLine();
 };

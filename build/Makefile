@@ -130,6 +130,19 @@ regex_api/fast:
 .PHONY : regex_api/fast
 
 #=============================================================================
+# Target rules for targets named regex_http_request
+
+# Build rule for target.
+regex_http_request: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 regex_http_request
+.PHONY : regex_http_request
+
+# fast build rule for target.
+regex_http_request/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_http_request.dir/build.make CMakeFiles/regex_http_request.dir/build
+.PHONY : regex_http_request/fast
+
+#=============================================================================
 # Target rules for targets named time_wheel
 
 # Build rule for target.
@@ -166,6 +179,30 @@ api_test/regex/regex_api.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_api.dir/build.make CMakeFiles/regex_api.dir/api_test/regex/regex_api.cpp.s
 .PHONY : api_test/regex/regex_api.cpp.s
 
+api_test/regex/regex_http_request.o: api_test/regex/regex_http_request.cpp.o
+.PHONY : api_test/regex/regex_http_request.o
+
+# target to build an object file
+api_test/regex/regex_http_request.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_http_request.dir/build.make CMakeFiles/regex_http_request.dir/api_test/regex/regex_http_request.cpp.o
+.PHONY : api_test/regex/regex_http_request.cpp.o
+
+api_test/regex/regex_http_request.i: api_test/regex/regex_http_request.cpp.i
+.PHONY : api_test/regex/regex_http_request.i
+
+# target to preprocess a source file
+api_test/regex/regex_http_request.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_http_request.dir/build.make CMakeFiles/regex_http_request.dir/api_test/regex/regex_http_request.cpp.i
+.PHONY : api_test/regex/regex_http_request.cpp.i
+
+api_test/regex/regex_http_request.s: api_test/regex/regex_http_request.cpp.s
+.PHONY : api_test/regex/regex_http_request.s
+
+# target to generate assembly for a file
+api_test/regex/regex_http_request.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/regex_http_request.dir/build.make CMakeFiles/regex_http_request.dir/api_test/regex/regex_http_request.cpp.s
+.PHONY : api_test/regex/regex_http_request.cpp.s
+
 api_test/time/time_wheel.o: api_test/time/time_wheel.cpp.o
 .PHONY : api_test/time/time_wheel.o
 
@@ -199,10 +236,14 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... regex_api"
+	@echo "... regex_http_request"
 	@echo "... time_wheel"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"
+	@echo "... api_test/regex/regex_http_request.o"
+	@echo "... api_test/regex/regex_http_request.i"
+	@echo "... api_test/regex/regex_http_request.s"
 	@echo "... api_test/time/time_wheel.o"
 	@echo "... api_test/time/time_wheel.i"
 	@echo "... api_test/time/time_wheel.s"

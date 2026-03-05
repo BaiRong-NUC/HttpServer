@@ -1,8 +1,8 @@
 #include "../include/buffer.h"
 
 // 构造函数
-Buffer::Buffer(size_t size = BUFFER_DEFAULT_SIZE) : _readIndex(0), _writeIndex(0),
-                                                    _size(size), _buffer(size) {}
+Buffer::Buffer(size_t size) : _readIndex(0), _writeIndex(0),
+                              _size(size), _buffer(size) {}
 
 // 获取当前写位置
 uint64_t Buffer::GetWriteIndex() const

@@ -218,29 +218,29 @@ api_test/any/any_type.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/any_type.dir/build.make CMakeFiles/any_type.dir/api_test/any/any_type.cpp.s
 .PHONY : api_test/any/any_type.cpp.s
 
-api_test/bufferApi.o: api_test/bufferApi.cpp.o
-.PHONY : api_test/bufferApi.o
+api_test/api/bufferApi.o: api_test/api/bufferApi.cpp.o
+.PHONY : api_test/api/bufferApi.o
 
 # target to build an object file
-api_test/bufferApi.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.o
-.PHONY : api_test/bufferApi.cpp.o
+api_test/api/bufferApi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/api/bufferApi.cpp.o
+.PHONY : api_test/api/bufferApi.cpp.o
 
-api_test/bufferApi.i: api_test/bufferApi.cpp.i
-.PHONY : api_test/bufferApi.i
+api_test/api/bufferApi.i: api_test/api/bufferApi.cpp.i
+.PHONY : api_test/api/bufferApi.i
 
 # target to preprocess a source file
-api_test/bufferApi.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.i
-.PHONY : api_test/bufferApi.cpp.i
+api_test/api/bufferApi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/api/bufferApi.cpp.i
+.PHONY : api_test/api/bufferApi.cpp.i
 
-api_test/bufferApi.s: api_test/bufferApi.cpp.s
-.PHONY : api_test/bufferApi.s
+api_test/api/bufferApi.s: api_test/api/bufferApi.cpp.s
+.PHONY : api_test/api/bufferApi.s
 
 # target to generate assembly for a file
-api_test/bufferApi.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/bufferApi.cpp.s
-.PHONY : api_test/bufferApi.cpp.s
+api_test/api/bufferApi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/api/bufferApi.cpp.s
+.PHONY : api_test/api/bufferApi.cpp.s
 
 api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
 .PHONY : api_test/regex/regex_api.o
@@ -338,6 +338,30 @@ api_test/time/timfd.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/timfd.dir/build.make CMakeFiles/timfd.dir/api_test/time/timfd.cpp.s
 .PHONY : api_test/time/timfd.cpp.s
 
+src/buffer.o: src/buffer.cpp.o
+.PHONY : src/buffer.o
+
+# target to build an object file
+src/buffer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.o
+.PHONY : src/buffer.cpp.o
+
+src/buffer.i: src/buffer.cpp.i
+.PHONY : src/buffer.i
+
+# target to preprocess a source file
+src/buffer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.i
+.PHONY : src/buffer.cpp.i
+
+src/buffer.s: src/buffer.cpp.s
+.PHONY : src/buffer.s
+
+# target to generate assembly for a file
+src/buffer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.s
+.PHONY : src/buffer.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -355,9 +379,9 @@ help:
 	@echo "... api_test/any/any_type.o"
 	@echo "... api_test/any/any_type.i"
 	@echo "... api_test/any/any_type.s"
-	@echo "... api_test/bufferApi.o"
-	@echo "... api_test/bufferApi.i"
-	@echo "... api_test/bufferApi.s"
+	@echo "... api_test/api/bufferApi.o"
+	@echo "... api_test/api/bufferApi.i"
+	@echo "... api_test/api/bufferApi.s"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"
@@ -370,6 +394,9 @@ help:
 	@echo "... api_test/time/timfd.o"
 	@echo "... api_test/time/timfd.i"
 	@echo "... api_test/time/timfd.s"
+	@echo "... src/buffer.o"
+	@echo "... src/buffer.i"
+	@echo "... src/buffer.s"
 .PHONY : help
 
 

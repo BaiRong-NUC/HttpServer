@@ -1,4 +1,4 @@
-#include "../include/buffer.h"
+#include "../../include/buffer.h"
 
 void testBufferBasic()
 {

@@ -69,7 +69,7 @@ uint64_t Buffer::_GetNewSize(uint64_t size)
         // 否则新缓冲区大小为当前缓冲区大小的2倍
         newSize = this->_size * 2;
     }
-    return newSize + 1; // 多分配一个字节的空间来区分满和空
+    return newSize;
 }
 
 // 确保有size大小的可写空间
@@ -134,7 +134,7 @@ bool Buffer::Write(const Buffer &buffer)
 // 读取数据
 bool Buffer::Read(void *data, uint64_t len)
 {
-    if (len > this->GetReadableSize())
+    if (len > this->GetReadableSize() || data == nullptr)
         return false; // 没有足够的数据可读
 
     // 读取数据

@@ -167,6 +167,21 @@ void testBufferWriteBuffer()
     std::cout << "Buffer之间写入测试通过!" << std::endl;
 }
 
+// 测试连续输入大量数据
+void testBufferContinuousLargeInput()
+{
+    Buffer buf(8);
+    std::string largeData(1000, 'x');
+    for (int i = 0; i < 10; ++i)
+    {
+        bool writeResult = buf.Write(largeData);
+        assert(writeResult);
+        std::cout << "第 " << i + 1 << " 次写入完成,当前缓冲区大小: " << buf.GetSize() << std::endl;
+    }
+    std::string out = buf.Read(10000);
+    assert(out == std::string(10000, 'x'));
+    std::cout << "连续输入大量数据测试通过!" << std::endl;
+}
 int main()
 {
     testBufferBasic();
@@ -175,5 +190,6 @@ int main()
     testBufferMakeLarger();
     testBufferError();
     testBufferWriteBuffer();
+    testBufferContinuousLargeInput();
     return 0;
 }

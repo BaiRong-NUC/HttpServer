@@ -85,7 +85,7 @@ void testBufferError()
     std::string data = "12345678";
     buf.Write(data);                         // 写满
     bool readResult = buf.Read(nullptr, 20); // 读取超容量
-    char buffer[8] = {0};
+    char buffer[9] = {0};
     bool readResult2 = buf.Read(buffer, 0);  // 读取0字节
     bool readResult3 = buf.Read(nullptr, 8); // 读取合法容量,但是传入的指针为nullptr,应该失败
     assert(!readResult);                     // 应该失败
@@ -144,6 +144,29 @@ void testBufferError()
     std::cout << "Buffer极端情况测试通过!" << std::endl;
 }
 
+// 测试buffer之间的写入
+void testBufferWriteBuffer()
+{
+    Buffer buf1(8);
+    Buffer buf2(8);
+    buf1.Write("hello", 5);
+    bool writeResult = buf2.Write(buf1);
+    assert(writeResult);
+    assert(buf2.GetReadableSize() == 5);
+    std::string out = buf2.Read(5);
+    assert(out == "hello");
+
+    buf1.Clear();
+    buf2.Clear();
+    buf1.Write("hello ", 6);
+    buf2.Write("world", 5);
+    buf1.Write(buf2);
+    std::string out2 = buf1.Read(11);
+    cout << out2 << endl;
+    assert(out2 == "hello world");
+    std::cout << "Buffer之间写入测试通过!" << std::endl;
+}
+
 int main()
 {
     testBufferBasic();
@@ -151,5 +174,6 @@ int main()
     testBufferReadLine();
     testBufferMakeLarger();
     testBufferError();
+    testBufferWriteBuffer();
     return 0;
 }

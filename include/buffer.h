@@ -47,4 +47,7 @@ public:
 
     // 从当前读取位置读到\n(一行数据,不包括换行)
     std::string ReadLine();
+
+    // 获取当前缓冲区大小
+    uint64_t GetSize() const;
 };

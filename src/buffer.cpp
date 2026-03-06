@@ -1,8 +1,8 @@
 #include "../include/buffer.h"
 
-// 构造函数
+// 构造函数,多分配一个字节的空间来区分满和空
 Buffer::Buffer(size_t size) : _readIndex(0), _writeIndex(0),
-                              _size(size), _buffer(size) {}
+                              _size(size + 1), _buffer(size + 1) {}
 
 // 获取当前写位置
 uint64_t Buffer::GetWriteIndex() const
@@ -69,7 +69,7 @@ uint64_t Buffer::_GetNewSize(uint64_t size)
         // 否则新缓冲区大小为当前缓冲区大小的2倍
         newSize = this->_size * 2;
     }
-    return newSize;
+    return newSize + 1; // 多分配一个字节的空间来区分满和空
 }
 
 // 确保有size大小的可写空间
@@ -158,7 +158,7 @@ std::string Buffer::Read(uint64_t len)
     return result;
 }
 
-// 从当前读取位置读到\n(一行数据不包括\n)
+// 从当前读取位置读到\n(一行数据,不包括换行)
 std::string Buffer::ReadLine()
 {
     uint64_t readableSize = this->GetReadableSize();
@@ -172,5 +172,18 @@ std::string Buffer::ReadLine()
             return result;
         }
     }
+    // 没有遇到换行符，返回剩余内容(最后一行)
+    if (readableSize > 0)
+    {
+        std::string result(readableSize, 0);
+        this->Read(&result[0], readableSize);
+        return result;
+    }
     return "";
+}
+
+// 获取缓冲区大小
+uint64_t Buffer::GetSize() const
+{
+    return this->_size - 1;
 }

@@ -31,13 +31,44 @@ void Channel::Remove() { this->_events = 0; }
 void Channel::SetRevents(uint32_t revents) { this->_revents = revents; }
 
 // 事件处理
+/***
+ * 先判断错误和断开事件(EPOLLERR、EPOLLHUP)
+ * 一旦触发,优先处理并关闭 fd,后续事件就不再处理.
+ * 提前return,保证只处理一次
+ */
 void Channel::HandleEvent()
 {
-    if ((this->_revents & EPOLLIN) || (this->_revents & EPOLLRDHUP)||(this->_revents & EPOLLPRI))
+    if (this->_revents & EPOLLERR)
+    {
+        // 任意事件触发回调在前面,因为错误事件可能导致连接关闭,如果先调用错误回调函数,可能会在回调函数中关闭连接,导致任意事件回调函数无法调用
+        if (this->eventAnction)
+            this->eventAnction();
+
+        if (this->errorAnction)
+            this->errorAnction();
+        return;
+    }
+
+    if (this->_revents & EPOLLHUP)
+    {
+        // 任意事件触发回调在前面
+        if (this->eventAnction)
+            this->eventAnction();
+        // 文件描述符关闭
+        if (this->closeAnction)
+            this->closeAnction();
+        return;
+    }
+
+    if ((this->_revents & EPOLLIN) || (this->_revents & EPOLLRDHUP) || (this->_revents & EPOLLPRI))
     {
         // 可读事件或对端关闭连接或紧急数据事件触发可读回调
         if (this->readAnction)
             this->readAnction();
+
+        // 任意事件触发回调
+        if (this->eventAnction)
+            this->eventAnction();
     }
 
     // 有可能导致连接错误的事件一次触发一个
@@ -45,19 +76,9 @@ void Channel::HandleEvent()
     {
         if (this->writeAnction)
             this->writeAnction();
+
+        // 任意事件触发回调
+        if (this->eventAnction)
+            this->eventAnction();
     }
-    else if (this->_revents & EPOLLERR)
-    {
-        if (this->errorAnction)
-            this->errorAnction();
-    }
-    else if (this->_revents & EPOLLHUP)
-    {
-        // 文件描述符关闭
-        if (this->closeAnction)
-            this->closeAnction();
-    }
-    
-    if (this->eventAnction)
-        this->eventAnction();
 }

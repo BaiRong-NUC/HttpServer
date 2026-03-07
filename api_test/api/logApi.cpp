@@ -8,6 +8,8 @@ void testLog()
     LOG(ERROR, "This is an error message.");
     LOG(WARNING, "This is a warning message.");
 
+    // 修改日志等级
+    SetLogLevel(INFO);
     Buffer buf(8);
     std::string largeData(1000, 'x');
     for (int i = 0; i < 10; ++i)

@@ -9,7 +9,10 @@ enum LogLevel
     ERROR
 };
 
-#define LOG_LEVEL INFO // 设置默认日志级别为INFO,即输出INFO、WARNING和ERROR级别的日志
+// #define LOG_LEVEL INFO // 设置默认日志级别为INFO,即输出INFO、WARNING和ERROR级别的日志
+
+extern LogLevel LOG_LEVEL;
+void SetLogLevel(LogLevel level);
 
 // 将日志级别转换为字符串
 std::string LogLevelToString(LogLevel level);

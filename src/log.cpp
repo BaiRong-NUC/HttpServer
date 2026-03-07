@@ -1,5 +1,8 @@
 #include "../include/log.h"
 
+LogLevel LOG_LEVEL = WARNING;
+void SetLogLevel(LogLevel level) { LOG_LEVEL = level; }
+
 std::string LogLevelToString(LogLevel level)
 {
     switch (level)

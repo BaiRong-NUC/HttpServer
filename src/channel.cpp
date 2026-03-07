@@ -39,22 +39,25 @@ void Channel::HandleEvent()
         if (this->readAnction)
             this->readAnction();
     }
+
+    // 有可能导致连接错误的事件一次触发一个
     if (this->_revents & EPOLLOUT)
     {
         if (this->writeAnction)
             this->writeAnction();
     }
-    if (this->_revents & EPOLLERR)
+    else if (this->_revents & EPOLLERR)
     {
         if (this->errorAnction)
             this->errorAnction();
     }
-    if (this->_revents & EPOLLHUP)
+    else if (this->_revents & EPOLLHUP)
     {
         // 文件描述符关闭
         if (this->closeAnction)
             this->closeAnction();
     }
+    
     if (this->eventAnction)
         this->eventAnction();
 }

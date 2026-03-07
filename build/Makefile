@@ -143,6 +143,19 @@ bufferApi/fast:
 .PHONY : bufferApi/fast
 
 #=============================================================================
+# Target rules for targets named logApi
+
+# Build rule for target.
+logApi: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 logApi
+.PHONY : logApi
+
+# fast build rule for target.
+logApi/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/build
+.PHONY : logApi/fast
+
+#=============================================================================
 # Target rules for targets named regex_api
 
 # Build rule for target.
@@ -241,6 +254,30 @@ api_test/api/bufferApi.s: api_test/api/bufferApi.cpp.s
 api_test/api/bufferApi.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/api/bufferApi.cpp.s
 .PHONY : api_test/api/bufferApi.cpp.s
+
+api_test/api/logApi.o: api_test/api/logApi.cpp.o
+.PHONY : api_test/api/logApi.o
+
+# target to build an object file
+api_test/api/logApi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/api_test/api/logApi.cpp.o
+.PHONY : api_test/api/logApi.cpp.o
+
+api_test/api/logApi.i: api_test/api/logApi.cpp.i
+.PHONY : api_test/api/logApi.i
+
+# target to preprocess a source file
+api_test/api/logApi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/api_test/api/logApi.cpp.i
+.PHONY : api_test/api/logApi.cpp.i
+
+api_test/api/logApi.s: api_test/api/logApi.cpp.s
+.PHONY : api_test/api/logApi.s
+
+# target to generate assembly for a file
+api_test/api/logApi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/api_test/api/logApi.cpp.s
+.PHONY : api_test/api/logApi.cpp.s
 
 api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
 .PHONY : api_test/regex/regex_api.o
@@ -344,6 +381,7 @@ src/buffer.o: src/buffer.cpp.o
 # target to build an object file
 src/buffer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.o
 .PHONY : src/buffer.cpp.o
 
 src/buffer.i: src/buffer.cpp.i
@@ -352,6 +390,7 @@ src/buffer.i: src/buffer.cpp.i
 # target to preprocess a source file
 src/buffer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.i
 .PHONY : src/buffer.cpp.i
 
 src/buffer.s: src/buffer.cpp.s
@@ -360,7 +399,35 @@ src/buffer.s: src/buffer.cpp.s
 # target to generate assembly for a file
 src/buffer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.s
 .PHONY : src/buffer.cpp.s
+
+src/log.o: src/log.cpp.o
+.PHONY : src/log.o
+
+# target to build an object file
+src/log.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.o
+.PHONY : src/log.cpp.o
+
+src/log.i: src/log.cpp.i
+.PHONY : src/log.i
+
+# target to preprocess a source file
+src/log.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.i
+.PHONY : src/log.cpp.i
+
+src/log.s: src/log.cpp.s
+.PHONY : src/log.s
+
+# target to generate assembly for a file
+src/log.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.s
+.PHONY : src/log.cpp.s
 
 # Help Target
 help:
@@ -372,6 +439,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... any_type"
 	@echo "... bufferApi"
+	@echo "... logApi"
 	@echo "... regex_api"
 	@echo "... regex_http_request"
 	@echo "... time_wheel"
@@ -382,6 +450,9 @@ help:
 	@echo "... api_test/api/bufferApi.o"
 	@echo "... api_test/api/bufferApi.i"
 	@echo "... api_test/api/bufferApi.s"
+	@echo "... api_test/api/logApi.o"
+	@echo "... api_test/api/logApi.i"
+	@echo "... api_test/api/logApi.s"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"
@@ -397,6 +468,9 @@ help:
 	@echo "... src/buffer.o"
 	@echo "... src/buffer.i"
 	@echo "... src/buffer.s"
+	@echo "... src/log.o"
+	@echo "... src/log.i"
+	@echo "... src/log.s"
 .PHONY : help
 
 

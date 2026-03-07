@@ -44,7 +44,7 @@ public:
     void HandleEvent(); // 根据当前触发的事件调用对应的回调函数
 
     // 获取文件描述符
-    int GetSocketFd();
+    Socket GetSocket();
 
     // 设置就绪事件
     void SetRevents(uint32_t revents);

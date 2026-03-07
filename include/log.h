@@ -8,7 +8,19 @@ enum LogLevel
     WARNING,
     ERROR
 };
+
+#define LOG_LEVEL INFO // 设置默认日志级别为INFO,即输出INFO、WARNING和ERROR级别的日志
+
+// 将日志级别转换为字符串
 std::string LogLevelToString(LogLevel level);
-std::string LogLevelToString(std::string level);
+
+// 获取相对文件路径,如果文件路径中包含"HttpServer/",则返回相对于"HttpServer/"的路径,否则返回原始路径
 std::string GetRelativeFile(const char *file);
-#define LOG(level, msg) std::cout << "[" << LogLevelToString(level) << " " << GetRelativeFile(__FILE__) << ":" << __LINE__ << "] " << msg << std::endl
+
+// 获取日志打印时间
+std::string GetCurrentTime();
+
+// void LOG(LogLevel level, const std::string &msg);
+
+// 不要使用\\换行,会报错
+#define LOG(level, msg) if ((level) >= LOG_LEVEL) std::cout << "[" << GetCurrentTime() << " " << LogLevelToString(level) << " " << GetRelativeFile(__FILE__) << ":" << __LINE__ << "] " << msg << std::endl

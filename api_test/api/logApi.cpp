@@ -6,6 +6,8 @@ void testLog()
 {
     LOG(INFO, "This is an info message.");
     LOG(ERROR, "This is an error message.");
+    LOG(WARNING, "This is a warning message.");
+
     Buffer buf(8);
     std::string largeData(1000, 'x');
     for (int i = 0; i < 10; ++i)
@@ -17,10 +19,16 @@ void testLog()
     std::string out = buf.Read(10000);
     assert(out == std::string(10000, 'x'));
     LOG(INFO, "连续输入大量数据测试通过!");
-    LOG("MyStr", "This is a MyStr message.");
 }
+
+void testLogApi()
+{
+    cout << GetCurrentTime() << endl;
+}
+
 int main(int argc, char const *argv[])
 {
     testLog();
+    // testLogApi();
     return 0;
 }

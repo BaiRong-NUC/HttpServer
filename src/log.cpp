@@ -15,11 +15,6 @@ std::string LogLevelToString(LogLevel level)
     }
 }
 
-std::string LogLevelToString(std::string level)
-{
-    return level;
-}
-
 std::string GetRelativeFile(const char *file)
 {
     const char *pos = strstr(file, "HttpServer/");
@@ -29,3 +24,24 @@ std::string GetRelativeFile(const char *file)
     }
     return file;
 }
+
+std::string GetCurrentTime()
+{
+    time_t now = time(nullptr);
+    struct tm *tm_info = localtime(&now);
+    char buffer[20];
+    strftime(buffer, sizeof(buffer), "%m-%d %H:%M:%S", tm_info);
+    return std::string(buffer);
+}
+
+// void LOG(LogLevel level, const std::string &msg)
+// {
+//     if (level < LOG_LEVEL)
+//         return;
+//     std::cout << "["
+//               << GetCurrentTime() << " "
+//               << LogLevelToString(level) << " "
+//               << GetRelativeFile(__FILE__) << ":" << __LINE__
+//               << "] "
+//               << msg << std::endl;
+// }

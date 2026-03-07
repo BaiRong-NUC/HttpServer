@@ -3,3 +3,11 @@
 #include <iostream>
 #include <assert.h>
 #include <cstring>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/wait.h>

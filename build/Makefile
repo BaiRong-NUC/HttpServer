@@ -143,6 +143,19 @@ bufferApi/fast:
 .PHONY : bufferApi/fast
 
 #=============================================================================
+# Target rules for targets named channelApi
+
+# Build rule for target.
+channelApi: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 channelApi
+.PHONY : channelApi
+
+# fast build rule for target.
+channelApi/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/build
+.PHONY : channelApi/fast
+
+#=============================================================================
 # Target rules for targets named logApi
 
 # Build rule for target.
@@ -280,6 +293,30 @@ api_test/api/bufferApi.s: api_test/api/bufferApi.cpp.s
 api_test/api/bufferApi.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/api_test/api/bufferApi.cpp.s
 .PHONY : api_test/api/bufferApi.cpp.s
+
+api_test/api/channelApi.o: api_test/api/channelApi.cpp.o
+.PHONY : api_test/api/channelApi.o
+
+# target to build an object file
+api_test/api/channelApi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/api_test/api/channelApi.cpp.o
+.PHONY : api_test/api/channelApi.cpp.o
+
+api_test/api/channelApi.i: api_test/api/channelApi.cpp.i
+.PHONY : api_test/api/channelApi.i
+
+# target to preprocess a source file
+api_test/api/channelApi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/api_test/api/channelApi.cpp.i
+.PHONY : api_test/api/channelApi.cpp.i
+
+api_test/api/channelApi.s: api_test/api/channelApi.cpp.s
+.PHONY : api_test/api/channelApi.s
+
+# target to generate assembly for a file
+api_test/api/channelApi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/api_test/api/channelApi.cpp.s
+.PHONY : api_test/api/channelApi.cpp.s
 
 api_test/api/logApi.o: api_test/api/logApi.cpp.o
 .PHONY : api_test/api/logApi.o
@@ -455,6 +492,7 @@ src/buffer.o: src/buffer.cpp.o
 # target to build an object file
 src/buffer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.o
@@ -466,6 +504,7 @@ src/buffer.i: src/buffer.cpp.i
 # target to preprocess a source file
 src/buffer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.i
@@ -477,10 +516,47 @@ src/buffer.s: src/buffer.cpp.s
 # target to generate assembly for a file
 src/buffer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.s
 .PHONY : src/buffer.cpp.s
+
+src/channel.o: src/channel.cpp.o
+.PHONY : src/channel.o
+
+# target to build an object file
+src/channel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.o
+.PHONY : src/channel.cpp.o
+
+src/channel.i: src/channel.cpp.i
+.PHONY : src/channel.i
+
+# target to preprocess a source file
+src/channel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.i
+.PHONY : src/channel.cpp.i
+
+src/channel.s: src/channel.cpp.s
+.PHONY : src/channel.s
+
+# target to generate assembly for a file
+src/channel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.s
+.PHONY : src/channel.cpp.s
 
 src/log.o: src/log.cpp.o
 .PHONY : src/log.o
@@ -488,6 +564,7 @@ src/log.o: src/log.cpp.o
 # target to build an object file
 src/log.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.o
@@ -499,6 +576,7 @@ src/log.i: src/log.cpp.i
 # target to preprocess a source file
 src/log.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.i
@@ -510,6 +588,7 @@ src/log.s: src/log.cpp.s
 # target to generate assembly for a file
 src/log.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.s
@@ -521,6 +600,7 @@ src/socket.o: src/socket.cpp.o
 # target to build an object file
 src/socket.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.o
@@ -532,6 +612,7 @@ src/socket.i: src/socket.cpp.i
 # target to preprocess a source file
 src/socket.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.i
@@ -543,6 +624,7 @@ src/socket.s: src/socket.cpp.s
 # target to generate assembly for a file
 src/socket.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.s
@@ -558,6 +640,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... any_type"
 	@echo "... bufferApi"
+	@echo "... channelApi"
 	@echo "... logApi"
 	@echo "... regex_api"
 	@echo "... regex_http_request"
@@ -571,6 +654,9 @@ help:
 	@echo "... api_test/api/bufferApi.o"
 	@echo "... api_test/api/bufferApi.i"
 	@echo "... api_test/api/bufferApi.s"
+	@echo "... api_test/api/channelApi.o"
+	@echo "... api_test/api/channelApi.i"
+	@echo "... api_test/api/channelApi.s"
 	@echo "... api_test/api/logApi.o"
 	@echo "... api_test/api/logApi.i"
 	@echo "... api_test/api/logApi.s"
@@ -595,6 +681,9 @@ help:
 	@echo "... src/buffer.o"
 	@echo "... src/buffer.i"
 	@echo "... src/buffer.s"
+	@echo "... src/channel.o"
+	@echo "... src/channel.i"
+	@echo "... src/channel.s"
 	@echo "... src/log.o"
 	@echo "... src/log.i"
 	@echo "... src/log.s"

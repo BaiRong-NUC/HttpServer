@@ -30,6 +30,9 @@ void Channel::Remove() { this->_events = 0; }
 // 设置就绪事件
 void Channel::SetRevents(uint32_t revents) { this->_revents = revents; }
 
+// 获取文件描述符
+int Channel::GetSocketFd() { return this->_sock.GetSocketFd(); }
+
 // 事件处理
 /***
  * 先判断错误和断开事件(EPOLLERR、EPOLLHUP)

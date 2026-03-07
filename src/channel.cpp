@@ -85,3 +85,6 @@ void Channel::HandleEvent()
             this->eventAnction();
     }
 }
+
+// 获取当前关注的事件
+uint32_t Channel::GetEvents() const { return this->_events; }

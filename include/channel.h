@@ -48,4 +48,7 @@ public:
 
     // 设置就绪事件
     void SetRevents(uint32_t revents);
+
+    // 获取当前关注的事件
+    uint32_t GetEvents() const;
 };

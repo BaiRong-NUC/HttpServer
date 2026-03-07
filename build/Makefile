@@ -169,6 +169,19 @@ logApi/fast:
 .PHONY : logApi/fast
 
 #=============================================================================
+# Target rules for targets named pollerApi
+
+# Build rule for target.
+pollerApi: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pollerApi
+.PHONY : pollerApi
+
+# fast build rule for target.
+pollerApi/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/build
+.PHONY : pollerApi/fast
+
+#=============================================================================
 # Target rules for targets named socketClientApi
 
 # Build rule for target.
@@ -342,6 +355,30 @@ api_test/api/logApi.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/api_test/api/logApi.cpp.s
 .PHONY : api_test/api/logApi.cpp.s
 
+api_test/api/pollerApi.o: api_test/api/pollerApi.cpp.o
+.PHONY : api_test/api/pollerApi.o
+
+# target to build an object file
+api_test/api/pollerApi.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/api_test/api/pollerApi.cpp.o
+.PHONY : api_test/api/pollerApi.cpp.o
+
+api_test/api/pollerApi.i: api_test/api/pollerApi.cpp.i
+.PHONY : api_test/api/pollerApi.i
+
+# target to preprocess a source file
+api_test/api/pollerApi.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/api_test/api/pollerApi.cpp.i
+.PHONY : api_test/api/pollerApi.cpp.i
+
+api_test/api/pollerApi.s: api_test/api/pollerApi.cpp.s
+.PHONY : api_test/api/pollerApi.s
+
+# target to generate assembly for a file
+api_test/api/pollerApi.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/api_test/api/pollerApi.cpp.s
+.PHONY : api_test/api/pollerApi.cpp.s
+
 api_test/api/socketClientApi.o: api_test/api/socketClientApi.cpp.o
 .PHONY : api_test/api/socketClientApi.o
 
@@ -494,6 +531,7 @@ src/buffer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.o
 .PHONY : src/buffer.cpp.o
@@ -506,6 +544,7 @@ src/buffer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.i
 .PHONY : src/buffer.cpp.i
@@ -518,6 +557,7 @@ src/buffer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/buffer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/buffer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/buffer.cpp.s
 .PHONY : src/buffer.cpp.s
@@ -530,6 +570,7 @@ src/channel.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/channel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.o
 .PHONY : src/channel.cpp.o
@@ -542,6 +583,7 @@ src/channel.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/channel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.i
 .PHONY : src/channel.cpp.i
@@ -554,6 +596,7 @@ src/channel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/channel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/channel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/channel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/channel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/channel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.s
 .PHONY : src/channel.cpp.s
@@ -566,6 +609,7 @@ src/log.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.o
 .PHONY : src/log.cpp.o
@@ -578,6 +622,7 @@ src/log.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.i
 .PHONY : src/log.cpp.i
@@ -590,9 +635,49 @@ src/log.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/log.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/log.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/log.cpp.s
 .PHONY : src/log.cpp.s
+
+src/poller.o: src/poller.cpp.o
+.PHONY : src/poller.o
+
+# target to build an object file
+src/poller.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/poller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/poller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/poller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/poller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/poller.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/poller.cpp.o
+.PHONY : src/poller.cpp.o
+
+src/poller.i: src/poller.cpp.i
+.PHONY : src/poller.i
+
+# target to preprocess a source file
+src/poller.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/poller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/poller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/poller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/poller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/poller.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/poller.cpp.i
+.PHONY : src/poller.cpp.i
+
+src/poller.s: src/poller.cpp.s
+.PHONY : src/poller.s
+
+# target to generate assembly for a file
+src/poller.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/poller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/poller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/poller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/poller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/poller.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/poller.cpp.s
+.PHONY : src/poller.cpp.s
 
 src/socket.o: src/socket.cpp.o
 .PHONY : src/socket.o
@@ -602,6 +687,7 @@ src/socket.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.o
 .PHONY : src/socket.cpp.o
@@ -614,6 +700,7 @@ src/socket.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.i
 .PHONY : src/socket.cpp.i
@@ -626,6 +713,7 @@ src/socket.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/channelApi.dir/build.make CMakeFiles/channelApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/socket.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pollerApi.dir/build.make CMakeFiles/pollerApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/socket.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/socket.cpp.s
 .PHONY : src/socket.cpp.s
@@ -642,6 +730,7 @@ help:
 	@echo "... bufferApi"
 	@echo "... channelApi"
 	@echo "... logApi"
+	@echo "... pollerApi"
 	@echo "... regex_api"
 	@echo "... regex_http_request"
 	@echo "... socketClientApi"
@@ -660,6 +749,9 @@ help:
 	@echo "... api_test/api/logApi.o"
 	@echo "... api_test/api/logApi.i"
 	@echo "... api_test/api/logApi.s"
+	@echo "... api_test/api/pollerApi.o"
+	@echo "... api_test/api/pollerApi.i"
+	@echo "... api_test/api/pollerApi.s"
 	@echo "... api_test/api/socketClientApi.o"
 	@echo "... api_test/api/socketClientApi.i"
 	@echo "... api_test/api/socketClientApi.s"
@@ -687,6 +779,9 @@ help:
 	@echo "... src/log.o"
 	@echo "... src/log.i"
 	@echo "... src/log.s"
+	@echo "... src/poller.o"
+	@echo "... src/poller.i"
+	@echo "... src/poller.s"
 	@echo "... src/socket.o"
 	@echo "... src/socket.i"
 	@echo "... src/socket.s"

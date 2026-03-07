@@ -9,6 +9,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_API_TEST "Build Api Test Executables" ON)
 
 file(GLOB SRC_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+# 添加 include 目录
+include_directories(${CMAKE_SOURCE_DIR}/include)
 # 编译项目编写的API测试代码
 if(BUILD_API_TEST)
 	# 定义源文件目录

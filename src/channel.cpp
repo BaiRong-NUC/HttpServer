@@ -1,8 +1,6 @@
 #include "../include/channel.h"
 #include "../include/poller.h"
 
-#include <utility>
-
 // 构造函数
 Channel::Channel(Poller *poller, Socket &&sock) : _poller(poller), _sock(std::move(sock)), _events(0), _revents(0) {}
 

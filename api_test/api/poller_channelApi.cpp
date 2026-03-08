@@ -1,6 +1,8 @@
 #include "../../include/poller.h"
 #include "../../include/channel.h"
 
+#include <utility>
+
 using namespace std;
 
 void testPollReadableEvent()
@@ -14,7 +16,7 @@ void testPollReadableEvent()
     Socket peer(fds[1]);
 
     // 监控monitored文件描述符事件
-    Channel channel(&poller, monitored);
+    Channel channel(&poller, std::move(monitored));
 
     bool readTriggered = false;
     bool eventTriggered = false;

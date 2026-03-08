@@ -4,6 +4,22 @@ Socket::Socket() : _sockfd(-1) {}
 
 Socket::Socket(int fd) : _sockfd(fd) {}
 
+Socket::Socket(Socket &&other) noexcept : _sockfd(other._sockfd)
+{
+    other._sockfd = -1;
+}
+
+Socket &Socket::operator=(Socket &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->Close();
+        this->_sockfd = other._sockfd;
+        other._sockfd = -1;
+    }
+    return *this;
+}
+
 Socket::~Socket() { this->Close(); }
 
 // 创建监听套接字
@@ -62,18 +78,19 @@ bool Socket::Connect(const std::string &ip, uint16_t port)
 }
 
 // 接受客户端连接
-Socket *Socket::Accept(std::string &clientIp, uint16_t &clientPort)
+bool Socket::Accept(std::string &clientIp, uint16_t &clientPort, Socket &clientSocket)
 {
     struct sockaddr_in addr;
     socklen_t len = sizeof(struct sockaddr_in);
     int clientFd = accept(this->_sockfd, (struct sockaddr *)&addr, &len);
     if (clientFd == -1)
     {
-        return nullptr;
+        return false;
     }
     clientIp = inet_ntoa(addr.sin_addr);
     clientPort = ntohs(addr.sin_port);
-    return new Socket(clientFd);
+    clientSocket = Socket(clientFd);
+    return true;
 }
 
 // 接受数据

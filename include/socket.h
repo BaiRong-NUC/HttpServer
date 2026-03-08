@@ -1,5 +1,6 @@
 #include "./public.h"
 #include "./log.h"
+#include <utility>
 #pragma once
 #define MAX_LISTEN_QUEUE 5
 class Socket
@@ -9,6 +10,10 @@ private:
 public:
     Socket();
     Socket(int fd);
+    Socket(const Socket &) = delete;
+    Socket &operator=(const Socket &) = delete;
+    Socket(Socket &&other) noexcept;
+    Socket &operator=(Socket &&other) noexcept;
     ~Socket();
     // 创建监听套接字
     bool Create();
@@ -18,8 +23,8 @@ public:
     bool Listen(int backlog = MAX_LISTEN_QUEUE);
     // 客户端向服务器发起链接
     bool Connect(const std::string &ip, uint16_t port);
-    // 接受客户端连接,返回Socket对象
-    Socket *Accept(std::string &clientIp, uint16_t &clientPort);
+    // 接受客户端连接,通过输出参数返回Socket对象
+    bool Accept(std::string &clientIp, uint16_t &clientPort, Socket &clientSocket);
     // 接受数据,MSG_DONTWAIT:非阻塞接收
     ssize_t Recv(void *buffer, size_t len, int flags = 0); // 默认阻塞
     // 发送数据

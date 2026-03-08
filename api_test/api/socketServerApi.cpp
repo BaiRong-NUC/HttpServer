@@ -2,6 +2,8 @@
 #include "../include/poller.h"
 #include "../include/channel.h"
 
+#include <utility>
+
 // 客户端关闭事件处理函数
 void ClientCloseHandler(Channel *client_channel)
 {
@@ -66,20 +68,21 @@ int main(int argc, char const *argv[])
     }
 
     Poller poller;
-    Channel server_channel(&poller, listenSock);
+    Channel server_channel(&poller, std::move(listenSock));
     // 监听套接字监听客户端连接事件
     server_channel.readAnction = [&]()
     {
         std::string clientIp = "";
         uint16_t clientPort = 0;
-        Socket *clientSocket = listenSock.Accept(clientIp, clientPort);
-        if (clientSocket == nullptr)
+        Socket clientSocket;
+        bool accepted = server_channel.GetSocket().Accept(clientIp, clientPort, clientSocket);
+        if (!accepted)
         {
             LOG(WARNING, "Accept failed");
             return;
         }
         LOG(INFO, "New Client Connection: " << clientIp << ":" << clientPort);
-        Channel *client_channel = new Channel(&poller, *clientSocket);
+        Channel *client_channel = new Channel(&poller, std::move(clientSocket));
 
         // 监听客户端套接字的可读事件(客户端发送数据给服务器)
         client_channel->readAnction = std::bind(ClientReadHandler, client_channel);

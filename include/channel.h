@@ -14,7 +14,7 @@ private:
     using Anction = std::function<void()>; // 事件回调函数类型
     Poller *_poller;                       // 关联的Poller对象
 public:
-    Channel(Poller *poller, const Socket &sock);
+    Channel(Poller *poller, Socket &&sock);
     // 可读事件回调函数
     Anction readAnction;
     // 可写事件回调函数

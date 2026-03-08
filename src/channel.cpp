@@ -1,8 +1,10 @@
 #include "../include/channel.h"
 #include "../include/poller.h"
 
+#include <utility>
+
 // 构造函数
-Channel::Channel(Poller *poller, const Socket &sock) : _poller(poller), _sock(sock), _events(0), _revents(0) {}
+Channel::Channel(Poller *poller, Socket &&sock) : _poller(poller), _sock(std::move(sock)), _events(0), _revents(0) {}
 
 // 判断当前是否监控可读
 bool Channel::ReadAble() { return this->_events & EPOLLIN; }

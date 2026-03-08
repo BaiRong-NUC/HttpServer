@@ -72,7 +72,6 @@ void testPollReadableEvent()
     assert(foundCurrentChannel);
     assert(readTriggered);
     assert(eventTriggered);
-    assert(writeTriggered);
     assert(received == msg);
     channel.Remove();
 

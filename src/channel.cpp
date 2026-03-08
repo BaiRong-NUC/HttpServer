@@ -1,7 +1,8 @@
 #include "../include/channel.h"
+#include "../include/poller.h"
 
 // 构造函数
-Channel::Channel(Socket sock) : _sock(sock), _events(0), _revents(0) {}
+Channel::Channel(Poller *poller, const Socket &sock) : _poller(poller), _sock(sock), _events(0), _revents(0) {}
 
 // 判断当前是否监控可读
 bool Channel::ReadAble() { return this->_events & EPOLLIN; }
@@ -10,28 +11,55 @@ bool Channel::ReadAble() { return this->_events & EPOLLIN; }
 bool Channel::WriteAble() { return this->_events & EPOLLOUT; }
 
 // 启动可读事件监控
-void Channel::EnableRead() { this->_events |= EPOLLIN; }
+void Channel::EnableRead()
+{
+    this->_events |= EPOLLIN;
+    this->AddToPoller();
+}
 
 // 启动可写事件监控
-void Channel::EnableWrite() { this->_events |= EPOLLOUT; }
+void Channel::EnableWrite()
+{
+    this->_events |= EPOLLOUT;
+    this->AddToPoller();
+}
 
 // 关闭可读事件监控
-void Channel::DisableRead() { this->_events &= ~EPOLLIN; }
+void Channel::DisableRead()
+{
+    this->_events &= ~EPOLLIN;
+    this->AddToPoller();
+}
 
 // 关闭可写事件监控
-void Channel::DisableWrite() { this->_events &= ~EPOLLOUT; }
+void Channel::DisableWrite()
+{
+    this->_events &= ~EPOLLOUT;
+    this->AddToPoller();
+}
 
 // 关闭所有事件监控
-void Channel::DisableAll() { this->_events = 0; }
+void Channel::DisableAll()
+{
+    this->_events = 0;
+    this->AddToPoller();
+}
 
-// 移除监控
-void Channel::Remove() { this->_events = 0; }
+// 将当前Channel添加到Poller的监控列表中,如果已经存在则更新事件
+void Channel::AddToPoller() { this->_poller->AddChannel(this); }
+
+// 从Poller的监控列表中移除当前Channel
+void Channel::Remove()
+{
+    this->DisableAll();
+    this->_poller->RemoveChannel(this);
+}
 
 // 设置就绪事件
 void Channel::SetRevents(uint32_t revents) { this->_revents = revents; }
 
-// 获取文件描述符类
-Socket Channel::GetSocket() { return this->_sock; }
+// 获取文件描述符类型
+Socket &Channel::GetSocket() { return this->_sock; }
 
 // 事件处理
 /***

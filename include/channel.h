@@ -1,6 +1,9 @@
+#pragma once
 #include "./public.h"
 #include "./socket.h"
-#pragma once
+
+class Poller;
+
 // 对文件描述符的事件监控
 class Channel
 {
@@ -9,8 +12,9 @@ private:
     uint32_t _events;                      // 关注的事件
     uint32_t _revents;                     // 当前触发的事件
     using Anction = std::function<void()>; // 事件回调函数类型
+    Poller *_poller;                       // 关联的Poller对象
 public:
-    Channel(Socket sock);
+    Channel(Poller *poller, const Socket &sock);
     // 可读事件回调函数
     Anction readAnction;
     // 可写事件回调函数
@@ -37,14 +41,16 @@ public:
     // 关闭所有事件监控
     void DisableAll();
 
-    // 移除监控
+    // 将当前Channel添加到Poller的监控列表中,如果已经存在则更新事件
+    void AddToPoller();
+    // 从Poller的监控列表中移除当前Channel
     void Remove();
 
     // 事件处理
     void HandleEvent(); // 根据当前触发的事件调用对应的回调函数
 
     // 获取文件描述符
-    Socket GetSocket();
+    Socket &GetSocket();
 
     // 设置就绪事件
     void SetRevents(uint32_t revents);

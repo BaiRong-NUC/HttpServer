@@ -1,4 +1,5 @@
 #include "../include/poller.h"
+#include "../include/channel.h"
 
 // 构造函数
 Poller::Poller()
@@ -44,7 +45,7 @@ bool Poller::_FindSocket(int fd)
 // 添加/更新Channel到监控列表
 void Poller::AddChannel(Channel *channel)
 {
-    Socket sock = channel->GetSocket();
+    const Socket &sock = channel->GetSocket();
     int fd = sock.GetSocketFd();
     if (!this->_FindSocket(sock))
     {
@@ -68,7 +69,7 @@ void Poller::AddChannel(Channel *channel)
 // 从监控列表移除Channel
 void Poller::RemoveChannel(Channel *channel)
 {
-    Socket sock = channel->GetSocket();
+    const Socket &sock = channel->GetSocket();
     int fd = sock.GetSocketFd();
     if (this->_FindSocket(sock))
     {

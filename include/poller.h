@@ -1,8 +1,11 @@
-#include "./public.h"
-#include "./channel.h"
-#include "./log.h"
 #pragma once
+#include "./socket.h"
+#include "./public.h"
+#include "./log.h"
 #define MAX_EPOLL_EVENTS 1024
+
+class Channel;
+
 // 通过epoll实现对文件描述符的IO事件监控
 class Poller
 {

@@ -69,12 +69,14 @@ Socket &Channel::GetSocket() { return this->_sock; }
  */
 void Channel::HandleEvent()
 {
+    if (this->eventAnction)
+    {
+        this->eventAnction();
+    }
+    // 注意: 某些回调(例如 close/error/read/write)内部可能会 Remove + delete Channel。
+    // 因此一旦执行这类回调,必须立刻返回,避免后续再次访问 this 导致悬空指针。
     if (this->_revents & EPOLLERR)
     {
-        // 任意事件触发回调在前面,因为错误事件可能导致连接关闭,如果先调用错误回调函数,可能会在回调函数中关闭连接,导致任意事件回调函数无法调用
-        if (this->eventAnction)
-            this->eventAnction();
-
         if (this->errorAnction)
             this->errorAnction();
         return;
@@ -82,10 +84,6 @@ void Channel::HandleEvent()
 
     if (this->_revents & EPOLLHUP)
     {
-        // 任意事件触发回调在前面
-        if (this->eventAnction)
-            this->eventAnction();
-        // 文件描述符关闭
         if (this->closeAnction)
             this->closeAnction();
         return;
@@ -93,24 +91,16 @@ void Channel::HandleEvent()
 
     if ((this->_revents & EPOLLIN) || (this->_revents & EPOLLRDHUP) || (this->_revents & EPOLLPRI))
     {
-        // 可读事件或对端关闭连接或紧急数据事件触发可读回调
         if (this->readAnction)
             this->readAnction();
-
-        // 任意事件触发回调
-        if (this->eventAnction)
-            this->eventAnction();
+        return;
     }
 
-    // 有可能导致连接错误的事件一次触发一个
     if (this->_revents & EPOLLOUT)
     {
         if (this->writeAnction)
             this->writeAnction();
-
-        // 任意事件触发回调
-        if (this->eventAnction)
-            this->eventAnction();
+        return;
     }
 }
 

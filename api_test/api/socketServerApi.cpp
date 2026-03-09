@@ -93,8 +93,11 @@ int main(int argc, char const *argv[])
         client_channel->EnableRead();
     };
     server_channel.EnableRead();
-
-    // 启动事件循环
-    loop.Start();
+    
+    while (true)
+    {
+        loop.Start();
+    }
+    
     return 0;
 }

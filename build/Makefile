@@ -195,6 +195,19 @@ socketServerApi/fast:
 .PHONY : socketServerApi/fast
 
 #=============================================================================
+# Target rules for targets named eventfd_api
+
+# Build rule for target.
+eventfd_api: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 eventfd_api
+.PHONY : eventfd_api
+
+# fast build rule for target.
+eventfd_api/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/eventfd_api.dir/build.make CMakeFiles/eventfd_api.dir/build
+.PHONY : eventfd_api/fast
+
+#=============================================================================
 # Target rules for targets named regex_api
 
 # Build rule for target.
@@ -389,6 +402,30 @@ api_test/api/socketServerApi.s: api_test/api/socketServerApi.cpp.s
 api_test/api/socketServerApi.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/api_test/api/socketServerApi.cpp.s
 .PHONY : api_test/api/socketServerApi.cpp.s
+
+api_test/eventfd_api.o: api_test/eventfd_api.cpp.o
+.PHONY : api_test/eventfd_api.o
+
+# target to build an object file
+api_test/eventfd_api.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/eventfd_api.dir/build.make CMakeFiles/eventfd_api.dir/api_test/eventfd_api.cpp.o
+.PHONY : api_test/eventfd_api.cpp.o
+
+api_test/eventfd_api.i: api_test/eventfd_api.cpp.i
+.PHONY : api_test/eventfd_api.i
+
+# target to preprocess a source file
+api_test/eventfd_api.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/eventfd_api.dir/build.make CMakeFiles/eventfd_api.dir/api_test/eventfd_api.cpp.i
+.PHONY : api_test/eventfd_api.cpp.i
+
+api_test/eventfd_api.s: api_test/eventfd_api.cpp.s
+.PHONY : api_test/eventfd_api.s
+
+# target to generate assembly for a file
+api_test/eventfd_api.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/eventfd_api.dir/build.make CMakeFiles/eventfd_api.dir/api_test/eventfd_api.cpp.s
+.PHONY : api_test/eventfd_api.cpp.s
 
 api_test/regex/regex_api.o: api_test/regex/regex_api.cpp.o
 .PHONY : api_test/regex/regex_api.o
@@ -676,6 +713,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... any_type"
 	@echo "... bufferApi"
+	@echo "... eventfd_api"
 	@echo "... logApi"
 	@echo "... poller_channelApi"
 	@echo "... regex_api"
@@ -702,6 +740,9 @@ help:
 	@echo "... api_test/api/socketServerApi.o"
 	@echo "... api_test/api/socketServerApi.i"
 	@echo "... api_test/api/socketServerApi.s"
+	@echo "... api_test/eventfd_api.o"
+	@echo "... api_test/eventfd_api.i"
+	@echo "... api_test/eventfd_api.s"
 	@echo "... api_test/regex/regex_api.o"
 	@echo "... api_test/regex/regex_api.i"
 	@echo "... api_test/regex/regex_api.s"

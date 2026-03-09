@@ -595,6 +595,42 @@ src/channel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/channel.cpp.s
 .PHONY : src/channel.cpp.s
 
+src/event_loop.o: src/event_loop.cpp.o
+.PHONY : src/event_loop.o
+
+# target to build an object file
+src/event_loop.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/event_loop.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/event_loop.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/poller_channelApi.dir/build.make CMakeFiles/poller_channelApi.dir/src/event_loop.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/event_loop.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/event_loop.cpp.o
+.PHONY : src/event_loop.cpp.o
+
+src/event_loop.i: src/event_loop.cpp.i
+.PHONY : src/event_loop.i
+
+# target to preprocess a source file
+src/event_loop.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/event_loop.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/event_loop.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/poller_channelApi.dir/build.make CMakeFiles/poller_channelApi.dir/src/event_loop.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/event_loop.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/event_loop.cpp.i
+.PHONY : src/event_loop.cpp.i
+
+src/event_loop.s: src/event_loop.cpp.s
+.PHONY : src/event_loop.s
+
+# target to generate assembly for a file
+src/event_loop.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bufferApi.dir/build.make CMakeFiles/bufferApi.dir/src/event_loop.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/logApi.dir/build.make CMakeFiles/logApi.dir/src/event_loop.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/poller_channelApi.dir/build.make CMakeFiles/poller_channelApi.dir/src/event_loop.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketClientApi.dir/build.make CMakeFiles/socketClientApi.dir/src/event_loop.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/socketServerApi.dir/build.make CMakeFiles/socketServerApi.dir/src/event_loop.cpp.s
+.PHONY : src/event_loop.cpp.s
+
 src/log.o: src/log.cpp.o
 .PHONY : src/log.o
 
@@ -761,6 +797,9 @@ help:
 	@echo "... src/channel.o"
 	@echo "... src/channel.i"
 	@echo "... src/channel.s"
+	@echo "... src/event_loop.o"
+	@echo "... src/event_loop.i"
+	@echo "... src/event_loop.s"
 	@echo "... src/log.o"
 	@echo "... src/log.i"
 	@echo "... src/log.s"

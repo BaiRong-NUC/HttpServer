@@ -69,37 +69,37 @@ Socket &Channel::GetSocket() { return this->_sock; }
  */
 void Channel::HandleEvent()
 {
-    if (this->eventAnction)
+    if (this->eventAction)
     {
-        this->eventAnction();
+        this->eventAction();
     }
     // 注意: 某些回调(例如 close/error/read/write)内部可能会 Remove + delete Channel。
     // 因此一旦执行这类回调,必须立刻返回,避免后续再次访问 this 导致悬空指针。
     if (this->_revents & EPOLLERR)
     {
-        if (this->errorAnction)
-            this->errorAnction();
+        if (this->errorAction)
+            this->errorAction();
         return;
     }
 
     if (this->_revents & EPOLLHUP)
     {
-        if (this->closeAnction)
-            this->closeAnction();
+        if (this->closeAction)
+            this->closeAction();
         return;
     }
 
     if ((this->_revents & EPOLLIN) || (this->_revents & EPOLLRDHUP) || (this->_revents & EPOLLPRI))
     {
-        if (this->readAnction)
-            this->readAnction();
+        if (this->readAction)
+            this->readAction();
         return;
     }
 
     if (this->_revents & EPOLLOUT)
     {
-        if (this->writeAnction)
-            this->writeAnction();
+        if (this->writeAction)
+            this->writeAction();
         return;
     }
 }

@@ -23,7 +23,7 @@ void testPollReadableEvent()
     bool writeTriggered = false;
     string received;
 
-    channel.readAnction = [&]()
+    channel.readAction = [&]()
     {
         // 从对端接受数据
         char buf[128] = {0};
@@ -38,7 +38,7 @@ void testPollReadableEvent()
         }
     };
 
-    channel.writeAnction = [&]()
+    channel.writeAction = [&]()
     {
         // 发送响应给对端
         const string response = "received: " + received;
@@ -50,7 +50,7 @@ void testPollReadableEvent()
         channel.DisableWrite();
     };
 
-    channel.eventAnction = [&]()
+    channel.eventAction = [&]()
     { eventTriggered = true; };
 
     channel.EnableRead();

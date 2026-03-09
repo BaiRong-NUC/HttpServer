@@ -70,7 +70,7 @@ int main(int argc, char const *argv[])
     Poller poller;
     Channel server_channel(&poller, std::move(listenSock));
     // 监听套接字监听客户端连接事件
-    server_channel.readAnction = [&]()
+    server_channel.readAction = [&]()
     {
         std::string clientIp = "";
         uint16_t clientPort = 0;
@@ -85,11 +85,11 @@ int main(int argc, char const *argv[])
         Channel *client_channel = new Channel(&poller, std::move(clientSocket));
 
         // 监听客户端套接字的可读事件(客户端发送数据给服务器)
-        client_channel->readAnction = std::bind(ClientReadHandler, client_channel);
-        client_channel->writeAnction = std::bind(ClientWriteHandler, client_channel);
-        client_channel->closeAnction = std::bind(ClientCloseHandler, client_channel);
-        client_channel->eventAnction = std::bind(ClientEventHandler, client_channel);
-        client_channel->errorAnction = std::bind(ClientCloseHandler, client_channel); // 错误事件也当作连接关闭处理
+        client_channel->readAction = std::bind(ClientReadHandler, client_channel);
+        client_channel->writeAction = std::bind(ClientWriteHandler, client_channel);
+        client_channel->closeAction = std::bind(ClientCloseHandler, client_channel);
+        client_channel->eventAction = std::bind(ClientEventHandler, client_channel);
+        client_channel->errorAction = std::bind(ClientCloseHandler, client_channel); // 错误事件也当作连接关闭处理
         client_channel->EnableRead();
     };
     server_channel.EnableRead();

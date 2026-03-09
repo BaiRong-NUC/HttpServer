@@ -11,20 +11,20 @@ private:
     Socket _sock;                          // 监控的文件描述符
     uint32_t _events;                      // 关注的事件
     uint32_t _revents;                     // 当前触发的事件
-    using Anction = std::function<void()>; // 事件回调函数类型
+    using Action = std::function<void()>; // 事件回调函数类型
     Poller *_poller;                       // 关联的Poller对象
 public:
     Channel(Poller *poller, Socket &&sock);
     // 可读事件回调函数
-    Anction readAnction;
+    Action readAction;
     // 可写事件回调函数
-    Anction writeAnction;
+    Action writeAction;
     // 错误事件回调函数
-    Anction errorAnction;
+    Action errorAction;
     // 连接断开事件回调函数
-    Anction closeAnction;
+    Action closeAction;
     // 任意事件触发回调函数
-    Anction eventAnction;
+    Action eventAction;
     // 当前是否监控可读
     bool ReadAble();
     // 当前是否监控可写

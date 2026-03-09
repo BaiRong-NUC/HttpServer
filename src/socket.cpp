@@ -114,6 +114,16 @@ ssize_t Socket::Recv(void *buffer, size_t len, int flags)
 ssize_t Socket::Send(const void *buffer, size_t len, int flags)
 {
     int ret = send(this->_sockfd, buffer, len, flags);
+    if (ret <= 0)
+    {
+        // EANGAIN: 无数据可读
+        // EINTR: send被信号中断
+        if (errno == EAGAIN || errno == EINTR)
+        {
+            return 0;
+        }
+        return -1; // 其他错误,返回-1表示连接关闭或者发生错误
+    }
     return ret; // 返回实际发送的字节数
 }
 

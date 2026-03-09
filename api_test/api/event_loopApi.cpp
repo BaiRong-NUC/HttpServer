@@ -13,6 +13,8 @@ void TestAddTask()
                  { counter++; });
     loop.RunTask([&]()
                  { counter++; });
+    loop.Start();
+    // LOG(INFO, "counter:" << counter);
     assert(counter == 2);
     std::cout << "TestAddTask passed." << std::endl;
 }
@@ -52,6 +54,7 @@ void TestStart()
 
 int main()
 {
+    SetLogLevel(INFO);
     TestAddTask();
     TestInLoop();
     TestChannel();

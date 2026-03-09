@@ -30,7 +30,8 @@ EventLoop::EventLoop() : _poller(),
     this->_efd_channel.readAction = [this]()
     {
         uint64_t one;
-        ssize_t size = this->_efd_channel.GetSocket().Recv(&one, sizeof(one)); // 读取事件fd,清除可读事件
+        // ssize_t size = this->_efd_channel.GetSocket().Recv(&one, sizeof(one)); // 读取事件fd,清除可读事件
+        ssize_t size = read(this->_efd_channel.GetSocket().GetSocketFd(), &one, sizeof(one)); // 直接使用read读取事件fd,清除可读事件
         if (size < 0)
         {
             LOG(ERROR, "Failed to read from eventfd");
@@ -69,7 +70,8 @@ void EventLoop::AddTask(const Action &task)
     }
     // 唤醒可能因为没有事件就绪而导致的epoll阻塞,否则Start->RunAllTasks可能无法及时执行
     uint64_t one = 1;
-    ssize_t size = this->_efd_channel.GetSocket().Send(&one, sizeof(one)); // 写入事件fd,触发可读事件
+    // ssize_t size = this->_efd_channel.GetSocket().Send(&one, sizeof(one)); // 写入事件fd,触发可读事件
+    ssize_t size = write(this->_efd_channel.GetSocket().GetSocketFd(), &one, sizeof(one)); // 直接使用write写入事件fd,触发可读事件
     if (size < 0)
     {
         LOG(ERROR, "Failed to write to eventfd");

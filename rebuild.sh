@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+BUILD_DIR="build"
+
+# 清理构建目录
+if [ -d "$BUILD_DIR" ]; then
+	rm -rf "$BUILD_DIR"
+fi
+
+# 创建构建目录
+mkdir "$BUILD_DIR"
+cd "$BUILD_DIR"
+
+# 运行 cmake 和 make
+cmake ..
+make -j$(nproc)
+
+cd ..
+echo "重新构建完成！"

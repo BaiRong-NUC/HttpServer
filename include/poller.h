@@ -19,6 +19,10 @@ private:
 public:
     Poller();
     ~Poller();
+    Poller(const Poller &) = delete;
+    Poller &operator=(const Poller &) = delete;
+    Poller(Poller &&) = delete;
+    Poller &operator=(Poller &&) = delete;
     // 添加/更新Channel到监控列表
     void AddChannel(Channel *channel);
     // 从监控列表移除Channel

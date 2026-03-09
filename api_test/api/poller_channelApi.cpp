@@ -19,7 +19,7 @@ void testPollReadableEvent()
     // 监控monitored文件描述符事件
     Channel channel(&loop, std::move(monitored));
 
-    Poller poller = loop.GetPoller();
+    Poller &poller = loop.GetPoller();
 
     bool readTriggered = false;
     bool eventTriggered = false;

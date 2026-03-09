@@ -1,5 +1,6 @@
 #include "../../include/poller.h"
 #include "../../include/channel.h"
+#include "../../include/event_loop.h"
 
 #include <utility>
 
@@ -11,12 +12,14 @@ void testPollReadableEvent()
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
     assert(ret == 0);
 
-    Poller poller;
+    EventLoop loop;
     Socket monitored(fds[0]);
     Socket peer(fds[1]);
 
     // 监控monitored文件描述符事件
-    Channel channel(&poller, std::move(monitored));
+    Channel channel(&loop, std::move(monitored));
+
+    Poller poller = loop.GetPoller();
 
     bool readTriggered = false;
     bool eventTriggered = false;

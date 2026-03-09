@@ -30,4 +30,6 @@ public:
     void RemoveChannel(Channel *channel); // 从Poller中移除Channel的事件监控
 
     void Start(); // 事件监控->就绪事件处理->执行任务
+
+    Poller &GetPoller() { return this->_poller; } // 为了兼容之前的测试
 };

@@ -1,8 +1,8 @@
-#include "../include/channel.h"
-#include "../include/poller.h"
-
+#include "../include/event_loop.h"
 // 构造函数
-Channel::Channel(Poller *poller, Socket &&sock) : _poller(poller), _sock(std::move(sock)), _events(0), _revents(0) {}
+Channel::Channel(EventLoop *event_loop, Socket &&sock) : _event_loop(event_loop), _sock(std::move(sock)), _events(0), _revents(0) {}
+
+// Channel::Channel(Poller *poller, Socket &&sock) : _poller(poller), _sock(std::move(sock)), _events(0), _revents(0) {}
 
 // 判断当前是否监控可读
 bool Channel::ReadAble() { return this->_events & EPOLLIN; }
@@ -45,14 +45,14 @@ void Channel::DisableAll()
     this->AddToPoller();
 }
 
-// 将当前Channel添加到Poller的监控列表中,如果已经存在则更新事件
-void Channel::AddToPoller() { this->_poller->AddChannel(this); }
+// 将当前Channel添加到EventLoop的监控列表中,如果已经存在则更新事件
+void Channel::AddToPoller() { this->_event_loop->AddChannel(this); }
 
-// 从Poller的监控列表中移除当前Channel
+// 从EventLoop的监控列表中移除当前Channel
 void Channel::Remove()
 {
     this->DisableAll();
-    this->_poller->RemoveChannel(this);
+    this->_event_loop->RemoveChannel(this);
 }
 
 // 设置就绪事件

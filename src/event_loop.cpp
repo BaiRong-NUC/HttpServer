@@ -17,7 +17,7 @@ void EventLoop::_RunAllTasks()
 }
 
 EventLoop::EventLoop() : _poller(),
-                         _efd_channel(&_poller, std::move(Socket(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)))),
+                         _efd_channel(this, std::move(Socket(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)))),
                          _thread_id(std::this_thread::get_id())
 {
     if (this->_efd_channel.GetSocket().GetSocketFd() < 0)
@@ -89,7 +89,7 @@ void EventLoop::RunTask(const Action &task)
     this->AddTask(task); // 将任务添加到队列中
 }
 
-// 添加Channel在Poller中的事件监控
+// 在Poller中移除channel事件监控
 void EventLoop::AddChannel(Channel *channel) { this->_poller.AddChannel(channel); }
 
 // 从Poller中移除Channel的事件监控

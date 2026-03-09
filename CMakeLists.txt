@@ -44,5 +44,7 @@ if(BUILD_API_TEST)
             # 设置其它可执行文件的输出目录
             set_target_properties(${FILE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${API_EXECUTABLE_OUTPUT_PATH})
 		endif()
+		# 链接 pthread 库
+		target_link_libraries(${FILE_NAME} pthread)
 	endforeach()
 endif()

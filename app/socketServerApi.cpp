@@ -1,7 +1,7 @@
-#include "../include/socket.h"
-#include "../include/poller.h"
-#include "../include/channel.h"
-
+#include "../../include/socket.h"
+#include "../../include/poller.h"
+#include "../../include/channel.h"
+#include "../../include/event_loop.h"
 #include <utility>
 
 // 客户端关闭事件处理函数
@@ -67,8 +67,8 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    Poller poller;
-    Channel server_channel(&poller, std::move(listenSock));
+    EventLoop loop;
+    Channel server_channel(&loop, std::move(listenSock));
     // 监听套接字监听客户端连接事件
     server_channel.readAction = [&]()
     {
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
             return;
         }
         LOG(INFO, "New Client Connection: " << clientIp << ":" << clientPort);
-        Channel *client_channel = new Channel(&poller, std::move(clientSocket));
+        Channel *client_channel = new Channel(&loop, std::move(clientSocket));
 
         // 监听客户端套接字的可读事件(客户端发送数据给服务器)
         client_channel->readAction = std::bind(ClientReadHandler, client_channel);
@@ -95,13 +95,6 @@ int main(int argc, char const *argv[])
     server_channel.EnableRead();
 
     // 启动事件循环
-    while (true)
-    {
-        std::vector<Channel *> activeChannels = poller.Poll(-1);
-        for (Channel *channel : activeChannels)
-        {
-            channel->HandleEvent();
-        }
-    }
+    loop.Start();
     return 0;
 }

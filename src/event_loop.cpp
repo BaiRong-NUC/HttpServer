@@ -1,4 +1,5 @@
 #include "../include/event_loop.h"
+#include "../include/timer.h"
 
 // 执行任务队列中的所有任务
 void EventLoop::_RunAllTasks()
@@ -16,6 +17,11 @@ void EventLoop::_RunAllTasks()
     }
 }
 
+EventLoop::~EventLoop()
+{
+    delete this->_timer;
+}
+
 EventLoop::EventLoop() : _poller(),
                          _efd_channel(this, std::move(Socket(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)))),
                          _thread_id(std::this_thread::get_id())
@@ -25,6 +31,8 @@ EventLoop::EventLoop() : _poller(),
         LOG(ERROR, "Failed to create eventfd");
         exit(EXIT_FAILURE);
     }
+
+    this->_timer = new Timer(this); // 创建定时器对象,用于管理定时器任务
 
     // 当事件fd可读时说明有任务需要处理
     this->_efd_channel.readAction = [this]()
@@ -96,3 +104,15 @@ void EventLoop::AddChannel(Channel *channel) { this->_poller.AddChannel(channel)
 
 // 从Poller中移除Channel的事件监控
 void EventLoop::RemoveChannel(Channel *channel) { this->_poller.RemoveChannel(channel); }
+
+// 添加定时器任务
+void EventLoop::AddTimerTask(uint64_t id, uint64_t expireTime, Action action) { this->_timer->Add(id, expireTime, action); }
+
+// 刷新定时器任务的到期时间
+void EventLoop::RefreshTimerTask(uint64_t id, uint64_t newExpireTime) { this->_timer->Refresh(id, newExpireTime); }
+
+// 取消定时器任务
+void EventLoop::CancelTimerTask(uint64_t id) { this->_timer->Cancel(id); }
+
+// 查找定时器任务,用于测试
+bool EventLoop::FindTimerTask(uint64_t id) { return this->_timer->Find(id); }

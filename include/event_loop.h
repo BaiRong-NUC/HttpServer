@@ -4,6 +4,9 @@
 #include "./channel.h"
 #include "./log.h"
 #include "./socket.h"
+
+class Timer;
+
 class EventLoop
 {
 private:
@@ -15,9 +18,13 @@ private:
     std::vector<Action> _tasks_queue;     // 线程安全的队列
     std::mutex _queue_mutex;              // 保护任务队列的互斥锁
 
+    Timer *_timer; // 定时器对象,用于管理定时任务
+
     void _RunAllTasks(); // 执行任务队列中的所有任务
 public:
     EventLoop();
+
+    ~EventLoop();
 
     void AddTask(const Action &task); // 将任务添加到队列中
 
@@ -32,4 +39,12 @@ public:
     void Start(); // 事件监控->就绪事件处理->执行任务
 
     Poller &GetPoller() { return this->_poller; } // 为了兼容之前的测试
+
+    void AddTimerTask(uint64_t id, uint64_t expireTime, Action action); // 添加定时器任务
+
+    void RefreshTimerTask(uint64_t id, uint64_t newExpireTime = 0); // 刷新定时器任务的到期时间
+
+    void CancelTimerTask(uint64_t id); // 取消定时器任务
+
+    bool FindTimerTask(uint64_t id); // 查找定时器任务,用于测试
 };

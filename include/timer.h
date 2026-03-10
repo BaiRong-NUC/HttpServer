@@ -1,7 +1,10 @@
 // 基于时间轮的定时器实现
 #pragma once
 #include "./public.h"
-#include "./event_loop.h"
+#include "./channel.h"
+
+class EventLoop;
+
 class TimerTask
 {
 private:
@@ -48,4 +51,6 @@ public:
     void Refresh(uint64_t id, uint64_t newExpireTime = 0);
     void Tick();
     void Cancel(uint64_t id);
+
+    bool Find(uint64_t id); // 查找定时器,用于测试
 };

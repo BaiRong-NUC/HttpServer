@@ -1,4 +1,5 @@
 #include "../include/timer.h"
+#include "../include/event_loop.h"
 
 // TimerTask实现
 TimerTask::TimerTask(uint64_t id, uint64_t expireTime, Action action, Action release)
@@ -128,4 +129,26 @@ void Timer::Cancel(uint64_t id)
             }
         }
     });
+}
+
+
+// 只能在EventLoop线程中调用,查找定时器,用于测试
+bool Timer::Find(uint64_t id)
+{
+    if(this->_eventLoop->InLoop() == false)
+    {
+        LOG(WARNING, "Find TimerTask must be called in EventLoop thread");
+        return false;
+    }
+
+    auto it = _taskMap.find(id);
+    if (it != _taskMap.end())
+    {
+        PtrTimerTask timerTask = it->second.lock();
+        if (timerTask)
+        {
+            return true;
+        }
+    }
+    return false;
 }

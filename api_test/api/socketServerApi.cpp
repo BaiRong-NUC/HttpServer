@@ -5,15 +5,19 @@
 #include <utility>
 
 // 客户端关闭事件处理函数
-void ClientCloseHandler(Channel *client_channel)
+void ClientCloseHandler(EventLoop *loop, Channel *client_channel)
 {
-    LOG(INFO, "Close Client Connection: " << client_channel->GetSocket().GetSocketFd());
+    int fd = client_channel->GetSocket().GetSocketFd();
+    // 取消连接时需要取消定时器
+    // 否则连接先被事件回调关闭并 delete，但定时器还持有同一个裸指针，超时后再次回调导致二次释放
+    loop->CancelTimerTask(fd);
+    LOG(INFO, "Close Client Connection: " << fd);
     client_channel->Remove();
     delete client_channel;
 }
 
 // 客户端可读事件处理函数
-void ClientReadHandler(Channel *client_channel)
+void ClientReadHandler(EventLoop *loop, Channel *client_channel)
 {
     Socket &clientSock = client_channel->GetSocket();
     char buffer[1024] = {0};
@@ -22,7 +26,7 @@ void ClientReadHandler(Channel *client_channel)
     if (recvLen < 0)
     {
         LOG(WARNING, "Recv failed");
-        ClientCloseHandler(client_channel);
+        ClientCloseHandler(loop, client_channel);
         return;
     }
     // 打印
@@ -33,7 +37,7 @@ void ClientReadHandler(Channel *client_channel)
 }
 
 // 客户端可写事件处理函数
-void ClientWriteHandler(Channel *client_channel)
+void ClientWriteHandler(EventLoop *loop, Channel *client_channel)
 {
     Socket &clientSock = client_channel->GetSocket();
     const char *response = "Server Response: Hello Client!";
@@ -41,7 +45,7 @@ void ClientWriteHandler(Channel *client_channel)
     if (sendLen < 0)
     {
         LOG(WARNING, "Send failed");
-        ClientCloseHandler(client_channel);
+        ClientCloseHandler(loop, client_channel);
         return;
     }
 
@@ -50,9 +54,11 @@ void ClientWriteHandler(Channel *client_channel)
 }
 
 // 客户端处理事件函数
-void ClientEventHandler(Channel *client_channel)
+void ClientEventHandler(Channel *client_channel, EventLoop *loop)
 {
-    LOG(INFO, "Client Event Triggered");
+    // 任意事件刷新定时器,说明客户端活跃,重置定时器到期时间
+    loop->RefreshTimerTask(client_channel->GetSocket().GetSocketFd(), 10);
+    LOG(INFO, "Client Event Timer Refresh: " << client_channel->GetSocket().GetSocketFd());
 }
 
 int main(int argc, char const *argv[])
@@ -84,20 +90,26 @@ int main(int argc, char const *argv[])
         LOG(INFO, "New Client Connection: " << clientIp << ":" << clientPort);
         Channel *client_channel = new Channel(&loop, std::move(clientSocket));
 
+        // 非活跃连接定时器,如果客户端在10秒内没有发送数据则关闭连接,必须在客户端启动可读事件监控之前添加定时器
+        loop.AddTimerTask(client_channel->GetSocket().GetSocketFd(), 10, [client_channel, &loop]()
+                          {
+            LOG(INFO, "Client Connection Timeout: " << client_channel->GetSocket().GetSocketFd());
+            ClientCloseHandler(&loop, client_channel); });
+
         // 监听客户端套接字的可读事件(客户端发送数据给服务器)
-        client_channel->readAction = std::bind(ClientReadHandler, client_channel);
-        client_channel->writeAction = std::bind(ClientWriteHandler, client_channel);
-        client_channel->closeAction = std::bind(ClientCloseHandler, client_channel);
-        client_channel->eventAction = std::bind(ClientEventHandler, client_channel);
-        client_channel->errorAction = std::bind(ClientCloseHandler, client_channel); // 错误事件也当作连接关闭处理
+        client_channel->readAction = std::bind(ClientReadHandler, &loop, client_channel);
+        client_channel->writeAction = std::bind(ClientWriteHandler, &loop, client_channel);
+        client_channel->closeAction = std::bind(ClientCloseHandler, &loop, client_channel);
+        client_channel->eventAction = std::bind(ClientEventHandler, client_channel, &loop);
+        client_channel->errorAction = std::bind(ClientCloseHandler, &loop, client_channel); // 错误事件也当作连接关闭处理
         client_channel->EnableRead();
     };
     server_channel.EnableRead();
-    
+
     while (true)
     {
         loop.Start();
     }
-    
+
     return 0;
 }

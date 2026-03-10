@@ -127,6 +127,9 @@ void Timer::Cancel(uint64_t id)
             {
                 timerTask->Cancel();
             }
+        }else
+        {
+            LOG(WARNING, id << " not found in TimerTask map");
         }
     });
 }

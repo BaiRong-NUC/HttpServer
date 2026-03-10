@@ -29,7 +29,12 @@ class Timer
 private:
     using Action = std::function<void()>; // 定时器回调函数类型,无参无返回值
     using PtrTimerTask = std::shared_ptr<TimerTask>;
-    using WheelNode = std::pair<uint64_t, uint64_t>; // {timer_id, generation}
+    struct WheelNode
+    {
+        uint64_t id;
+        uint64_t version;
+        uint64_t rounds; // 还需要转过多少整圈才可到期
+    };
     std::vector<std::vector<WheelNode>> _timeWheel;  // 时间轮,每个槽位存储定时器ID和版本
     size_t _tick;                                     // 到期指针,指向那块释放那块
     size_t _wheelSize;                                // 时间轮大小(最大延时时间)

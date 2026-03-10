@@ -68,10 +68,12 @@ void Timer::Add(uint64_t id, uint64_t expireTime, Action action)
 {
     this->_eventLoop->RunTask([this, id, expireTime, action]()
     {
+        uint64_t expire = (expireTime == 0) ? 1 : expireTime;
         uint64_t version = ++_taskVersionMap[id];
-        PtrTimerTask timerTask = std::make_shared<TimerTask>(id, expireTime, action, [this, id, version](){ this->_Remove(id, version); });
+        uint64_t rounds = (expire - 1) / this->_wheelSize;
+        PtrTimerTask timerTask = std::make_shared<TimerTask>(id, expire, action, [this, id, version](){ this->_Remove(id, version); });
         _taskMap[id] = timerTask;
-        this->_timeWheel[(this->_tick + expireTime) % this->_wheelSize].emplace_back(id, version);
+        this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
     });
 }
 
@@ -88,8 +90,9 @@ void Timer::Refresh(uint64_t id, uint64_t newExpireTime)
             {
                 expire = timerTask->GetExpireTime();
             }
+            uint64_t rounds = (expire - 1) / this->_wheelSize;
             uint64_t version = ++_taskVersionMap[id];
-            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].emplace_back(id, version);
+            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
         }
     });
 }
@@ -117,14 +120,21 @@ void Timer::Tick()
 
         for (const auto &node : currentSlot)
         {
-            uint64_t id = node.first;
-            uint64_t version = node.second;
+            uint64_t id = node.id;
+            uint64_t version = node.version;
 
             auto versionIt = _taskVersionMap.find(id);
             if (versionIt != _taskVersionMap.end() && versionIt->second == version)
             {
-                _taskMap.erase(id);
-                _taskVersionMap.erase(versionIt);
+                if (node.rounds > 0)
+                {
+                    this->_timeWheel[this->_tick].push_back(WheelNode{id, version, node.rounds - 1});
+                }
+                else
+                {
+                    _taskMap.erase(id);
+                    _taskVersionMap.erase(versionIt);
+                }
             }
         }
     });

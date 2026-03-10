@@ -29,11 +29,12 @@ class Timer
 private:
     using Action = std::function<void()>; // 定时器回调函数类型,无参无返回值
     using PtrTimerTask = std::shared_ptr<TimerTask>;
-    using WeakTimerTask = std::weak_ptr<TimerTask>;       // 不会增加引用计数的定时器对象指针,用于更新定时器到期时间
-    std::vector<std::vector<PtrTimerTask>> _timeWheel;    // 时间轮,每个槽位存储一个定时器列表
-    size_t _tick;                                         // 到期指针,指向那块释放那块
-    size_t _wheelSize;                                    // 时间轮大小(最大延时时间)
-    std::unordered_map<uint64_t, WeakTimerTask> _taskMap; // 定时器ID到定时器对象的映射
+    using WheelNode = std::pair<uint64_t, uint64_t>; // {timer_id, generation}
+    std::vector<std::vector<WheelNode>> _timeWheel;  // 时间轮,每个槽位存储定时器ID和版本
+    size_t _tick;                                     // 到期指针,指向那块释放那块
+    size_t _wheelSize;                                // 时间轮大小(最大延时时间)
+    std::unordered_map<uint64_t, PtrTimerTask> _taskMap;    // 定时器ID到定时器对象的映射(强引用)
+    std::unordered_map<uint64_t, uint64_t> _taskVersionMap; // 定时器ID到最新版本号的映射
 
     // int _timerfd; // 定时器文件描述符,用于触发定时器事件
     Channel _timerChannel; // 监控定时器文件描述符的Channel对象,用于在定时器事件触发时执行回调函数
@@ -42,7 +43,7 @@ private:
     EventLoop *_eventLoop; // 关联的EventLoop对象,用于在定时器事件触发时执行回调函数
 
     // 删除定时器
-    void _Remove(uint64_t id);
+    void _Remove(uint64_t id, uint64_t version);
 
 public:
     Timer(EventLoop *eventLoop, size_t wheelSize = 60);

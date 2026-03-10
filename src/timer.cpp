@@ -68,9 +68,10 @@ void Timer::Add(uint64_t id, uint64_t expireTime, Action action)
 {
     this->_eventLoop->RunTask([this, id, expireTime, action]()
     {
-        PtrTimerTask timerTask = std::make_shared<TimerTask>(id, expireTime, action, [this, id](){ this->_Remove(id); });
-        _taskMap[id] = WeakTimerTask(timerTask);
-        this->_timeWheel[(this->_tick + expireTime) % this->_wheelSize].push_back(timerTask); 
+        uint64_t version = ++_taskVersionMap[id];
+        PtrTimerTask timerTask = std::make_shared<TimerTask>(id, expireTime, action, [this, id, version](){ this->_Remove(id, version); });
+        _taskMap[id] = timerTask;
+        this->_timeWheel[(this->_tick + expireTime) % this->_wheelSize].emplace_back(id, version);
     });
 }
 
@@ -81,27 +82,27 @@ void Timer::Refresh(uint64_t id, uint64_t newExpireTime)
         auto it = _taskMap.find(id);
         if (it != _taskMap.end())
         {
-            PtrTimerTask timerTask = it->second.lock();
-            if (!timerTask)
-                return;
+            PtrTimerTask timerTask = it->second;
             uint64_t expire = newExpireTime;
             if (expire == 0)
             {
                 expire = timerTask->GetExpireTime();
             }
-            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(timerTask);
+            uint64_t version = ++_taskVersionMap[id];
+            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].emplace_back(id, version);
         }
     });
 }
 
-void Timer::_Remove(uint64_t id)
+void Timer::_Remove(uint64_t id, uint64_t version)
 {
-    this->_eventLoop->RunTask([this, id]()
+    this->_eventLoop->RunTask([this, id, version]()
     {
-        auto it = _taskMap.find(id);
-        if (it != _taskMap.end())
+        auto versionIt = _taskVersionMap.find(id);
+        if (versionIt != _taskVersionMap.end() && versionIt->second == version)
         {
-            _taskMap.erase(it);
+            _taskMap.erase(id);
+            _taskVersionMap.erase(versionIt);
         }
     });
 }
@@ -111,7 +112,21 @@ void Timer::Tick()
     this->_eventLoop->RunTask([this]()
     {
         this->_tick = (this->_tick + 1) % this->_wheelSize;
+        auto currentSlot = std::move(this->_timeWheel[this->_tick]);
         this->_timeWheel[this->_tick].clear();
+
+        for (const auto &node : currentSlot)
+        {
+            uint64_t id = node.first;
+            uint64_t version = node.second;
+
+            auto versionIt = _taskVersionMap.find(id);
+            if (versionIt != _taskVersionMap.end() && versionIt->second == version)
+            {
+                _taskMap.erase(id);
+                _taskVersionMap.erase(versionIt);
+            }
+        }
     });
 }
 
@@ -122,11 +137,7 @@ void Timer::Cancel(uint64_t id)
         auto it = _taskMap.find(id);
         if (it != _taskMap.end())
         {
-            PtrTimerTask timerTask = it->second.lock();
-            if (timerTask)
-            {
-                timerTask->Cancel();
-            }
+            it->second->Cancel();
         }else
         {
             LOG(WARNING, id << " not found in TimerTask map");
@@ -147,11 +158,7 @@ bool Timer::Find(uint64_t id)
     auto it = _taskMap.find(id);
     if (it != _taskMap.end())
     {
-        PtrTimerTask timerTask = it->second.lock();
-        if (timerTask)
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }

@@ -16,7 +16,7 @@ enum class ConnectState
     DISCONNECTING // 待关闭状态
 };
 // 所有对连接的操作必须在同一个线程
-class Connection
+class Connection : public std::enable_shared_from_this<Connection>
 {
 private:
     uint64_t _id;        // 连接ID,可以是文件描述符或者其他唯一标识符
@@ -38,6 +38,7 @@ private:
 
     // channel模块的回调函数
     void _HandleRead();  // 可读事件回调函数,从socket读取数据到输入缓冲区,并调用业务处理函数
+    void _HandleWrite(); // 可写事件回调函数,将输出缓冲区的数据发送到socket
 public:
     // 用户提供
     Action _connected_callback;      // 连接建立回调函数

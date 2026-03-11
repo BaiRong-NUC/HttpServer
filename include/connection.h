@@ -4,15 +4,18 @@
 #include "./channel.h"
 #include "./buffer.h"
 #include "./any.h"
+#include "./event_loop.h"
 // 对连接管理,封装关于连接的所有操作
 
 // 连接状态枚举
 enum class ConnectState
 {
-    CONNECTING, // 已连接
-    CLOSE       // 已关闭
+    DISCONNECTED, // 连接已关闭
+    CONNECTING,   // 连接刚建立,待处理
+    CONNECTED,    // 连接已建立,通信状态
+    DISCONNECTING // 待关闭状态
 };
-
+// 所有对连接的操作必须在同一个线程
 class Connection
 {
 private:
@@ -23,4 +26,43 @@ private:
     Buffer _out_buffer;  // 输出缓冲区,保存要发送到socket的数据
     Any _context;        // 连接的上下文,可以保存连接相关的任意数据,如HTTP请求信息等
     ConnectState _state; // 连接状态,如已连接;正在关闭;已关闭等
+    using PtrConnection = std::shared_ptr<Connection>;
+    using Action = std::function<void(const PtrConnection &)>; // 连接事件回调函数类型,参数为当前连接的智能指针
+    bool _inactive_release;                                    // 是否启用连接不活跃时自动释放连接的机制
+    // uint64_t _timer_id = this->_id;                         // 连接的定时器ID,用于管理连接的定时器,如心跳检测等
+    using MessageAction = std::function<void(const PtrConnection &, Buffer *)>; // 业务处理函数
+    EventLoop *_event_loop;                                                     // 关联的EventLoop对象
+    void _Release();                                                            // 释放连接
+
+    Action _server_closed_callback; // 服务器主动关闭连接的回调函数
+
+    // channel模块的回调函数
+    void _HandleRead();  // 可读事件回调函数,从socket读取数据到输入缓冲区,并调用业务处理函数
+public:
+    // 用户提供
+    Action _connected_callback;      // 连接建立回调函数
+    Action _closed_callback;         // 连接关闭回调函数
+    Action _event_callback;          // 连接事件回调函数,如刷新连接活跃度
+    MessageAction _message_callback; // 业务处理回调
+
+    Connection(EventLoop *event_loop, uint64_t id, Socket &&sock); // 构造函数,参数为连接ID和套接字对象
+    ~Connection();
+
+    void Send(const std::string &message);             // 发送消息到连接
+    void Close();                                      // 关闭连接
+    void SetInactiveRelease(bool enable, int timeout); // 设置连接不活跃时自动释放连接的机制,以s为单位
+    void SwitchProtocol(const Any &new_context,
+                        const Action &connected_callback,
+                        const Action &closed_callback,
+                        const Action &event_callback,
+                        const MessageAction &message_callback); // 切换协议,清除上下文,修改处理函数
+
+    int GetSocketFd() const;             // 获取连接的文件描述符
+    Socket &GetSocket();                 // 获取连接的套接字对象
+    int GetConnectionId() const;         // 获取连接ID
+    ConnectState GetState() const;       // 获取连接状态
+    bool IsConnected() const;            // 判断连接是否处于已连接状态
+    Any &GetContext();                   // 获取连接的上下文,连接建立完成后可以通过上下文保存连接相关的任意数据,如HTTP请求信息等
+    void SetContext(const Any &context); // 设置连接的上下文
+    void Established();                  // 连接建立完毕后设置channel回调
 };

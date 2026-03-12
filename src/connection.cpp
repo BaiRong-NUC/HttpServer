@@ -73,3 +73,40 @@ void Connection::_HandleWrite()
         // TODO: 待处理
     }
 }
+
+void Connection::_HandleClose()
+{
+    // 处理缓冲区数据
+    if (this->_in_buffer.GetReadableSize() > 0)
+    {
+        // 输入缓冲区还有数据未处理,调用业务处理回调函数处理剩余数据
+        if (this->_message_callback)
+        {
+            this->_message_callback(shared_from_this(), &this->_in_buffer);
+        }
+    }
+    // 没有数据,可以直接真正删除
+    this->_Release();
+}
+
+void Connection::_HandleError()
+{
+    LOG(ERROR, "Connection error occurred, connection will be closed");
+    this->_HandleClose();
+}
+
+void Connection::_HandleEvent()
+{
+    // 刷新活跃度,调用组件使用者的任意事件
+    if (this->_inactive_release == true)
+    {
+        // 刷新连接度活跃度,默认延时添加定时器任务时设置的时间,也可以自己指定
+        this->_event_loop->RefreshTimerTask(this->_id);
+    }
+
+    // 调用组件使用者的任意事件回调函数
+    if (this->_event_callback)
+    {
+        this->_event_callback(shared_from_this());
+    }
+}

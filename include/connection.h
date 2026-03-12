@@ -39,6 +39,9 @@ private:
     // channel模块的回调函数
     void _HandleRead();  // 可读事件回调函数,从socket读取数据到输入缓冲区,并调用业务处理函数
     void _HandleWrite(); // 可写事件回调函数,将输出缓冲区的数据发送到socket
+    void _HandleClose(); // 连接关闭事件回调函数,处理连接关闭的相关逻辑
+    void _HandleError(); // 错误事件回调函数,处理连接错误的相关逻辑
+    void _HandleEvent(); // 任意事件回调函数,处理连接的任意事件,如刷新连接活跃度等
 public:
     // 用户提供
     Action _connected_callback;      // 连接建立回调函数

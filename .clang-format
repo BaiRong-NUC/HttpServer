@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Empty
+ColumnLimit: 120
+LambdaBodyIndentation: Signature
+AlignAfterOpenBracket: Align
+SpaceBeforeParens: ControlStatements
+SortIncludes: false

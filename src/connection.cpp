@@ -110,3 +110,51 @@ void Connection::_HandleEvent()
         this->_event_callback(shared_from_this());
     }
 }
+
+// 连接建立完成,修改连接状态,启动连接读事件监控
+void Connection::Established()
+{
+    assert(this->_state == ConnectState::CONNECTING);
+    this->_state = ConnectState::CONNECTED;
+    this->_channel.EnableRead();
+
+    // 用户设置的连接建立回调
+    if (this->_connected_callback)
+    {
+        this->_connected_callback(shared_from_this());
+    }
+}
+
+// 释放链接
+void Connection::_Release()
+{
+    if (this->_state == ConnectState::DISCONNECTED)
+        return;
+
+    // 修改连接状态
+    this->_state = ConnectState::DISCONNECTED;
+
+    // 移除事件监控
+    this->_channel.Remove(); // 从EventLoop的监控列表中移除当前Channel
+
+    // 关闭描述符
+    this->_sock.Close();
+
+    // 取消定时器任务
+    if (this->_inactive_release == true)
+    {
+        this->_event_loop->CancelTimerTask(this->_id);
+    }
+
+    // 用户设置的连接关闭回调
+    if (this->_closed_callback)
+    {
+        this->_closed_callback(shared_from_this());
+    }
+
+    // 移除服务器内部对连接的管理,从连接列表中移除连接对象,必须先调用用户设置的函数
+    if (this->_server_closed_callback)
+    {
+        this->_server_closed_callback(shared_from_this());
+    }
+}

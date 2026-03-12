@@ -272,3 +272,17 @@ Connection::~Connection()
 
     LOG(INFO, "Connection object destroyed, id: " << this->_id);
 }
+
+int Connection::GetSocketFd() { return this->_channel.GetSocket().GetSocketFd(); }
+
+Socket &Connection::GetSocket() { return this->_channel.GetSocket(); }
+
+int Connection::GetConnectionId() const { return this->_id; }
+
+bool Connection::IsConnected() const { return this->_state == ConnectState::CONNECTED; }
+
+ConnectState Connection::GetState() const { return this->_state; }
+
+Any &Connection::GetContext() { return this->_context; }
+
+void Connection::SetContext(const Any &context) { this->_context = context; }

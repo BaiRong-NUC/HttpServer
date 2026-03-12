@@ -61,7 +61,7 @@ public:
                         const Action &event_callback,
                         const MessageAction &message_callback); // 切换协议,清除上下文,修改处理函数
 
-    int GetSocketFd() const;             // 获取连接的文件描述符
+    int GetSocketFd();             // 获取连接的文件描述符
     Socket &GetSocket();                 // 获取连接的套接字对象
     int GetConnectionId() const;         // 获取连接ID
     ConnectState GetState() const;       // 获取连接状态

@@ -23,9 +23,9 @@ void Connection::_HandleRead()
         this->_in_buffer.Write(buffer, ret);
 
         // 调用业务处理回调函数
-        if (this->_message_callback && this->_in_buffer.GetReadableSize() > 0)
+        if (this->message_callback && this->_in_buffer.GetReadableSize() > 0)
         {
-            this->_message_callback(shared_from_this(), &this->_in_buffer);
+            this->message_callback(shared_from_this(), &this->_in_buffer);
         }
     }
 }
@@ -53,9 +53,9 @@ void Connection::_HandleWrite()
         if (this->_in_buffer.GetReadableSize() > 0)
         {
             // 连接异常,但输入缓冲区还有数据未处理,调用业务处理回调函数处理剩余数据
-            if (this->_message_callback)
+            if (this->message_callback)
             {
-                this->_message_callback(shared_from_this(), &this->_in_buffer);
+                this->message_callback(shared_from_this(), &this->_in_buffer);
             }
         }
         // this->Close();
@@ -81,9 +81,9 @@ void Connection::_HandleClose()
     if (this->_in_buffer.GetReadableSize() > 0)
     {
         // 输入缓冲区还有数据未处理,调用业务处理回调函数处理剩余数据
-        if (this->_message_callback)
+        if (this->message_callback)
         {
-            this->_message_callback(shared_from_this(), &this->_in_buffer);
+            this->message_callback(shared_from_this(), &this->_in_buffer);
         }
     }
     // 没有数据,可以直接真正删除
@@ -106,14 +106,14 @@ void Connection::_HandleEvent()
     }
 
     // 调用组件使用者的任意事件回调函数
-    if (this->_event_callback)
+    if (this->event_callback)
     {
-        this->_event_callback(shared_from_this());
+        this->event_callback(shared_from_this());
     }
 }
 // End channel 管理的套接字事件回调函数实现
 
-// 连接建立完成,修改连接状态,启动连接读事件监控
+// 连接建立完成,修改连接状态,启动连接读事件监控,连接就绪初始化
 void Connection::Established()
 {
     this->_event_loop->RunTask(
@@ -124,9 +124,9 @@ void Connection::Established()
             this->_channel.EnableRead();
 
             // 用户设置的连接建立回调
-            if (this->_connected_callback)
+            if (this->connected_callback)
             {
-                this->_connected_callback(shared_from_this());
+                this->connected_callback(shared_from_this());
             }
         });
 }
@@ -145,16 +145,16 @@ void Connection::_Release()
     // 关闭描述符
     this->_channel.GetSocket().Close();
 
-    // 取消定时器任务
+    // 取消定时器任务,因为_Release()可能重复调用,这里需要判定timer id是否存在
     if (this->_inactive_release == true)
     {
         this->_event_loop->CancelTimerTask(this->_id);
     }
 
     // 用户设置的连接关闭回调
-    if (this->_closed_callback)
+    if (this->closed_callback)
     {
-        this->_closed_callback(shared_from_this());
+        this->closed_callback(shared_from_this());
     }
 
     // 移除服务器内部对连接的管理,从连接列表中移除连接对象,必须先调用用户设置的函数
@@ -164,7 +164,8 @@ void Connection::_Release()
     }
 }
 
-void Connection::Send(const std::string &message)
+// message使用临时变量保存,防止Send函数来不及执行外界message变量销毁
+void Connection::Send(const std::string message)
 {
     this->_event_loop->RunTask(
         [&]()
@@ -200,7 +201,7 @@ void Connection::Close()
             // 检查输入缓冲区
             if (this->_in_buffer.GetReadableSize() > 0)
             {
-                if (this->_message_callback != nullptr) this->_message_callback(shared_from_this(), &this->_in_buffer);
+                if (this->message_callback != nullptr) this->message_callback(shared_from_this(), &this->_in_buffer);
             }
 
             // 检查输出缓冲区
@@ -250,13 +251,12 @@ void Connection::SetInactiveRelease(bool enable, int timeout)
         });
 }
 
-
 // 必须立即执行,否则可能存在切换协议后还没生效就触发事件的情况,导致事件处理函数调用错误
 // 所以这个函数必须在EventLoop线程上执行,不能切换到其他线程上执行,否则就会进入EventLoop队列
 void Connection::SwitchProtocol(const Any &new_context, const Action &connected_callback, const Action &closed_callback,
                                 const Action &event_callback, const MessageAction &message_callback)
 {
-    if(this->_event_loop->InLoop() == false)
+    if (this->_event_loop->InLoop() == false)
     {
         LOG(ERROR, "SwitchProtocol must be called in EventLoop thread");
         exit(EXIT_FAILURE);
@@ -266,10 +266,10 @@ void Connection::SwitchProtocol(const Any &new_context, const Action &connected_
         {
             // 切换协议,清除上下文,修改处理函数
             this->_context = new_context;
-            this->_connected_callback = connected_callback;
-            this->_closed_callback = closed_callback;
-            this->_event_callback = event_callback;
-            this->_message_callback = message_callback;
+            this->connected_callback = connected_callback;
+            this->closed_callback = closed_callback;
+            this->event_callback = event_callback;
+            this->message_callback = message_callback;
         });
 }
 
@@ -299,7 +299,7 @@ Connection::~Connection()
         this->_Release();
     }
 
-    LOG(INFO, "Connection object destroyed, id: " << this->_id);
+    LOG(INFO, "Connection object destroyed, id: " << this->_id << " Map: " << this);
 }
 
 int Connection::GetSocketFd() { return this->_channel.GetSocket().GetSocketFd(); }

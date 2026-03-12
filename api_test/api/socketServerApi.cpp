@@ -2,64 +2,10 @@
 #include "../../include/poller.h"
 #include "../../include/channel.h"
 #include "../../include/event_loop.h"
+#include "../../include/connection.h"
 #include <utility>
 
-// 客户端关闭事件处理函数
-void ClientCloseHandler(EventLoop *loop, Channel *client_channel)
-{
-    int fd = client_channel->GetSocket().GetSocketFd();
-    // 取消连接时需要取消定时器
-    // 否则连接先被事件回调关闭并 delete，但定时器还持有同一个裸指针，超时后再次回调导致二次释放
-    loop->CancelTimerTask(fd);
-    LOG(INFO, "Close Client Connection: " << fd);
-    client_channel->Remove();
-    delete client_channel;
-}
-
-// 客户端可读事件处理函数
-void ClientReadHandler(EventLoop *loop, Channel *client_channel)
-{
-    Socket &clientSock = client_channel->GetSocket();
-    char buffer[1024] = {0};
-    // 接受客户端数据
-    ssize_t recvLen = clientSock.Recv(buffer, sizeof(buffer) - 1);
-    if (recvLen < 0)
-    {
-        LOG(WARNING, "Recv failed");
-        ClientCloseHandler(loop, client_channel);
-        return;
-    }
-    // 打印
-    LOG(INFO, std::string(buffer, recvLen));
-
-    // 开启客户端套接字的可写事件监控,服务器发送数据给客户端
-    client_channel->EnableWrite();
-}
-
-// 客户端可写事件处理函数
-void ClientWriteHandler(EventLoop *loop, Channel *client_channel)
-{
-    Socket &clientSock = client_channel->GetSocket();
-    const char *response = "Server Response: Hello Client!";
-    ssize_t sendLen = clientSock.Send(response, strlen(response));
-    if (sendLen < 0)
-    {
-        LOG(WARNING, "Send failed");
-        ClientCloseHandler(loop, client_channel);
-        return;
-    }
-
-    // 发送完成后关闭可写事件监控,服务器只发送一次数据
-    client_channel->DisableWrite();
-}
-
-// 客户端处理事件函数
-void ClientEventHandler(Channel *client_channel, EventLoop *loop)
-{
-    // 任意事件刷新定时器,说明客户端活跃,重置定时器到期时间
-    loop->RefreshTimerTask(client_channel->GetSocket().GetSocketFd(), 10);
-    LOG(INFO, "Client Event Timer Refresh: " << client_channel->GetSocket().GetSocketFd());
-}
+using PtrConnection = std::shared_ptr<Connection>;
 
 int main(int argc, char const *argv[])
 {
@@ -72,6 +18,8 @@ int main(int argc, char const *argv[])
         LOG(ERROR, "Failed to create server socket");
         return -1;
     }
+    // 连接列表,保存服务器内部对连接的管理,以连接ID为键,连接对象的智能指针为值
+    std::unordered_map<int, PtrConnection> connections;
 
     EventLoop loop;
     Channel server_channel(&loop, std::move(listenSock));
@@ -88,21 +36,37 @@ int main(int argc, char const *argv[])
             return;
         }
         LOG(INFO, "New Client Connection: " << clientIp << ":" << clientPort);
-        Channel *client_channel = new Channel(&loop, std::move(clientSocket));
 
-        // 非活跃连接定时器,如果客户端在10秒内没有发送数据则关闭连接,必须在客户端启动可读事件监控之前添加定时器
-        loop.AddTimerTask(client_channel->GetSocket().GetSocketFd(), 10, [client_channel, &loop]()
-                          {
-            LOG(INFO, "Client Connection Timeout: " << client_channel->GetSocket().GetSocketFd());
-            ClientCloseHandler(&loop, client_channel); });
+        PtrConnection clientConnection =
+            std::make_shared<Connection>(&loop, clientSocket.GetSocketFd(), std::move(clientSocket));
+        connections[clientConnection->GetConnectionId()] = clientConnection;
 
-        // 监听客户端套接字的可读事件(客户端发送数据给服务器)
-        client_channel->readAction = std::bind(ClientReadHandler, &loop, client_channel);
-        client_channel->writeAction = std::bind(ClientWriteHandler, &loop, client_channel);
-        client_channel->closeAction = std::bind(ClientCloseHandler, &loop, client_channel);
-        client_channel->eventAction = std::bind(ClientEventHandler, client_channel, &loop);
-        client_channel->errorAction = std::bind(ClientCloseHandler, &loop, client_channel); // 错误事件也当作连接关闭处理
-        client_channel->EnableRead();
+        // 关闭连接
+        clientConnection->closed_callback = [&](const PtrConnection &conn)
+        {
+            LOG(INFO, "Client disconnected, id: " << conn->GetConnectionId());
+            connections.erase(conn->GetConnectionId());  // 从连接列表中移除连接对象
+        };
+
+        // 连接事件
+        clientConnection->connected_callback = [&](const PtrConnection &conn)
+        { LOG(INFO, "Client connected, id: " << conn->GetConnectionId() << " Map: " << clientConnection); };
+
+        // 客户端套接字可读时,将输入缓冲区内容放buffer里,同时调用业务处理回调
+        clientConnection->message_callback = [&](const PtrConnection &conn, Buffer *in_buffer)
+        {
+            // 回显接受缓冲区内容
+            LOG(INFO, "Received message , id: " << conn->GetConnectionId()
+                                                << ", message: " << in_buffer->Read(in_buffer->GetReadableSize()));
+            // 客户端套接字可写时发送
+            conn->Send("Server Send: Hello Client");
+
+            // 测试: 通信一次直接关闭连接
+            // conn->Close();
+        };
+
+        clientConnection->SetInactiveRelease(true, 10);  // 设置连接不活跃时自动释放连接的机制,以s为单位
+        clientConnection->Established();                 // 连接就绪初始化,启动可读监控
     };
     server_channel.EnableRead();
 

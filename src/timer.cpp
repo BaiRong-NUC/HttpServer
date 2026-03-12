@@ -3,7 +3,9 @@
 
 // TimerTask实现
 TimerTask::TimerTask(uint64_t id, uint64_t expireTime, Action action, Action release)
-    : _id(id), _expireTime(expireTime), _timer_action(action), _release(release), _isActive(true) {}
+    : _id(id), _expireTime(expireTime), _timer_action(action), _release(release), _isActive(true)
+{
+}
 
 uint64_t TimerTask::GetId() const { return this->_id; }
 uint64_t TimerTask::GetExpireTime() const { return this->_expireTime; }
@@ -11,14 +13,16 @@ void TimerTask::Cancel() { this->_isActive = false; }
 bool TimerTask::IsActive() const { return this->_isActive; }
 TimerTask::~TimerTask()
 {
-    if (this->_isActive == true)
-        this->_timer_action();
+    if (this->_isActive == true) this->_timer_action();
     this->_release();
 }
 
 // Timer实现
 Timer::Timer(EventLoop *eventLoop, size_t wheelSize)
-    : _eventLoop(eventLoop), _tick(0), _wheelSize(wheelSize), _timeWheel(wheelSize),
+    : _eventLoop(eventLoop),
+      _tick(0),
+      _wheelSize(wheelSize),
+      _timeWheel(wheelSize),
       _timerChannel(eventLoop, Socket(timerfd_create(CLOCK_MONOTONIC, 0)))
 {
     int timerfd = _timerChannel.GetSocket().GetSocketFd();
@@ -29,10 +33,10 @@ Timer::Timer(EventLoop *eventLoop, size_t wheelSize)
     }
 
     struct itimerspec new_value;
-    new_value.it_value.tv_sec = 1; // 初始过期时间为1s
+    new_value.it_value.tv_sec = 1;  // 初始过期时间为1s
     new_value.it_value.tv_nsec = 0;
 
-    new_value.it_interval.tv_sec = 1; // 间隔时间为1s
+    new_value.it_interval.tv_sec = 1;  // 间隔时间为1s
     new_value.it_interval.tv_nsec = 0;
 
     // TFD_TIMER_ABSTIME: 表示定时器的超时时间是绝对时间;
@@ -46,7 +50,7 @@ Timer::Timer(EventLoop *eventLoop, size_t wheelSize)
     // 定时器就绪事件回调函数
     this->_timerChannel.readAction = [this, timerfd]()
     {
-        uint64_t expirations; // 超时次数,每次超时向文件描述符中写入8字节数据
+        uint64_t expirations;  // 超时次数,每次超时向文件描述符中写入8字节数据
         ssize_t s = read(timerfd, &expirations, sizeof(expirations));
         if (s != sizeof(expirations))
         {
@@ -66,103 +70,110 @@ size_t Timer::GetTickPtr() const { return this->_tick; }
 // Timer 对象生命周期大于任务执行时机.Add在EventLoop线程中保证了定时器成员变量的线程安全
 void Timer::Add(uint64_t id, uint64_t expireTime, Action action)
 {
-    this->_eventLoop->RunTask([this, id, expireTime, action]()
-    {
-        uint64_t expire = (expireTime == 0) ? 1 : expireTime;
-        uint64_t version = ++_taskVersionMap[id];
-        uint64_t rounds = (expire - 1) / this->_wheelSize;
-        PtrTimerTask timerTask = std::make_shared<TimerTask>(id, expire, action, [this, id, version](){ this->_Remove(id, version); });
-        _taskMap[id] = timerTask;
-        this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
-    });
+    this->_eventLoop->RunTask(
+        [this, id, expireTime, action]()
+        {
+            uint64_t expire = (expireTime == 0) ? 1 : expireTime;
+            uint64_t version = ++_taskVersionMap[id];
+            uint64_t rounds = (expire - 1) / this->_wheelSize;
+            PtrTimerTask timerTask =
+                std::make_shared<TimerTask>(id, expire, action, [this, id, version]() { this->_Remove(id, version); });
+            _taskMap[id] = timerTask;
+            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
+        });
 }
 
 void Timer::Refresh(uint64_t id, uint64_t newExpireTime)
 {
-    this->_eventLoop->RunTask([this, id, newExpireTime]()
-    {
-        auto it = _taskMap.find(id);
-        if (it != _taskMap.end())
+    this->_eventLoop->RunTask(
+        [this, id, newExpireTime]()
         {
-            PtrTimerTask timerTask = it->second;
-            uint64_t expire = newExpireTime;
-            if (expire == 0)
+            auto it = _taskMap.find(id);
+            if (it != _taskMap.end())
             {
-                expire = timerTask->GetExpireTime();
+                PtrTimerTask timerTask = it->second;
+                uint64_t expire = newExpireTime;
+                if (expire == 0)
+                {
+                    expire = timerTask->GetExpireTime();
+                }
+                uint64_t rounds = (expire - 1) / this->_wheelSize;
+                uint64_t version = ++_taskVersionMap[id];
+                this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
             }
-            uint64_t rounds = (expire - 1) / this->_wheelSize;
-            uint64_t version = ++_taskVersionMap[id];
-            this->_timeWheel[(this->_tick + expire) % this->_wheelSize].push_back(WheelNode{id, version, rounds});
-        }
-    });
+        });
 }
 
 void Timer::_Remove(uint64_t id, uint64_t version)
 {
-    this->_eventLoop->RunTask([this, id, version]()
-    {
-        auto versionIt = _taskVersionMap.find(id);
-        if (versionIt != _taskVersionMap.end() && versionIt->second == version)
+    this->_eventLoop->RunTask(
+        [this, id, version]()
         {
-            _taskMap.erase(id);
-            _taskVersionMap.erase(versionIt);
-        }
-    });
+            auto versionIt = _taskVersionMap.find(id);
+            if (versionIt != _taskVersionMap.end() && versionIt->second == version)
+            {
+                _taskMap.erase(id);
+                _taskVersionMap.erase(versionIt);
+            }
+        });
 }
 
 void Timer::Tick()
 {
-    this->_eventLoop->RunTask([this]()
-    {
-        this->_tick = (this->_tick + 1) % this->_wheelSize;
-        auto currentSlot = std::move(this->_timeWheel[this->_tick]);
-        this->_timeWheel[this->_tick].clear();
-
-        for (const auto &node : currentSlot)
+    this->_eventLoop->RunTask(
+        [this]()
         {
-            uint64_t id = node.id;
-            uint64_t version = node.version;
+            this->_tick = (this->_tick + 1) % this->_wheelSize;
+            auto currentSlot = std::move(this->_timeWheel[this->_tick]);
+            this->_timeWheel[this->_tick].clear();
 
-            auto versionIt = _taskVersionMap.find(id);
-            if (versionIt != _taskVersionMap.end() && versionIt->second == version)
+            for (const auto &node : currentSlot)
             {
-                if (node.rounds > 0)
+                uint64_t id = node.id;
+                uint64_t version = node.version;
+
+                auto versionIt = _taskVersionMap.find(id);
+                if (versionIt != _taskVersionMap.end() && versionIt->second == version)
                 {
-                    this->_timeWheel[this->_tick].push_back(WheelNode{id, version, node.rounds - 1});
-                }
-                else
-                {
-                    _taskMap.erase(id);
-                    _taskVersionMap.erase(versionIt);
+                    if (node.rounds > 0)
+                    {
+                        this->_timeWheel[this->_tick].push_back(WheelNode{id, version, node.rounds - 1});
+                    }
+                    else
+                    {
+                        _taskMap.erase(id);
+                        _taskVersionMap.erase(versionIt);
+                    }
                 }
             }
-        }
-    });
+        });
 }
 
 void Timer::Cancel(uint64_t id)
 {
-    this->_eventLoop->RunTask([this, id]()
-    {
-        auto it = _taskMap.find(id);
-        if (it != _taskMap.end())
+    this->_eventLoop->RunTask(
+        [this, id]()
         {
-            it->second->Cancel();
-        }else
-        {
-            LOG(WARNING, id << " not found in TimerTask map");
-        }
-    });
+            auto it = _taskMap.find(id);
+            if (it != _taskMap.end())
+            {
+                it->second->Cancel();
+            }
+            else
+            {
+                // LOG(WARNING, id << " not found in TimerTask map");
+            }
+        });
 }
-
 
 // 只能在EventLoop线程中调用,查找定时器,用于测试
 bool Timer::Find(uint64_t id)
 {
-    if(this->_eventLoop->InLoop() == false)
+    if (this->_eventLoop->InLoop() == false)
     {
-        LOG(WARNING, "Find TimerTask must be called in EventLoop thread");
-        return false;
+        LOG(ERROR, "Find TimerTask must be called in EventLoop thread");
+        exit(EXIT_FAILURE);
+        // return false;
     }
 
     auto it = _taskMap.find(id);

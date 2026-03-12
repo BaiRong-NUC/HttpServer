@@ -44,15 +44,15 @@ private:
     void _HandleEvent(); // 任意事件回调函数,处理连接的任意事件,如刷新连接活跃度等
 public:
     // 用户提供
-    Action _connected_callback;      // 连接建立回调函数
-    Action _closed_callback;         // 连接关闭回调函数
-    Action _event_callback;          // 连接事件回调函数,如刷新连接活跃度
-    MessageAction _message_callback; // 业务处理回调
+    Action connected_callback;      // 连接建立回调函数
+    Action closed_callback;         // 连接关闭回调函数
+    Action event_callback;          // 连接事件回调函数,如刷新连接活跃度
+    MessageAction message_callback; // 业务处理回调
 
     Connection(EventLoop *event_loop, uint64_t id, Socket &&sock); // 构造函数,参数为连接ID和套接字对象
     ~Connection();
 
-    void Send(const std::string &message);                  // 发送消息到连接
+    void Send(const std::string message);                  // 发送消息到连接
     void Close();                                           // 关闭连接
     void SetInactiveRelease(bool enable, int timeout = 10); // 设置连接不活跃时自动释放连接的机制,以s为单位
     void SwitchProtocol(const Any &new_context,
@@ -68,5 +68,5 @@ public:
     bool IsConnected() const;            // 判断连接是否处于已连接状态
     Any &GetContext();                   // 获取连接的上下文,连接建立完成后可以通过上下文保存连接相关的任意数据,如HTTP请求信息等
     void SetContext(const Any &context); // 设置连接的上下文
-    void Established();                  // 连接建立完毕后设置channel回调
+    void Established();                  // 连接就绪初始化
 };

@@ -3,7 +3,7 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 BreakBeforeBraces: Allman
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: All
 ColumnLimit: 120
 LambdaBodyIndentation: Signature
 AlignAfterOpenBracket: Align

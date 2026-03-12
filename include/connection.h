@@ -52,9 +52,9 @@ public:
     Connection(EventLoop *event_loop, uint64_t id, Socket &&sock); // 构造函数,参数为连接ID和套接字对象
     ~Connection();
 
-    void Send(const std::string &message);             // 发送消息到连接
-    void Close();                                      // 关闭连接
-    void SetInactiveRelease(bool enable, int timeout); // 设置连接不活跃时自动释放连接的机制,以s为单位
+    void Send(const std::string &message);                  // 发送消息到连接
+    void Close();                                           // 关闭连接
+    void SetInactiveRelease(bool enable, int timeout = 10); // 设置连接不活跃时自动释放连接的机制,以s为单位
     void SwitchProtocol(const Any &new_context,
                         const Action &connected_callback,
                         const Action &closed_callback,

@@ -130,14 +130,13 @@ void Connection::Established()
 // 释放链接
 void Connection::_Release()
 {
-    if (this->_state == ConnectState::DISCONNECTED)
-        return;
+    if (this->_state == ConnectState::DISCONNECTED) return;
 
     // 修改连接状态
     this->_state = ConnectState::DISCONNECTED;
 
     // 移除事件监控
-    this->_channel.Remove(); // 从EventLoop的监控列表中移除当前Channel
+    this->_channel.Remove();  // 从EventLoop的监控列表中移除当前Channel
 
     // 关闭描述符
     this->_sock.Close();
@@ -173,7 +172,7 @@ void Connection::Send(const std::string &message)
     this->_out_buffer.Write(message);
 
     // 启动可写事件监控,当socket可写时会调用_HandleWrite将输出缓冲区的数据发送到socket
-    if (this->_channel.WriteAble() == false) // 避免重复启动可写事件监控
+    if (this->_channel.WriteAble() == false)  // 避免重复启动可写事件监控
     {
         // 没监控过可写事件
         this->_channel.EnableWrite();
@@ -182,8 +181,7 @@ void Connection::Send(const std::string &message)
 
 void Connection::Close()
 {
-    if (this->_state == ConnectState::DISCONNECTED || this->_state == ConnectState::DISCONNECTING)
-        return;
+    if (this->_state == ConnectState::DISCONNECTED || this->_state == ConnectState::DISCONNECTING) return;
 
     // 修改连接状态
     this->_state = ConnectState::DISCONNECTING;
@@ -191,8 +189,7 @@ void Connection::Close()
     // 检查输入缓冲区
     if (this->_in_buffer.GetReadableSize() > 0)
     {
-        if (this->_message_callback != nullptr)
-            this->_message_callback(shared_from_this(), &this->_in_buffer);
+        if (this->_message_callback != nullptr) this->_message_callback(shared_from_this(), &this->_in_buffer);
     }
 
     // 检查输出缓冲区
@@ -212,4 +209,37 @@ void Connection::Close()
         // 没有数据需要发送,可以直接真正删除了
         this->_Release();
     }
+}
+
+void Connection::SetInactiveRelease(bool enable, int timeout)
+{
+    this->_inactive_release = enable;
+    if (enable)
+    {
+        // 添加定时器任务,当连接不活跃时自动释放连接,默认10s后到期,也可以自己指定
+        if (this->_event_loop->FindTimerTask(this->_id) == false)  // 避免重复添加定时器任务
+        {
+            this->_event_loop->AddTimerTask(this->_id, timeout, std::bind(&Connection::_Release, this));
+        }
+        else
+        {
+            // 已经添加过定时器任务了,刷新定时器任务的到期时间
+            this->_event_loop->RefreshTimerTask(this->_id, timeout);
+        }
+    }
+    else
+    {
+        // 取消定时器任务
+        this->_event_loop->CancelTimerTask(this->_id);
+    }
+}
+
+void Connection::SwitchProtocol(const Any &new_context, const Action &connected_callback, const Action &closed_callback,
+                                const Action &event_callback, const MessageAction &message_callback)
+{
+    this->_context = new_context;
+    this->_connected_callback = connected_callback;
+    this->_closed_callback = closed_callback;
+    this->_event_callback = event_callback;
+    this->_message_callback = message_callback;
 }

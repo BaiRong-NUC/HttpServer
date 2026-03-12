@@ -4,7 +4,7 @@
 void Connection::_HandleRead()
 {
     char buffer[BUFFER_DEFAULT_SIZE] = {0};
-    int ret = this->_sock.Recv(buffer, BUFFER_DEFAULT_SIZE, MSG_DONTWAIT);
+    int ret = this->_channel.GetSocket().Recv(buffer, BUFFER_DEFAULT_SIZE, MSG_DONTWAIT);
     if (ret < 0)
     {
         LOG(WARNING, "Failed to read from socket, connection will be closed");
@@ -45,7 +45,7 @@ void Connection::_HandleWrite()
     }
 
     std::string buffer = this->_out_buffer.Read(this->_out_buffer.GetReadableSize());
-    int ret = this->_sock.Send(buffer.c_str(), buffer.size(), MSG_DONTWAIT);
+    int ret = this->_channel.GetSocket().Send(buffer.c_str(), buffer.size(), MSG_DONTWAIT);
     if (ret < 0)
     {
         LOG(WARNING, "Failed to write to socket, connection will be closed");
@@ -139,7 +139,7 @@ void Connection::_Release()
     this->_channel.Remove();  // 从EventLoop的监控列表中移除当前Channel
 
     // 关闭描述符
-    this->_sock.Close();
+    this->_channel.GetSocket().Close();
 
     // 取消定时器任务
     if (this->_inactive_release == true)
@@ -242,4 +242,33 @@ void Connection::SwitchProtocol(const Any &new_context, const Action &connected_
     this->_closed_callback = closed_callback;
     this->_event_callback = event_callback;
     this->_message_callback = message_callback;
+}
+
+Connection::Connection(EventLoop *event_loop, uint64_t id, Socket &&sock)
+    : _id(id),
+      _state(ConnectState::CONNECTING),
+      _inactive_release(false),
+      _event_loop(event_loop),
+      _channel(event_loop, std::move(sock))
+{
+    // 设置套接字回调执行函数
+    this->_channel.readAction = std::bind(&Connection::_HandleRead, this);
+    this->_channel.writeAction = std::bind(&Connection::_HandleWrite, this);
+    this->_channel.errorAction = std::bind(&Connection::_HandleError, this);
+    this->_channel.closeAction = std::bind(&Connection::_HandleClose, this);
+    this->_channel.eventAction = std::bind(&Connection::_HandleEvent, this);
+
+    // 构造函数不能启动channel读事件监控,因为启动后可能立即触发读事件,如果此时存在定时器,会刷新活跃度.
+    // 但是此时还没添加定时器,所以启动读时间监控是在设置活跃度销毁函数之后
+}
+
+Connection::~Connection()
+{
+    // 连接对象被销毁时,如果连接还没有真正关闭,先调用_Release()释放连接
+    if (this->_state != ConnectState::DISCONNECTED)
+    {
+        this->_Release();
+    }
+
+    LOG(INFO, "Connection object destroyed, id: " << this->_id);
 }

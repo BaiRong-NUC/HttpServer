@@ -20,7 +20,7 @@ class Connection : public std::enable_shared_from_this<Connection>
 {
 private:
     uint64_t _id;        // 连接ID,可以是文件描述符或者其他唯一标识符
-    Socket _sock;        // 连接的套接字对象
+    // Socket _sock;        // 连接的套接字对象,socket被_channel右值引用拿走了
     Channel _channel;    // 连接的Channel对象,用于监控连接的事件
     Buffer _in_buffer;   // 输入缓冲区,保存从socket中读取的数据
     Buffer _out_buffer;  // 输出缓冲区,保存要发送到socket的数据

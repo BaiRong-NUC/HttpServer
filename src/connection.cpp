@@ -1,5 +1,6 @@
 #include "../include/connection.h"
 
+// Start channel 管理的套接字事件回调函数实现
 void Connection::_HandleRead()
 {
     char buffer[BUFFER_DEFAULT_SIZE] = {0};
@@ -110,6 +111,7 @@ void Connection::_HandleEvent()
         this->_event_callback(shared_from_this());
     }
 }
+// End channel 管理的套接字事件回调函数实现
 
 // 连接建立完成,修改连接状态,启动连接读事件监控
 void Connection::Established()
@@ -156,5 +158,58 @@ void Connection::_Release()
     if (this->_server_closed_callback)
     {
         this->_server_closed_callback(shared_from_this());
+    }
+}
+
+void Connection::Send(const std::string &message)
+{
+    if (this->_state != ConnectState::CONNECTED)
+    {
+        LOG(WARNING, "Connection is not in connected state, cannot send message");
+        return;
+    }
+
+    // 将消息写入输出缓冲区
+    this->_out_buffer.Write(message);
+
+    // 启动可写事件监控,当socket可写时会调用_HandleWrite将输出缓冲区的数据发送到socket
+    if (this->_channel.WriteAble() == false) // 避免重复启动可写事件监控
+    {
+        // 没监控过可写事件
+        this->_channel.EnableWrite();
+    }
+}
+
+void Connection::Close()
+{
+    if (this->_state == ConnectState::DISCONNECTED || this->_state == ConnectState::DISCONNECTING)
+        return;
+
+    // 修改连接状态
+    this->_state = ConnectState::DISCONNECTING;
+
+    // 检查输入缓冲区
+    if (this->_in_buffer.GetReadableSize() > 0)
+    {
+        if (this->_message_callback != nullptr)
+            this->_message_callback(shared_from_this(), &this->_in_buffer);
+    }
+
+    // 检查输出缓冲区
+    if (this->_out_buffer.GetReadableSize() > 0)
+    {
+        // 启动写事件监控,调用_HandleWrite发送数据,当发送数据失败会调用_Release()
+        if (this->_channel.WriteAble() == false)
+        {
+            // 当写事件启动时会一直尝试发送输出缓冲区,_HandleWrite处理完数据后关闭写事件监控
+            // 当连接为DISCONNECTING状态时,如果输出缓冲区没有数据了就直接调用_Release()真正关闭连接
+            this->_channel.EnableWrite();
+        }
+    }
+
+    if (this->_out_buffer.GetReadableSize() == 0)
+    {
+        // 没有数据需要发送,可以直接真正删除了
+        this->_Release();
     }
 }

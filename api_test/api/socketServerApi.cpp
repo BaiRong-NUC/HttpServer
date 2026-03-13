@@ -5,6 +5,7 @@
 #include "../../include/connection.h"
 #include "../../include/log.h"
 #include "../../include/acceptor.h"
+#include "../../include/loop_thread.h"
 #include <utility>
 
 using PtrConnection = std::shared_ptr<Connection>;
@@ -15,12 +16,18 @@ int main(int argc, char const *argv[])
 
     // 连接列表,保存服务器内部对连接的管理,以连接ID为键,连接对象的智能指针为值
     std::unordered_map<int, PtrConnection> connections;
-    EventLoop loop;
-    Acceptor acceptor(&loop, 8085);  // 创建Acceptor对象,监听8080端口
-    acceptor.new_connection_callback = [&loop, &connections](Socket &&clientSock)
+    // 创建多个LoopThread对象,每个对象内部都有一个EventLoop对象,实现多线程处理连接事件
+    std::vector<LoopThread> loopThreads(2);  // (从属EventLoop)
+    // server_loop负责监控新连接到来
+    EventLoop server_loop;
+    Acceptor acceptor(&server_loop, 8085);  // 创建Acceptor对象,监听8085端口
+
+    int threadIndex = 0;
+    acceptor.new_connection_callback = [&threadIndex, &connections, &loopThreads](Socket &&clientSock)
     {
+        EventLoop *loop = loopThreads[threadIndex++ % loopThreads.size()].GetEventLoop();  // 轮询分配EventLoop对象
         PtrConnection clientConnection =
-            std::make_shared<Connection>(&loop, clientSock.GetSocketFd(), std::move(clientSock));
+            std::make_shared<Connection>(loop, clientSock.GetSocketFd(), std::move(clientSock));
         connections[clientConnection->GetConnectionId()] = clientConnection;
 
         // 关闭连接
@@ -53,10 +60,6 @@ int main(int argc, char const *argv[])
 
     acceptor.Listen();  // 启动监听套接字的可读事件监控,当可读时说明有新连接到来
 
-    while (true)
-    {
-        loop.Start();
-    }
-
+    server_loop.Start();  // 启动事件循环,监控新连接到来
     return 0;
 }

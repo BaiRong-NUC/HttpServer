@@ -16,6 +16,14 @@ LoopThread::LoopThread()
 {
 }
 
+LoopThread::~LoopThread()
+{
+    if (_thread.joinable())
+    {
+        _thread.detach();
+    }
+}
+
 EventLoop* LoopThread::GetEventLoop()
 {
     EventLoop* loop = nullptr;

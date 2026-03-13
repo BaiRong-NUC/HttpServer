@@ -22,7 +22,8 @@ void Acceptor::_HandleRead()
         if (this->new_connection_callback)
         {
             // 调用新连接事件回调函数,将新连接的套接字对象作为参数传递
-            this->new_connection_callback(clientSock);
+            // clientSock声明周期交给回调函数管理,里面有全局智能指针哈希表,不用担心clientSock
+            this->new_connection_callback(std::move(clientSock));
         }
     }
     else

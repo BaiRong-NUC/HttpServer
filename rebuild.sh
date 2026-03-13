@@ -6,11 +6,11 @@ BUILD_DIR="build"
 
 # 清理构建目录
 if [ -d "$BUILD_DIR" ]; then
-	rm -rf "$BUILD_DIR"
+	find "$BUILD_DIR" -mindepth 1 -not -name '*.sh' -exec rm -rf {} +
 fi
 
 # 创建构建目录
-mkdir "$BUILD_DIR"
+mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 # 运行 cmake 和 make

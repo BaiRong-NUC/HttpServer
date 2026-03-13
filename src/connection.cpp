@@ -117,7 +117,7 @@ void Connection::_HandleEvent()
 void Connection::Established()
 {
     this->_event_loop->RunTask(
-        [&]()
+        [this]()
         {
             assert(this->_state == ConnectState::CONNECTING);
             this->_state = ConnectState::CONNECTED;
@@ -165,10 +165,10 @@ void Connection::_Release()
 }
 
 // message使用临时变量保存,防止Send函数来不及执行外界message变量销毁
-void Connection::Send(const std::string message)
+void Connection::Send(const std::string &message)
 {
     this->_event_loop->RunTask(
-        [&]()
+        [this, message]()
         {
             if (this->_state != ConnectState::CONNECTED)
             {
@@ -227,7 +227,7 @@ void Connection::Close()
 void Connection::SetInactiveRelease(bool enable, int timeout)
 {
     this->_event_loop->RunTask(
-        [&]()
+        [this, enable, timeout]()
         {
             this->_inactive_release = enable;
             if (enable)
@@ -261,6 +261,8 @@ void Connection::SwitchProtocol(const Any &new_context, const Action &connected_
         LOG(ERROR, "SwitchProtocol must be called in EventLoop thread");
         exit(EXIT_FAILURE);
     }
+
+    // 这里可以用&,因为这里不存在异步调用的情况,所以变量的生命周期不会在函数结束后销毁导致回调函数空
     this->_event_loop->RunTask(
         [&]()
         {
@@ -316,5 +318,10 @@ Any &Connection::GetContext() { return this->_context; }
 
 void Connection::SetContext(const Any &context)
 {
+    if (this->_event_loop->InLoop() == false)
+    {
+        LOG(ERROR, "SetContext must be called in EventLoop thread");
+        exit(EXIT_FAILURE);
+    }
     this->_event_loop->RunTask([&]() { this->_context = context; });
 }

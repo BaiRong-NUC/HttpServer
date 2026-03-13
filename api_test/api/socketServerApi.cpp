@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
             conn->Send("Server Send: Hello Client");
 
             // 测试: 通信一次直接关闭连接
-            // conn->Close();
+            conn->Close();
         };
 
         clientConnection->SetInactiveRelease(true, 10);  // 设置连接不活跃时自动释放连接的机制,以s为单位

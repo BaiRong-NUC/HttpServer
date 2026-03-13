@@ -4,10 +4,7 @@ Socket::Socket() : _sockfd(-1) {}
 
 Socket::Socket(int fd) : _sockfd(fd) {}
 
-Socket::Socket(Socket &&other) noexcept : _sockfd(other._sockfd)
-{
-    other._sockfd = -1;
-}
+Socket::Socket(Socket &&other) noexcept : _sockfd(other._sockfd) { other._sockfd = -1; }
 
 Socket &Socket::operator=(Socket &&other) noexcept
 {
@@ -105,7 +102,7 @@ ssize_t Socket::Recv(void *buffer, size_t len, int flags)
         {
             return 0;
         }
-        return -1; // 其他错误,返回-1表示连接关闭或者发生错误
+        return -1;  // 其他错误,返回-1表示连接关闭或者发生错误
     }
     return ret;
 }
@@ -113,7 +110,7 @@ ssize_t Socket::Recv(void *buffer, size_t len, int flags)
 // 发送数据
 ssize_t Socket::Send(const void *buffer, size_t len, int flags)
 {
-    int ret = send(this->_sockfd, buffer, len, flags);
+    int ret = send(this->_sockfd, buffer, len, flags | MSG_NOSIGNAL);
     if (ret <= 0)
     {
         // EANGAIN: 无数据可读
@@ -122,9 +119,9 @@ ssize_t Socket::Send(const void *buffer, size_t len, int flags)
         {
             return 0;
         }
-        return -1; // 其他错误,返回-1表示连接关闭或者发生错误
+        return -1;  // 其他错误,返回-1表示连接关闭或者发生错误
     }
-    return ret; // 返回实际发送的字节数
+    return ret;  // 返回实际发送的字节数
 }
 
 // 关闭套接字

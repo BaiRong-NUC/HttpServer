@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
         LOG(ERROR, "Failed to create client connection");
         return -1;
     }
-    testServer(client);
-    // testInactiveConnection(client);
+    // testServer(client);
+    testInactiveConnection(client);
     return 0;
 }

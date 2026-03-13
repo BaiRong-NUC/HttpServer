@@ -16,4 +16,6 @@ class Acceptor
    public:
     Action new_connection_callback;                  // 新连接事件回调函数
     Acceptor(EventLoop *event_loop, uint16_t port);  // 构造函数,参数为监听端口和关联的EventLoop对象
+
+    void Listen() { this->_listen_channel->EnableRead(); }  // 启动监听套接字的可读事件监控,当可读时说明有新连接到来
 };

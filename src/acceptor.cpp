@@ -8,7 +8,11 @@ Acceptor::Acceptor(EventLoop *event_loop, uint16_t port) : _event_loop(event_loo
         std::make_shared<Channel>(event_loop, std::move(listen_sock));  // 创建监听套接字的Channel对象
 
     this->_listen_channel->readAction = std::bind(&Acceptor::_HandleRead, this);  // 设置监听套接字的可读事件回调函数
-    this->_listen_channel->EnableRead();                                          // 启动监听套接字的
+    // this->_listen_channel->EnableRead();                                          // 启动监听套接字的
+    /**
+     * 不能将启动读事件监控放到构造函数
+     * 可能在启动监控后立刻有事件就绪,但是此时new_connection_callback还为空,此时链接什么都没做
+     */
 }
 
 void Acceptor::_HandleRead()

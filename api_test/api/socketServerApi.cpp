@@ -19,7 +19,6 @@ int main(int argc, char const *argv[])
     Acceptor acceptor(&loop, 8085);  // 创建Acceptor对象,监听8080端口
     acceptor.new_connection_callback = [&loop, &connections](Socket &&clientSock)
     {
-
         PtrConnection clientConnection =
             std::make_shared<Connection>(&loop, clientSock.GetSocketFd(), std::move(clientSock));
         connections[clientConnection->GetConnectionId()] = clientConnection;
@@ -52,6 +51,7 @@ int main(int argc, char const *argv[])
         clientConnection->Established();                 // 连接就绪初始化,启动可读监控
     };
 
+    acceptor.Listen();  // 启动监听套接字的可读事件监控,当可读时说明有新连接到来
 
     while (true)
     {

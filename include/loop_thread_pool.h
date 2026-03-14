@@ -26,8 +26,6 @@ class LoopThreadPool
 
     ~LoopThreadPool();
 
-    void Start();  // 启动线程池
-
     EventLoop *GetSubEventLoop();  // 获取下一个线程的EventLoop对象,用于管理连接
 
     EventLoop *GetBaseLoop();  // 获取主线程的EventLoop对象,用于监听和接受连接

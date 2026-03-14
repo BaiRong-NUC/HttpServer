@@ -15,14 +15,6 @@ LoopThreadPool::LoopThreadPool(EventLoop *base_loop, int thread_num)
 
 LoopThreadPool::~LoopThreadPool() {}
 
-void LoopThreadPool::Start()
-{
-    for (int i = 0; i < _sub_thread_num; ++i)
-    {
-        this->_sub_event_loops[i]->Start();  // 启动从属线程的EventLoop对象
-    }
-}
-
 EventLoop *LoopThreadPool::GetSubEventLoop()
 {
     if (_sub_thread_num == 0)

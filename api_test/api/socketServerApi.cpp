@@ -6,6 +6,7 @@
 #include "../../include/log.h"
 #include "../../include/acceptor.h"
 #include "../../include/loop_thread.h"
+#include "../../include/loop_thread_pool.h"
 #include <utility>
 
 using PtrConnection = std::shared_ptr<Connection>;
@@ -16,16 +17,16 @@ int main(int argc, char const *argv[])
 
     // 连接列表,保存服务器内部对连接的管理,以连接ID为键,连接对象的智能指针为值
     std::unordered_map<int, PtrConnection> connections;
-    // 创建多个LoopThread对象,每个对象内部都有一个EventLoop对象,实现多线程处理连接事件
-    std::vector<LoopThread> loopThreads(2);  // (从属EventLoop)
-    // server_loop负责监控新连接到来
+    // 创建线程池,根据系统CPU核心数量创建对应数量的线程
+    int threadNum = std::thread::hardware_concurrency();
     EventLoop server_loop;
+    LoopThreadPool loopThreadPool(&server_loop, threadNum);
+    // server_loop负责监控新连接到来
     Acceptor acceptor(&server_loop, 8085);  // 创建Acceptor对象,监听8085端口
 
-    int threadIndex = 0;
-    acceptor.new_connection_callback = [&threadIndex, &connections, &loopThreads](Socket &&clientSock)
+    acceptor.new_connection_callback = [&connections, &loopThreadPool](Socket &&clientSock)
     {
-        EventLoop *loop = loopThreads[threadIndex++ % loopThreads.size()].GetEventLoop();  // 轮询分配EventLoop对象
+        EventLoop *loop = loopThreadPool.GetSubEventLoop();  // 轮询分配EventLoop对象
         PtrConnection clientConnection =
             std::make_shared<Connection>(loop, clientSock.GetSocketFd(), std::move(clientSock));
         connections[clientConnection->GetConnectionId()] = clientConnection;
@@ -51,7 +52,7 @@ int main(int argc, char const *argv[])
             conn->Send("Server Send: Hello Client");
 
             // 测试: 通信一次直接关闭连接
-            conn->Close();
+            // conn->Close();
         };
 
         clientConnection->SetInactiveRelease(true, 10);  // 设置连接不活跃时自动释放连接的机制,以s为单位

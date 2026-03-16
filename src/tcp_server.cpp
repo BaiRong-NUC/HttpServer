@@ -4,12 +4,13 @@ TcpServer::TcpServer(uint16_t port, int thread_num, bool reseAddr, bool noBlock,
     : port(port),
       thread_num(thread_num),
       _connection_id(0),
+      _timer_id(0),
       _acceptor(&_baseloop, port, reseAddr, noBlock, ip),
-      _loop_thread_pool(&_baseloop, thread_num)
+      _loop_thread_pool(&_baseloop, thread_num),
+      _inactive_release(false),
+      _inactive_timeout(10)
 
 {
-    this->_connection_id = 0;
-    this->_timer_id = 0;
     this->connected_callback = nullptr;
     this->closed_callback = nullptr;
     this->event_callback = nullptr;
@@ -35,7 +36,7 @@ void TcpServer::Run()
     {
         EventLoop *loop = this->_loop_thread_pool.GetSubEventLoop();  // 轮询分配EventLoop对象
         PtrConnection clientConnection =
-            std::make_shared<Connection>(loop, clientSock.GetSocketFd(), std::move(clientSock));
+            std::make_shared<Connection>(loop, this->_connection_id++, std::move(clientSock));
         this->_connections[clientConnection->GetConnectionId()] = clientConnection;
 
         // 关闭连接

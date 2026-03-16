@@ -1,9 +1,10 @@
 #include "../include/acceptor.h"
 
-Acceptor::Acceptor(EventLoop *event_loop, uint16_t port) : _event_loop(event_loop)
+Acceptor::Acceptor(EventLoop *event_loop, uint16_t port, bool reseAddr, bool noBlock, const std::string &ip)
+    : _event_loop(event_loop)
 {
     Socket listen_sock;
-    listen_sock.CreateServer(port);  // 创建监听套接字
+    listen_sock.CreateServer(port, reseAddr, noBlock, ip);  // 创建监听套接字
     this->_listen_channel =
         std::make_shared<Channel>(event_loop, std::move(listen_sock));  // 创建监听套接字的Channel对象
 

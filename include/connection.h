@@ -34,8 +34,6 @@ class Connection : public std::enable_shared_from_this<Connection>
     EventLoop *_event_loop;                                                      // 关联的EventLoop对象
     void _Release();                                                             // 释放连接
 
-    Action _server_closed_callback;  // 服务器主动关闭连接的回调函数
-
     // channel模块的回调函数
     void _HandleRead();   // 可读事件回调函数,从socket读取数据到输入缓冲区,并调用业务处理函数
     void _HandleWrite();  // 可写事件回调函数,将输出缓冲区的数据发送到socket
@@ -48,6 +46,7 @@ class Connection : public std::enable_shared_from_this<Connection>
     Action closed_callback;          // 连接关闭回调函数
     Action event_callback;           // 连接事件回调函数,如刷新连接活跃度
     MessageAction message_callback;  // 业务处理回调
+    Action _server_closed_callback;  // 服务器主动关闭连接的回调函数
 
     Connection(EventLoop *event_loop, uint64_t id, Socket &&sock);  // 构造函数,参数为连接ID和套接字对象
     ~Connection();

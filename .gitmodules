@@ -1,3 +1,6 @@
 [submodule "reference/muduo_server_learn"]
 	path = reference/muduo_server_learn
 	url = https://github.com/iceCream1997/muduo_server_learn.git
+[submodule "reference/WebBench"]
+	path = reference/WebBench
+	url = https://github.com/EZLippi/WebBench.git

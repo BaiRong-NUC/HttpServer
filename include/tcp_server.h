@@ -3,13 +3,12 @@
 #include "./acceptor.h"
 #include "./loop_thread_pool.h"
 #include "./connection.h"
-
+using PtrConnection = std::shared_ptr<Connection>;
+using Action = std::function<void(const PtrConnection &)>;
+using MessageAction = std::function<void(const PtrConnection &, Buffer *)>;  // 业务处理函数
 class TcpServer
 {
    private:
-    using PtrConnection = std::shared_ptr<Connection>;
-    using Action = std::function<void(const PtrConnection &)>;
-    using MessageAction = std::function<void(const PtrConnection &, Buffer *)>;  // 业务处理函数
     uint64_t _connection_id;  // 连接ID,每当有新连接到来时递增,用于唯一标识连接
     uint64_t _timer_id;       // 定时器ID,每当有新连接到来时递增,用于唯一标识定时器
     EventLoop _baseloop;      // EventLoop对象,实现对监听套接字的管理

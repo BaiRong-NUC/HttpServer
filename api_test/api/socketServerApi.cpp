@@ -1,66 +1,38 @@
-#include "../../include/socket.h"
-#include "../../include/poller.h"
-#include "../../include/channel.h"
-#include "../../include/event_loop.h"
-#include "../../include/connection.h"
-#include "../../include/log.h"
-#include "../../include/acceptor.h"
-#include "../../include/loop_thread.h"
-#include "../../include/loop_thread_pool.h"
+#include "../../include/tcp_server.h"
 #include <utility>
-
-using PtrConnection = std::shared_ptr<Connection>;
 
 int main(int argc, char const *argv[])
 {
     SetLogLevel(INFO);
-
-    // 连接列表,保存服务器内部对连接的管理,以连接ID为键,连接对象的智能指针为值
-    std::unordered_map<int, PtrConnection> connections;
-    // 创建线程池,根据系统CPU核心数量创建对应数量的线程
-    int threadNum = std::thread::hardware_concurrency();
-    EventLoop server_loop;
-    LoopThreadPool loopThreadPool(&server_loop, threadNum);
-    // server_loop负责监控新连接到来
-    Acceptor acceptor(&server_loop, 8085);  // 创建Acceptor对象,监听8085端口
-
-    acceptor.new_connection_callback = [&connections, &loopThreadPool](Socket &&clientSock)
+    // 获取计算机CPU核心数量,作为从属线程数量
+    int thread_num = std::thread::hardware_concurrency();
+    TcpServer server(8085, thread_num);
+    server.SetInactiveRelease(true, 10);
+    server.connected_callback = [](const PtrConnection &conn)
     {
-        EventLoop *loop = loopThreadPool.GetSubEventLoop();  // 轮询分配EventLoop对象
-        PtrConnection clientConnection =
-            std::make_shared<Connection>(loop, clientSock.GetSocketFd(), std::move(clientSock));
-        connections[clientConnection->GetConnectionId()] = clientConnection;
-
-        // 关闭连接
-        clientConnection->closed_callback = [&connections](const PtrConnection &conn)
-        {
-            LOG(INFO, "Client disconnected, id: " << conn->GetConnectionId());
-            connections.erase(conn->GetConnectionId());  // 从连接列表中移除连接对象
-        };
-
-        // 连接事件
-        clientConnection->connected_callback = [loop](const PtrConnection &conn)
-        { LOG(INFO, "Client connected, id: " << conn->GetConnectionId() << " create connection: " << conn << " thread id: " << loop->GetThreadId()); };
-
-        // 客户端套接字可读时,将输入缓冲区内容放buffer里,同时调用业务处理回调
-        clientConnection->message_callback = [](const PtrConnection &conn, Buffer *in_buffer)
-        {
-            // 回显接受缓冲区内容
-            LOG(INFO, "Received message , id: " << conn->GetConnectionId()
-                                                << ", message: " << in_buffer->Read(in_buffer->GetReadableSize()));
-            // 客户端套接字可写时发送
-            conn->Send("Server Send: Hello Client");
-
-            // 测试: 通信一次直接关闭连接
-            // conn->Close();
-        };
-
-        clientConnection->SetInactiveRelease(true, 10);  // 设置连接不活跃时自动释放连接的机制,以s为单位
-        clientConnection->Established();                 // 连接就绪初始化,启动可读监控
+        LOG(INFO, "\nNew connection established: \n\tconnection Address: " << conn << ", Loop thread Id:"
+                                                                           << conn->GetLoopThreadId());
     };
 
-    acceptor.Listen();  // 启动监听套接字的可读事件监控,当可读时说明有新连接到来
+    server.closed_callback = [](const PtrConnection &conn)
+    {
+        LOG(INFO,
+            "\nConnection closed: \n\tconnection Address: " << conn << ", Loop thread Id:" << conn->GetLoopThreadId());
+    };
 
-    server_loop.Start();  // 启动事件循环,监控新连接到来
+    server.message_callback = [](const PtrConnection &conn, Buffer *buffer)
+    {
+        // 回显接受缓冲区内容
+        LOG(INFO, "Received message , id: " << conn->GetConnectionId()
+                                            << ", \nmessage: " << buffer->Read(buffer->GetReadableSize()));
+        // 客户端套接字可写时发送
+        conn->Send("Server Send: Hello Client");
+
+        // 测试: 通信一次直接关闭连接
+        // conn->Close();
+    };
+
+    server.Run();
+
     return 0;
 }

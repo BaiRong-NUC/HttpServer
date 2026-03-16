@@ -56,7 +56,9 @@ void TcpServer::Run()
             this->_baseloop.RunTask(
                 [this, &conn]()
                 {
-                    LOG(INFO, "Client disconnected, id: " << conn->GetConnectionId());
+                    // LOG(INFO, "Client disconnected, id: " << conn->GetConnectionId() << "\n\tconnection Address: "
+                    //                                       << conn << ", Loop thread Id: " <<
+                    //                                       conn->GetLoopThreadId());
                     this->_connections.erase(conn->GetConnectionId());
                 });  // 从连接列表中移除连接对象
         };

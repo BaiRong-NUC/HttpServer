@@ -301,7 +301,8 @@ Connection::~Connection()
         this->_Release();
     }
 
-    LOG(INFO, "Connection object destroyed, id: " << this->_id << " release connection: " << this << "\n\n");
+    LOG(INFO, "Connection object destroyed, id: " << this->_id << "\n\trelease connection: " << this
+                                                  << ", Loop thread Id: " << this->GetLoopThreadId() << "\n\n");
 }
 
 int Connection::GetSocketFd() { return this->_channel.GetSocket().GetSocketFd(); }
@@ -325,3 +326,5 @@ void Connection::SetContext(const Any &context)
     }
     this->_event_loop->RunTask([&]() { this->_context = context; });
 }
+
+std::thread::id Connection::GetLoopThreadId() const { return this->_event_loop->GetThreadId(); }

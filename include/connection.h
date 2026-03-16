@@ -66,4 +66,5 @@ class Connection : public std::enable_shared_from_this<Connection>
     Any &GetContext();  // 获取连接的上下文,连接建立完成后可以通过上下文保存连接相关的任意数据,如HTTP请求信息等
     void SetContext(const Any &context);  // 设置连接的上下文
     void Established();                   // 连接就绪初始化
+    std::thread::id GetLoopThreadId() const;
 };

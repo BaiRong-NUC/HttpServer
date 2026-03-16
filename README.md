@@ -1,25 +1,53 @@
-## 一. 项目使用模型
+---
+# HttpServer 项目说明
 
-1. 模型:多Reactor多线程模型(主从Reactor模型)
-    - 让一个Reactor线程专门负责监听事件，其他Reactor线程进行IO处理
-    - IO Reactor线程将数据分发给线程池进行业务处理
+## 一、项目使用模型
 
-2. 注意: 执行流不宜过多,过多的执行流会导致线程切换过于频繁,降低性能,线程池进行业务处理这部分可以不添加,业务处理也由IO Reactor线程完成. 本HttpServer中不添加线程池,业务处理由IO Reactor线程完成.
+### 1. 多Reactor多线程模型（主从Reactor）
+- 一个Reactor线程专门负责监听事件，其他Reactor线程进行IO处理。
+- IO Reactor线程将数据分发给线程池进行业务处理。
 
-## 二. 项目模块划分
+> 注意：执行流不宜过多，过多会导致线程切换频繁，降低性能。业务处理由IO Reactor线程完成，本HttpServer未添加线程池。
 
-1. Server模块: 实现Reactor模型的TCP服务器(监听,通信,超时连接管理)
-    - Buffer模块: 负责套接字数据缓冲区管理(保证接受的数据完整,同时在socket可写时发送数据)
-    - Socket模块: 封装套接字相关操作(创建,绑定,监听,连接,发送,接收,释放等)
-    - Channel模块: 对文件描述符进行IO事件的管理,当触发了IO事件时,调用相应的回调函数进行处理
-    - Connection模块: 负责服务器的通信连接管理(新连接的建立,连接的关闭,连接的超时管理,发送/接受数据,在连接过程中需要执行的函数等)
-    - Acceptor模块: 负责监听套接字的事件,当有新的连接到来时,接受连接,封装Connection对象,设置各种回调
-    - TimerQueue模块: 定时任务管理模块,负责管理连接的超时任务,当连接超时时,关闭连接等
-    - Poller模块: 负责对epoll进行事件封装,提供事件注册,事件分发等功能
-    - EventLoop模块: 负责事件监控管理的模块,一个模块一个线程,服务器中的事件都在EventLoop中完成.对所有的连接进行事件监控,当触发事件后调用回调进行处理。对连接的所有操作都要放到EventLoop中进行,保证线程安全
-    - TcpServer模块: 负责服务器的整体管理,提供对外用户接口,完成快速的服务器搭建.用户设置回调函数.
-2. 协议模块: 对当前的Reactor模型服务器提供应用层协议支持(HTTP协议)
+## 二、项目模块划分
 
-## 三. 项目性能测试(webbench)
+### 1. Server模块（Reactor模型TCP服务器）
+    - **Buffer模块**：套接字数据缓冲区管理，保证数据完整，socket可写时发送数据。
+    - **Socket模块**：封装套接字相关操作（创建、绑定、监听、连接、发送、接收、释放等）。
+    - **Channel模块**：文件描述符IO事件管理，触发事件时调用回调处理。
+    - **Connection模块**：通信连接管理（新建、关闭、超时、数据收发、连接过程函数等）。
+    - **Acceptor模块**：监听套接字事件，接受新连接，封装Connection对象，设置回调。
+    - **TimerQueue模块**：定时任务管理，连接超时关闭等。
+    - **Poller模块**：epoll事件封装，事件注册与分发。
+    - **EventLoop模块**：事件监控管理，一个模块一个线程，所有连接操作都在EventLoop中完成，保证线程安全。
+    - **TcpServer模块**：服务器整体管理，对外用户接口，快速搭建服务器，用户可设置回调函数。
 
-./webbench -c 100 -t 30 http://127.0.0.1:8085/ (忽略带宽,简单测试)
+### 2. 协议模块
+- 为Reactor模型服务器提供应用层协议支持（HTTP协议）。
+
+---
+
+## 三、项目性能测试（webbench）
+
+> 测试命令（忽略带宽，简单测试）：
+
+```bash
+./webbench -c 100 -t 30 http://127.0.0.1:8085/
+```
+
+> 测试结果示例：
+
+```
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+
+Request:
+GET / HTTP/1.0
+User-Agent: WebBench 1.5
+Host: 127.0.0.1
+
+Running info: 100 clients, running 30 sec.
+
+Speed = 426 pages/min, 256 bytes/sec.
+Requests: 213 succeed, 0 failed.
+```

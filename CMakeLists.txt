@@ -2,49 +2,89 @@ cmake_minimum_required(VERSION 3.15)
 
 project(HttpServer VERSION 1.0.0 LANGUAGES CXX)
 
+include(GNUInstallDirs)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(BUILD_APP "Build App Executables" ON)
 option(BUILD_API_TEST "Build Api Test Executables" ON)
 
 file(GLOB SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-# 添加 include 目录
-include_directories(${CMAKE_SOURCE_DIR}/include)
-# 编译项目编写的API测试代码
+
+add_library(httpserver STATIC ${SRC_CPP_FILES})
+add_library(HttpServer::httpserver ALIAS httpserver)
+
+target_compile_features(httpserver PUBLIC cxx_std_17)
+target_include_directories(httpserver
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+find_package(Threads REQUIRED)
+target_link_libraries(httpserver PUBLIC Threads::Threads)
+
+set_target_properties(httpserver PROPERTIES
+	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
+	OUTPUT_NAME httpserver
+)
+
+install(TARGETS httpserver
+	EXPORT HttpServerTargets
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+if(BUILD_APP)
+	file(GLOB APP_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp)
+
+	foreach(APP_CPP_FILE ${APP_CPP_FILES})
+		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
+		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE})
+		target_link_libraries(${APP_TARGET_NAME} PRIVATE HttpServer::httpserver)
+		set_target_properties(${APP_TARGET_NAME} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app
+		)
+	endforeach()
+endif()
+
+# 编译开发阶段的 API 测试代码
 if(BUILD_API_TEST)
-	# 定义源文件目录
 	set(API_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/api_test)
 
-	# 查找Api测试路径下所有的cpp文件
-	file(GLOB_RECURSE API_CPP_FILES ${API_TEST_DIR}/*.cpp)
+	file(GLOB_RECURSE API_CPP_FILES CONFIGURE_DEPENDS ${API_TEST_DIR}/*.cpp)
 
-	# 设置生成的可执行文件输出目录
 	set(API_EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/api_test)
 
-	# 为每个cpp文件生成一个可执行文件
 	foreach(API_CPP_FILE ${API_CPP_FILES})
-		# 获取文件名（不带路径和扩展名）
 		get_filename_component(FILE_NAME ${API_CPP_FILE} NAME_WE)
-		
-		# 获取相对于API_TEST_DIR的路径
 		file(RELATIVE_PATH REL_PATH ${API_TEST_DIR} ${API_CPP_FILE})
-		
-		# 检查是否在api/目录下
+		get_filename_component(REL_DIR ${REL_PATH} DIRECTORY)
+		string(REPLACE "/" "_" TARGET_SUFFIX ${REL_PATH})
+		string(REPLACE ".cpp" "" TARGET_SUFFIX ${TARGET_SUFFIX})
+		set(TARGET_NAME api_test_${TARGET_SUFFIX})
 		string(FIND ${REL_PATH} "api/" IS_API_SUBDIR)
-		
+
 		if(IS_API_SUBDIR EQUAL 0)
-			# 在api/目录下，统一链接src目录中的实现文件，避免API之间依赖缺失导致链接错误
-			add_executable(${FILE_NAME} ${API_CPP_FILE} ${SRC_CPP_FILES})
-            # 设置 api/ 目录下可执行文件的输出目录
-            set_target_properties(${FILE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${API_EXECUTABLE_OUTPUT_PATH}/api)
+			add_executable(${TARGET_NAME} ${API_CPP_FILE})
+			target_link_libraries(${TARGET_NAME} PRIVATE HttpServer::httpserver)
 		else()
-			# 不在api/目录下，正常处理
-			add_executable(${FILE_NAME} ${API_CPP_FILE})
-            # 设置其它可执行文件的输出目录
-            set_target_properties(${FILE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${API_EXECUTABLE_OUTPUT_PATH})
+			add_executable(${TARGET_NAME} ${API_CPP_FILE})
+			target_link_libraries(${TARGET_NAME} PRIVATE Threads::Threads)
 		endif()
-		# 链接 pthread 库
-		target_link_libraries(${FILE_NAME} pthread)
+
+		if(REL_DIR STREQUAL "")
+			set(TARGET_OUTPUT_DIR ${API_EXECUTABLE_OUTPUT_PATH})
+		else()
+			set(TARGET_OUTPUT_DIR ${API_EXECUTABLE_OUTPUT_PATH}/${REL_DIR})
+		endif()
+
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			OUTPUT_NAME ${FILE_NAME}
+			RUNTIME_OUTPUT_DIRECTORY ${TARGET_OUTPUT_DIR}
+		)
 	endforeach()
 endif()

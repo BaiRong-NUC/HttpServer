@@ -19,10 +19,15 @@ TcpServer::TcpServer(uint16_t port, int thread_num, bool reseAddr, bool noBlock,
 
 TcpServer::~TcpServer() {}
 
+/**
+ * TcpServer::SetInactiveRelease只会被调用一次，
+ * 所以this->_inactive_release = enable;this->_inactive_timeout线程安全
+ * 这里为了可能会运行中多次调用,为了兼容,防止出错使用原子变量,但其实不需要原子变量,直接使用普通成员变量就行了
+ */
 void TcpServer::SetInactiveRelease(bool enable, int timeout)
 {
-    this->_inactive_release = enable;
-    this->_inactive_timeout = timeout;
+    this->_inactive_release.store(enable, std::memory_order_relaxed);
+    this->_inactive_timeout.store(timeout, std::memory_order_relaxed);
 }
 
 void TcpServer::AddTimerTask(TimerAction &action, uint64_t expireTime)
@@ -54,17 +59,18 @@ void TcpServer::Run()
         // 连接删除处理
         clientConnection->_server_closed_callback = [this](const PtrConnection &conn)
         {
+            const auto connId = conn->GetConnectionId();
             this->_baseloop.RunTask(
-                [this, &conn]()
+                [this, connId]()
                 {
                     // LOG(INFO, "Client disconnected, id: " << conn->GetConnectionId() << "\n\tconnection Address: "
                     //                                       << conn << ", Loop thread Id: " <<
                     //                                       conn->GetLoopThreadId());
-                    this->_connections.erase(conn->GetConnectionId());
+                    this->_connections.erase(connId);
                 });  // 从连接列表中移除连接对象
         };
-
-        clientConnection->SetInactiveRelease(this->_inactive_release, this->_inactive_timeout);
+        clientConnection->SetInactiveRelease(this->_inactive_release.load(std::memory_order_relaxed),
+                                             this->_inactive_timeout.load(std::memory_order_relaxed));
         clientConnection->Established();  // 连接就绪初始化,启动可读监控
     };
 

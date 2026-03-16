@@ -15,9 +15,9 @@ class TcpServer
     Acceptor _acceptor;       // Acceptor对象,创建一个监听套接字
     // std::unordered_map<int, PtrConnection>对象,实现对多个Connection对象的管理
     std::unordered_map<int, PtrConnection> _connections;
-    LoopThreadPool _loop_thread_pool;  // LoopThreadPool对象,创建loop线程池,对连接进行事件监控及处理
-    bool _inactive_release;            // 是否启用连接不活跃时自动释放连接的机制
-    int _inactive_timeout;             // 连接不活跃时自动释放连接的超时时间,以s为单位
+    LoopThreadPool _loop_thread_pool;     // LoopThreadPool对象,创建loop线程池,对连接进行事件监控及处理
+    std::atomic<bool> _inactive_release;  // 是否启用连接不活跃时自动释放连接的机制
+    std::atomic<int> _inactive_timeout;   // 连接不活跃时自动释放连接的超时时间,以s为单位
    public:
     const int thread_num;  // 从属线程数量
     const uint16_t port;   // 监听端口

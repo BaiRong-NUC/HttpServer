@@ -40,10 +40,11 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 
 if(BUILD_APP)
 	file(GLOB APP_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp)
+	file(GLOB APP_SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/src/*.cpp)
 
 	foreach(APP_CPP_FILE ${APP_CPP_FILES})
 		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
-		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE})
+		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE} ${APP_SRC_CPP_FILES})
 		target_link_libraries(${APP_TARGET_NAME} PRIVATE HttpServer::httpserver)
 		set_target_properties(${APP_TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app

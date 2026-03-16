@@ -18,6 +18,7 @@
 #include <utility>
 #include <mutex>
 #include <thread>
+#include <atomic>
 #include <sys/eventfd.h>
 #include <sys/timerfd.h>
 #include <condition_variable>

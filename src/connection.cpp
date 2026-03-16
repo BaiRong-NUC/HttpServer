@@ -301,7 +301,7 @@ Connection::~Connection()
         this->_Release();
     }
 
-    LOG(INFO, "Connection object destroyed, id: " << this->_id << " Map: " << this);
+    LOG(INFO, "Connection object destroyed, id: " << this->_id << " release connection: " << this << "\n\n");
 }
 
 int Connection::GetSocketFd() { return this->_channel.GetSocket().GetSocketFd(); }

@@ -1,8 +1,11 @@
 #include "../include/loop_thread_pool.h"
 
 LoopThreadPool::LoopThreadPool(EventLoop *base_loop, int thread_num)
-    : _base_loop(base_loop), _sub_thread_num(thread_num), _next_index(0)
+    : _sub_thread_num(thread_num < 0 ? 0 : thread_num), _base_loop(base_loop), _next_index(0)
 {
+    assert(_base_loop != nullptr);
+    assert(thread_num >= 0);
+
     // 创建从属线程对象
     for (int i = 0; i < _sub_thread_num; ++i)
     {
@@ -17,12 +20,14 @@ LoopThreadPool::~LoopThreadPool() {}
 
 EventLoop *LoopThreadPool::GetSubEventLoop()
 {
-    if (_sub_thread_num == 0)
+    if (_sub_event_loops.empty())
     {
         return _base_loop;  // 没有从属线程时返回主线程的EventLoop对象
     }
-    EventLoop *loop = _sub_event_loops[_next_index];    // 获取下一个线程的EventLoop对象
-    _next_index = (_next_index + 1) % _sub_thread_num;  // 轮转分配下一个线程数组索引
+
+    std::unique_lock<std::mutex> lock(_index_mutex);
+    EventLoop *loop = _sub_event_loops[_next_index];            // 获取下一个线程的EventLoop对象
+    _next_index = (_next_index + 1) % _sub_event_loops.size();  // 轮转分配下一个线程数组索引
     return loop;
 }
 

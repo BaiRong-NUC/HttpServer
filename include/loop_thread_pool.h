@@ -20,7 +20,8 @@ class LoopThreadPool
     std::vector<std::unique_ptr<LoopThread>> _sub_threads;  // 从属线程列表
     // 从属线程的EventLoop列表,方便分配连接时获取EventLoop对象,因为从LoopThread获取时有锁消耗
     std::vector<EventLoop *> _sub_event_loops;
-    int _next_index;  // 轮转分配的下一个线程数组索引
+    int _next_index;          // 轮转分配的下一个线程数组索引
+    std::mutex _index_mutex;  // 保护轮转索引,支持并发分配
    public:
     LoopThreadPool(EventLoop *base_loop, int thread_num = 0);
 

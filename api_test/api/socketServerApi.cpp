@@ -39,8 +39,8 @@ int main(int argc, char const *argv[])
         };
 
         // 连接事件
-        clientConnection->connected_callback = [](const PtrConnection &conn)
-        { LOG(INFO, "Client connected, id: " << conn->GetConnectionId() << " Map: " << conn); };
+        clientConnection->connected_callback = [loop](const PtrConnection &conn)
+        { LOG(INFO, "Client connected, id: " << conn->GetConnectionId() << " create connection: " << conn << " thread id: " << loop->GetThreadId()); };
 
         // 客户端套接字可读时,将输入缓冲区内容放buffer里,同时调用业务处理回调
         clientConnection->message_callback = [](const PtrConnection &conn, Buffer *in_buffer)

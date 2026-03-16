@@ -22,6 +22,7 @@ EventLoop::~EventLoop() { delete this->_timer; }
 EventLoop::EventLoop()
     : _poller(),
       _efd_channel(this, std::move(Socket(eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK)))),
+      _quit(false),
       _thread_id(std::this_thread::get_id())
 {
     if (this->_efd_channel.GetSocket().GetSocketFd() < 0)
@@ -52,7 +53,8 @@ EventLoop::EventLoop()
 
 void EventLoop::Start()
 {
-    while (true)
+    _quit.store(false);
+    while (!_quit.load())
     {
         // 事件监控
         std::vector<Channel *> activeChannels = this->_poller.Poll(-1);
@@ -62,6 +64,19 @@ void EventLoop::Start()
         }
         // 执行任务
         this->_RunAllTasks();
+    }
+}
+
+void EventLoop::Stop()
+{
+    _quit.store(true);
+
+    // 唤醒可能阻塞在epoll上的事件循环线程,使其尽快退出
+    uint64_t one = 1;
+    ssize_t size = write(this->_efd_channel.GetSocket().GetSocketFd(), &one, sizeof(one));
+    if (size < 0 && errno != EAGAIN)
+    {
+        LOG(ERROR, "Failed to write to eventfd while stopping loop");
     }
 }
 

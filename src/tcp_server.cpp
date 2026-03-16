@@ -15,6 +15,9 @@ TcpServer::TcpServer(uint16_t port, int thread_num, bool reseAddr, bool noBlock,
     this->closed_callback = nullptr;
     this->event_callback = nullptr;
     this->message_callback = nullptr;
+
+    // 忽略(SIG_IGN) SIGPIPE
+    signal(SIGPIPE, SIG_IGN);
 }
 
 TcpServer::~TcpServer() {}

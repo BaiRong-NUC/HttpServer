@@ -24,6 +24,12 @@ std::vector<std::string> Utils::Split(const std::string &str, const std::string 
 
 bool Utils::GetFileContent(const std::string &file_name, Buffer *buffer)
 {
+    if (buffer == nullptr)
+    {
+        LOG(ERROR, "Buffer is null for file: " << file_name);
+        return false;
+    }
+
     std::ifstream file(file_name, std::ios::binary);
     if (!file.is_open())
     {
@@ -31,7 +37,29 @@ bool Utils::GetFileContent(const std::string &file_name, Buffer *buffer)
         return false;  // 文件打开失败
     }
 
-    buffer->Write(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()));
-    file.close();
+    constexpr size_t kChunkSize = 8192;
+    char chunk[kChunkSize];
+    while (file)
+    {
+        file.read(chunk, static_cast<std::streamsize>(kChunkSize));
+        std::streamsize bytes = file.gcount();
+        if (bytes <= 0)
+        {
+            break;
+        }
+
+        if (!buffer->Write(chunk, static_cast<uint64_t>(bytes)))
+        {
+            LOG(ERROR, "Failed to write file content into buffer: " << file_name);
+            return false;
+        }
+    }
+
+    if (file.bad())
+    {
+        LOG(ERROR, "I/O error while reading file: " << file_name);
+        return false;
+    }
+
     return true;
 }

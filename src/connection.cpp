@@ -3,6 +3,7 @@
 // Start channel 管理的套接字事件回调函数实现
 void Connection::_HandleRead()
 {
+    // 当数组满了等下次再读.
     char buffer[BUFFER_DEFAULT_SIZE] = {0};
     int ret = this->_channel.GetSocket().Recv(buffer, BUFFER_DEFAULT_SIZE, MSG_DONTWAIT);
     if (ret < 0)

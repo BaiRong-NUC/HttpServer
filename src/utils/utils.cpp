@@ -54,7 +54,7 @@ bool Utils::GetFileContent(const std::string &file_name, Buffer *buffer)
             return false;
         }
     }
-
+    file.close();
     if (file.bad())
     {
         LOG(ERROR, "I/O error while reading file: " << file_name);

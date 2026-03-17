@@ -1,11 +1,13 @@
 #pragma once
 #include "utils/public.h"
+#include "utils/buffer.h"
+#include "utils/log.h"
 
 class Utils
 {
    public:
     // 获取文件内容
-    static std::string GetFileContent(const char *file);
+    static bool GetFileContent(const std::string &file_name, Buffer *buffer);
     // 写文件
     static bool WriteFileContent(const char *file, const std::string &content);
     // URL编码

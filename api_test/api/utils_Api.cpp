@@ -96,6 +96,52 @@ void TestGetFileContent_EmptyFile()
     std::remove(tmp);
 }
 
+// ---- WriteFileContent ----
+
+void TestWriteFileContent_CreateAndReadBack()
+{
+    const char *tmp = "/tmp/utils_write_test.txt";
+    const std::string expected = "write content\nabc\x01\x02";
+
+    bool ok = Utils::WriteFileContent(tmp, expected);
+    assert(ok);
+
+    Buffer buf;
+    ok = Utils::GetFileContent(tmp, &buf);
+    assert(ok);
+    assert(buf.GetReadableSize() == expected.size());
+    std::string got = buf.Read(buf.GetReadableSize());
+    assert(got == expected);
+
+    std::remove(tmp);
+}
+
+void TestWriteFileContent_Overwrite()
+{
+    const char *tmp = "/tmp/utils_write_overwrite_test.txt";
+    const std::string old_content = "old old old";
+    const std::string new_content = "new";
+
+    bool ok = Utils::WriteFileContent(tmp, old_content);
+    assert(ok);
+    ok = Utils::WriteFileContent(tmp, new_content);
+    assert(ok);
+
+    Buffer buf;
+    ok = Utils::GetFileContent(tmp, &buf);
+    assert(ok);
+    std::string got = buf.Read(buf.GetReadableSize());
+    assert(got == new_content);
+
+    std::remove(tmp);
+}
+
+void TestWriteFileContent_InvalidPath()
+{
+    bool ok = Utils::WriteFileContent("/tmp/__utils_no_such_dir__/a.txt", "x");
+    assert(!ok);
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -107,6 +153,10 @@ int main(int argc, char const *argv[])
     TestGetFileContent_Normal();
     TestGetFileContent_NotExist();
     TestGetFileContent_EmptyFile();
+
+    TestWriteFileContent_CreateAndReadBack();
+    TestWriteFileContent_Overwrite();
+    TestWriteFileContent_InvalidPath();
 
     cout << "utils_api test passed" << endl;
     return 0;

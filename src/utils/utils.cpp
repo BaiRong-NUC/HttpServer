@@ -31,6 +31,7 @@ bool Utils::GetFileContent(const std::string &file_name, Buffer *buffer)
     }
 
     std::ifstream file(file_name, std::ios::binary);
+    // 文件描述符退出函数后销毁
     if (!file.is_open())
     {
         LOG(ERROR, "Failed to open file: " << file_name);
@@ -54,12 +55,30 @@ bool Utils::GetFileContent(const std::string &file_name, Buffer *buffer)
             return false;
         }
     }
-    file.close();
+
     if (file.bad())
     {
         LOG(ERROR, "I/O error while reading file: " << file_name);
         return false;
     }
 
+    return true;
+}
+
+bool Utils::WriteFileContent(const char *file, const std::string &content)
+{
+    // 覆盖写入文件内容,文件描述符退出函数后销毁,没有文件则失败
+    std::ofstream f(file, std::ios::binary | std::ios::trunc);
+    if (!f.is_open())
+    {
+        LOG(ERROR, "Failed to open file for writing: " << file);
+        return false;
+    }
+    f.write(content.data(), content.size());
+    if (!f.good())
+    {
+        LOG(ERROR, "Failed to write content to file: " << file);
+        return false;
+    }
     return true;
 }

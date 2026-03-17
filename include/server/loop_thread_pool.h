@@ -1,6 +1,6 @@
 #pragma once
-#include "./public.h"
-#include "./loop_thread.h"
+#include "utils/public.h"
+#include "server/loop_thread.h"
 
 // LoopThreadPool: 针对LoopThred的线程池
 

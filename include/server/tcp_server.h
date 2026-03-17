@@ -1,8 +1,8 @@
 #pragma once
-#include "./public.h"
-#include "./acceptor.h"
-#include "./loop_thread_pool.h"
-#include "./connection.h"
+#include "utils/public.h"
+#include "server/acceptor.h"
+#include "server/loop_thread_pool.h"
+#include "server/connection.h"
 using PtrConnection = std::shared_ptr<Connection>;
 using Action = std::function<void(const PtrConnection &)>;
 using MessageAction = std::function<void(const PtrConnection &, Buffer *)>;  // 业务处理函数

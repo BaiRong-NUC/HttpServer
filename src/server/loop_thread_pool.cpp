@@ -1,4 +1,4 @@
-#include "../include/loop_thread_pool.h"
+#include "server/loop_thread_pool.h"
 
 LoopThreadPool::LoopThreadPool(EventLoop *base_loop, int thread_num)
     : _sub_thread_num(thread_num < 0 ? 0 : thread_num), _base_loop(base_loop), _next_index(0)

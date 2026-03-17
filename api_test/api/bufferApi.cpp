@@ -1,4 +1,4 @@
-#include "../../include/buffer.h"
+#include "server/buffer.h"
 using namespace std;
 void testBufferBasic()
 {

@@ -1,4 +1,4 @@
-#include "./public.h"
+#include "utils/public.h"
 #pragma once
 #define BUFFER_DEFAULT_SIZE 1024
 // Buffer类定义了一个简单的缓冲区,使用std::vector<char>来存储数据,并维护读写索引.

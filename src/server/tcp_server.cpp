@@ -1,4 +1,4 @@
-#include "../include/tcp_server.h"
+#include "server/tcp_server.h"
 
 TcpServer::TcpServer(uint16_t port, int thread_num, bool reseAddr, bool noBlock, const std::string &ip)
     : port(port),

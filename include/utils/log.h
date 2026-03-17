@@ -1,4 +1,4 @@
-#include "./public.h"
+#include "utils/public.h"
 #pragma once
 
 // Log.h定义了一个简单的日志系统,使用宏LOG来输出日志信息,并包含日志级别和文件位置信息,时间信息.
@@ -24,6 +24,4 @@ std::string GetRelativeFile(const char *file);
 std::string GetCurrentTime();
 
 // void LOG(LogLevel level, const std::string &msg);
-
-// 不要使用\\换行,会报错
 #define LOG(level, msg) if ((level) >= LOG_LEVEL) std::cout << "[" << GetCurrentTime() << " " << LogLevelToString(level) << " " << GetRelativeFile(__FILE__) << ":" << __LINE__ << "] " << msg << std::endl

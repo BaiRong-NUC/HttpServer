@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_APP "Build App Executables" ON)
 option(BUILD_API_TEST "Build Api Test Executables" ON)
 
-file(GLOB SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 add_library(httpserver STATIC ${SRC_CPP_FILES})
 add_library(HttpServer::httpserver ALIAS httpserver)
@@ -46,6 +46,10 @@ if(BUILD_APP)
 		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
 		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE} ${APP_SRC_CPP_FILES})
 		target_link_libraries(${APP_TARGET_NAME} PRIVATE HttpServer::httpserver)
+		target_include_directories(${APP_TARGET_NAME}
+			PRIVATE
+				${CMAKE_CURRENT_SOURCE_DIR}/app/include
+		)
 		set_target_properties(${APP_TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app
 		)

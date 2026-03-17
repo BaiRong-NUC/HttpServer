@@ -1,4 +1,4 @@
-#include "../include/echo_server.h"
+#include "echo_server.h"
 
 EchoServer::EchoServer(uint16_t port, int thread_num, bool reseAddr, bool noBlock, const std::string &ip)
     : _server(port, thread_num, reseAddr, noBlock, ip)

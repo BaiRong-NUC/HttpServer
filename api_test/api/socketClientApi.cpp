@@ -1,4 +1,4 @@
-#include "../../include/socket.h"
+#include "server/socket.h"
 
 // 测试基本的服务器功能
 void testServer(Socket &client)

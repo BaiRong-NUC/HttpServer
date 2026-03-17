@@ -1,4 +1,4 @@
-#include "../../include/tcp_server.h"
+#include "server/tcp_server.h"
 #include <utility>
 
 int main(int argc, char const *argv[])

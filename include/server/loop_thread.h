@@ -1,6 +1,6 @@
 #pragma once
-#include "./public.h"
-#include "./event_loop.h"
+#include "utils/public.h"
+#include "server/event_loop.h"
 // 将EventLoop模块与线程绑定: 创建线程->在线程中实例化EventLoop对象
 
 class LoopThread

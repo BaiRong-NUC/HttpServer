@@ -1,4 +1,4 @@
-#include "../include/socket.h"
+#include "server/socket.h"
 
 Socket::Socket() : _sockfd(-1) {}
 

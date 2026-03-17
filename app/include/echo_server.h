@@ -1,5 +1,5 @@
 #pragma once
-#include "../../include/tcp_server.h"
+#include "server/tcp_server.h"
 
 // 应用,专门的回显服务器
 class EchoServer

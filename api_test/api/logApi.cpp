@@ -1,5 +1,5 @@
-#include "../../include/log.h"
-#include "../../include/buffer.h"
+#include "utils/log.h"
+#include "server/buffer.h"
 using namespace std;
 // 测试日志输出
 void testLog()

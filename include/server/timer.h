@@ -1,7 +1,7 @@
 // 基于时间轮的定时器实现
 #pragma once
-#include "../utils/public.h"
-#include "./channel.h"
+#include "utils/public.h"
+#include "server/channel.h"
 
 class EventLoop;
 

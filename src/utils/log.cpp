@@ -1,4 +1,4 @@
-#include "../include/log.h"
+#include "utils/log.h"
 
 LogLevel LOG_LEVEL = WARNING;
 void SetLogLevel(LogLevel level) { LOG_LEVEL = level; }

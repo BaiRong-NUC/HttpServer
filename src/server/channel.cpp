@@ -1,4 +1,4 @@
-#include "../include/event_loop.h"
+#include "server/event_loop.h"
 // 构造函数
 Channel::Channel(EventLoop *event_loop, Socket &&sock) : _event_loop(event_loop), _sock(std::move(sock)), _events(0), _revents(0) {}
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "./socket.h"
-#include "./public.h"
-#include "./log.h"
+#include "server/socket.h"
+#include "utils/public.h"
+#include "utils/log.h"
 #define MAX_EPOLL_EVENTS 1024
 
 class Channel;

@@ -23,22 +23,7 @@
 - **EventLoop模块**：事件监控管理，一个模块一个线程，所有连接操作都在EventLoop中完成，保证线程安全。
 - **TcpServer模块**：服务器整体管理，对外用户接口，快速搭建服务器，用户可设置回调函数。
 
-### 2. Utils模块
-
-- **Log模块**: 日志系统，支持多级别日志输出（DEBUG、INFO、WARN、ERROR），日志文件管理。
-- **工具接口**: 读取文件内容,向文件写入内容,URL编码与解码,字符串分割等常用工具函数.获取文件后缀名等。
-
-### 3. 协议模块
-
-- Http模块:
-    - HttpRequest模块: HTTP请求解析与管理，支持GET、POST等方法，解析请求行、头部和消息体。
-    - HttpResponse模块: 业务处理,HTTP响应构建与管理，设置状态码、响应头和消息体，生成完整HTTP响应数据。
-    - HttpServer模块: 上述模块的整合,快速构建HTTP服务器，处理HTTP请求，生成HTTP响应，支持静态文件服务和动态请求处理。
-- 其他协议模块（如FTP、SMTP等）可根据需要添加，提供相应的请求解析和响应构建功能。
-
----
-
-## 三、项目性能测试（webbench）
+#### 1.1 Server模块性能测试(webbench)
 
 > 测试命令（忽略带宽，简单测试）：
 
@@ -62,3 +47,18 @@ Running info: 100 clients, running 30 sec.
 Speed = 426 pages/min, 256 bytes/sec.
 Requests: 213 succeed, 0 failed.
 ```
+
+### 2. Utils模块
+
+- **Log模块**: 日志系统，支持多级别日志输出（DEBUG、INFO、WARN、ERROR），日志文件管理。
+- **工具接口**: 读取文件内容,向文件写入内容,URL编码与解码,字符串分割等常用工具函数.获取文件后缀名等。
+
+### 3. 协议模块
+
+- Http模块:
+    - HttpRequest模块: HTTP请求解析与管理，支持GET、POST等方法，解析请求行、头部和消息体。
+    - HttpResponse模块: 业务处理,HTTP响应构建与管理，设置状态码、响应头和消息体，生成完整HTTP响应数据。
+    - HttpServer模块: 上述模块的整合,快速构建HTTP服务器，处理HTTP请求，生成HTTP响应，支持静态文件服务和动态请求处理。
+- 其他协议模块（如FTP、SMTP等）可根据需要添加，提供相应的请求解析和响应构建功能。
+
+---

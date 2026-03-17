@@ -1,0 +1,28 @@
+#pragma once
+#include "utils/public.h"
+
+class Utils
+{
+   public:
+    // 获取文件内容
+    static std::string GetFileContent(const char *file);
+    // 写文件
+    static bool WriteFileContent(const char *file, const std::string &content);
+    // URL编码
+    static std::string UrlEncode(const std::string &str);
+    // URL解码
+    static std::string UrlDecode(const std::string &str);
+    // 相应状态码信息获取
+    static std::string GetStatusMessage(int status_code);
+    // 根据文件后缀名获取文件的mime类型
+    static std::string GetMimeType(const std::string &file_name);
+    // 判断文件是否是一个目录
+    static bool IsDirectory(const std::string &path);
+    // 判断是否是文件
+    static bool IsFile(const std::string &path);
+    // 判断请求路径是否合法
+    static bool IsValidPath(const std::string &path);
+    // 字符串分隔
+    static std::vector<std::string> Split(const std::string &str, const std::string &delimiter,
+                                          bool ignore_empty = false);
+};

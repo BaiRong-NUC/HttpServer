@@ -199,6 +199,28 @@ void TestUrlDecode_RoundTrip()
     assert(decoded == raw);
 }
 
+// ---- GetStatusMessage ----
+
+void TestGetStatusMessage_CommonStatus()
+{
+    assert(Utils::GetStatusMessage(200) == "OK");
+    assert(Utils::GetStatusMessage(404) == "Not Found");
+    assert(Utils::GetStatusMessage(501) == "Not Implemented");
+}
+
+void TestGetStatusMessage_EdgeCases()
+{
+    assert(Utils::GetStatusMessage(100) == "Continue");
+    assert(Utils::GetStatusMessage(511) == "Network Authentication Required");
+}
+
+void TestGetStatusMessage_UnknownStatus()
+{
+    assert(Utils::GetStatusMessage(999) == "Unknown Status");
+    assert(Utils::GetStatusMessage(-1) == "Unknown Status");
+    assert(Utils::GetStatusMessage(0) == "Unknown Status");
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -223,6 +245,10 @@ int main(int argc, char const *argv[])
     TestUrlDecode_PlusMode();
     TestUrlDecode_InvalidPercentKeepRaw();
     TestUrlDecode_RoundTrip();
+
+    TestGetStatusMessage_CommonStatus();
+    TestGetStatusMessage_EdgeCases();
+    TestGetStatusMessage_UnknownStatus();
 
     // std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 

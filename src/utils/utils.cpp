@@ -82,3 +82,29 @@ bool Utils::WriteFileContent(const char *file, const std::string &content)
     }
     return true;
 }
+
+std::string Utils::UrlEncode(const std::string &str, bool encode_space_as_plus)
+{
+    std::string result;
+    for (const char &ch : str)
+    {
+        if (isalnum(static_cast<unsigned char>(ch)) || ch == '-' || ch == '_' || ch == '.' || ch == '~')
+        {
+            // 不编码的字符
+            result += ch;
+        }
+        else if (ch == ' ' && encode_space_as_plus)
+        {
+            // 空格编码为+
+            result += '+';
+        }
+        else
+        {
+            // 其他字符需要编码,转化为%XX格式的十六进制表示,其中XX是字符的ASCII码的两位十六进制数
+            char buf[4] = {0};
+            snprintf(buf, sizeof(buf), "%%%02X", static_cast<unsigned char>(ch));
+            result += buf;
+        }
+    }
+    return result;
+}

@@ -10,10 +10,12 @@ class Utils
     static bool GetFileContent(const std::string &file_name, Buffer *buffer);
     // 写文件
     static bool WriteFileContent(const char *file, const std::string &content);
-    // URL编码
-    static std::string UrlEncode(const std::string &str);
+    // URL编码,避免url中的资源路径名与查询字符串的特殊字符冲突,产生歧义
+    // RFC3986 规定 .*_~字母,数字不编码
+    // W3C规定 空格需要编码为+
+    static std::string UrlEncode(const std::string &str, bool encode_space_as_plus = true);
     // URL解码
-    static std::string UrlDecode(const std::string &str);
+    static bool UrlDecode(const std::string &str);
     // 相应状态码信息获取
     static std::string GetStatusMessage(int status_code);
     // 根据文件后缀名获取文件的mime类型

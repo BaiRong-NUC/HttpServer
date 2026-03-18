@@ -142,6 +142,31 @@ void TestWriteFileContent_InvalidPath()
     assert(!ok);
 }
 
+// ---- UrlEncode ----
+
+void TestUrlEncode_UnreservedChars()
+{
+    const std::string input = "abcXYZ012-_.~";
+    const std::string encoded = Utils::UrlEncode(input);
+    assert(encoded == input);
+}
+
+void TestUrlEncode_SpaceMode()
+{
+    const std::string input = "a b";
+    const std::string plus_mode = Utils::UrlEncode(input, true);
+    const std::string percent_mode = Utils::UrlEncode(input, false);
+
+    assert(plus_mode == "a+b");
+    assert(percent_mode == "a%20b");
+}
+
+void TestUrlEncode_SpecialChars()
+{
+    const std::string encoded = Utils::UrlEncode("/?:@&=+$,#");
+    assert(encoded == "%2F%3F%3A%40%26%3D%2B%24%2C%23");
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -157,6 +182,12 @@ int main(int argc, char const *argv[])
     TestWriteFileContent_CreateAndReadBack();
     TestWriteFileContent_Overwrite();
     TestWriteFileContent_InvalidPath();
+
+    TestUrlEncode_UnreservedChars();
+    TestUrlEncode_SpaceMode();
+    TestUrlEncode_SpecialChars();
+
+    std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 
     cout << "utils_api test passed" << endl;
     return 0;

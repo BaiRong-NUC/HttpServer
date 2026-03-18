@@ -167,6 +167,38 @@ void TestUrlEncode_SpecialChars()
     assert(encoded == "%2F%3F%3A%40%26%3D%2B%24%2C%23");
 }
 
+// ---- UrlDecode ----
+
+void TestUrlDecode_NormalPercent()
+{
+    const std::string decoded = Utils::UrlDecode("a%20b%2Fc%3F");
+    assert(decoded == "a b/c?");
+}
+
+void TestUrlDecode_PlusMode()
+{
+    const std::string space_mode = Utils::UrlDecode("a+b+c", true);
+    const std::string keep_plus_mode = Utils::UrlDecode("a+b+c", false);
+
+    assert(space_mode == "a b c");
+    assert(keep_plus_mode == "a+b+c");
+}
+
+void TestUrlDecode_InvalidPercentKeepRaw()
+{
+    // 非法 % 序列应按普通字符保留
+    const std::string decoded = Utils::UrlDecode("abc%2G%Z1%");
+    assert(decoded == "abc%2G%Z1%");
+}
+
+void TestUrlDecode_RoundTrip()
+{
+    const std::string raw = "/login?q=hello world&x=1+2";
+    const std::string encoded = Utils::UrlEncode(raw, false);
+    const std::string decoded = Utils::UrlDecode(encoded, false);
+    assert(decoded == raw);
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -187,7 +219,12 @@ int main(int argc, char const *argv[])
     TestUrlEncode_SpaceMode();
     TestUrlEncode_SpecialChars();
 
-    std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
+    TestUrlDecode_NormalPercent();
+    TestUrlDecode_PlusMode();
+    TestUrlDecode_InvalidPercentKeepRaw();
+    TestUrlDecode_RoundTrip();
+
+    // std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 
     cout << "utils_api test passed" << endl;
     return 0;

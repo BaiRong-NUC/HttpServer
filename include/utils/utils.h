@@ -15,7 +15,7 @@ class Utils
     // W3C规定 空格需要编码为+
     static std::string UrlEncode(const std::string &str, bool encode_space_as_plus = true);
     // URL解码
-    static bool UrlDecode(const std::string &str);
+    static std::string UrlDecode(const std::string &str, bool decode_plus_as_space = true);
     // 相应状态码信息获取
     static std::string GetStatusMessage(int status_code);
     // 根据文件后缀名获取文件的mime类型

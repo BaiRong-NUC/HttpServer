@@ -108,3 +108,30 @@ std::string Utils::UrlEncode(const std::string &str, bool encode_space_as_plus)
     }
     return result;
 }
+
+std::string Utils::UrlDecode(const std::string &str, bool decode_plus_as_space)
+{
+    std::string result;
+    for (size_t i = 0; i < str.size(); ++i)
+    {
+        if (str[i] == '%' && i + 2 < str.size() && isxdigit(static_cast<unsigned char>(str[i + 1])) &&
+            isxdigit(static_cast<unsigned char>(str[i + 2])))
+        {
+            // %XX格式的十六进制数,转化为对应的字符
+            char hex[3] = {str[i + 1], str[i + 2], '\0'};
+            result += static_cast<char>(strtol(hex, nullptr, 16));
+            i += 2;  // 跳过已处理的%XX
+        }
+        else if (str[i] == '+' && decode_plus_as_space)
+        {
+            // +解码为空格
+            result += ' ';
+        }
+        else
+        {
+            // 其他字符直接添加到结果中
+            result += str[i];
+        }
+    }
+    return result;
+}

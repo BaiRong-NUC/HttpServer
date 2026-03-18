@@ -1,11 +1,18 @@
 {
     "version": "0.2.0",
+    // 启动时会让你输入 build 目录下的可执行路径
+    /**
+     * 要调试的生成程序在build/app/server, 那么输入app/server
+     * 要调试的生成程序在build/api_test/api/logApi, 那么输入api_test/api/logApi
+     * 要调试的生成程序在build/logApi, 那么输入logApi
+     * 以此类推
+     */
     "configurations": [
         {
-            "name": "Debug server",
+            "name": "Debug custom target",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/app/server",
+            "program": "${workspaceFolder}/build/${input:debugProgramPath}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -24,30 +31,14 @@
             "logging": {
                 "engineLogging": false
             }
-        },
+        }
+    ],
+    "inputs": [
         {
-            "name": "Debug api_test utilsApi",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/api_test/api/utilsApi",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "preLaunchTask": "CMake Build (Debug)",
-            "logging": {
-                "engineLogging": false
-            }
+            "id": "debugProgramPath",
+            "type": "promptString",
+            "description": "Input executable path relative to build, e.g. app/server or api_test/api/logApi",
+            "default": "app/server"
         }
     ]
 }

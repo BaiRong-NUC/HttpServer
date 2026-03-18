@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -263,6 +264,47 @@ void TestIsDirectory()
     rmdir(tmpdir);
 }
 
+// ---- IsFile ----
+void TestIsFile()
+{
+    // 1. /etc/passwd 一定是文件
+    assert(Utils::IsFile("/etc/passwd"));
+    // 2. /tmp 一般是目录不是文件
+    assert(!Utils::IsFile("/tmp"));
+    // 3. /dev/null 是字符设备不是普通文件
+    assert(!Utils::IsFile("/dev/null"));
+    // 4. 不存在的路径
+    assert(!Utils::IsFile("/no_such_file_1234567890"));
+    // 5. 新建临时文件
+    const char *tmpfile = "/tmp/utils_test_file.txt";
+    int fd = open(tmpfile, O_CREAT | O_WRONLY, 0600);
+    assert(fd >= 0);
+    close(fd);
+    assert(Utils::IsFile(tmpfile));
+    unlink(tmpfile);
+}
+
+// ---- IsValidPath ----
+void TestIsValidPath()
+{
+    // 合法绝对路径
+    assert(Utils::IsValidPath("/a/b/c"));
+    assert(Utils::IsValidPath("/a/./b/../c"));
+    // 根目录
+    assert(Utils::IsValidPath("/"));
+    // 不合法：相对路径
+    assert(!Utils::IsValidPath("a/b/c"));
+    // 不合法：..越界
+    assert(!Utils::IsValidPath("/../a"));
+    assert(!Utils::IsValidPath("/a/../../b"));
+    // 不合法：空
+    assert(!Utils::IsValidPath(""));
+    // 不合法：多次..到根
+    assert(!Utils::IsValidPath("/a/../.."));
+    // 合法：/a/../b
+    assert(Utils::IsValidPath("/a/../b"));
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -296,6 +338,9 @@ int main(int argc, char const *argv[])
     TestGetMimeType_Unknown();
 
     TestIsDirectory();
+
+    TestIsFile();
+    TestIsValidPath();
 
     // std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 

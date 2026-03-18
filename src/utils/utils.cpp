@@ -309,3 +309,45 @@ bool Utils::IsDirectory(const std::string &path)
     }
     return S_ISDIR(statbuf.st_mode);
 }
+
+bool Utils::IsFile(const std::string &path)
+{
+    struct stat statbuf;
+    if (stat(path.c_str(), &statbuf) != 0)
+    {
+        return false;  // 无法访问路径
+    }
+    return S_ISREG(statbuf.st_mode);
+}
+
+bool Utils::IsValidPath(const std::string &path)
+{
+    if (path.empty() || path[0] != '/')
+    {
+        return false;  // 路径必须以/开头
+    }
+    int level = 0;
+    std::vector<std::string> parts = Utils::Split(path, "/");
+
+    for (const std::string &part : parts)
+    {
+        if (part.empty() || part == ".")
+        {
+            continue;  // 忽略空部分和当前目录
+        }
+        if (part == "..")
+        {
+            if (level == 0)
+            {
+                return false;  // 已经在根目录,不能再上升了
+            }
+            --level;  // 上升一级
+        }
+        else
+        {
+            ++level;  // 进入下一级
+        }
+    }
+
+    return true;
+}

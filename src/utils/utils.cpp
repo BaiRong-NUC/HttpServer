@@ -299,3 +299,13 @@ std::string Utils::GetMimeType(const std::string &file_name)
     }
     return "application/octet-stream";  // 默认二进制流
 }
+
+bool Utils::IsDirectory(const std::string &path)
+{
+    struct stat statbuf;
+    if (stat(path.c_str(), &statbuf) != 0)
+    {
+        return false;  // 无法访问路径
+    }
+    return S_ISDIR(statbuf.st_mode);
+}

@@ -2,6 +2,8 @@
 #include "utils/buffer.h"
 #include <fstream>
 #include <cstdio>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -240,6 +242,27 @@ void TestGetMimeType_Unknown()
     assert(Utils::GetMimeType("/path/to/file.with.many.dots.abc") == "application/octet-stream");
 }
 
+// ---- IsDirectory ----
+
+void TestIsDirectory()
+{
+    // 1. 当前目录一定是目录
+    assert(Utils::IsDirectory("."));
+    // 2. /tmp 一般存在且是目录
+    assert(Utils::IsDirectory("/tmp"));
+    // 3. /etc/passwd 一定是文件不是目录
+    assert(!Utils::IsDirectory("/etc/passwd"));
+    // 4. /dev/null 是字符设备不是目录
+    assert(!Utils::IsDirectory("/dev/null"));
+    // 5. 不存在的路径
+    assert(!Utils::IsDirectory("/no_such_dir_1234567890"));
+    // 6. 新建临时目录
+    const char *tmpdir = "/tmp/utils_test_dir";
+    mkdir(tmpdir, 0700);
+    assert(Utils::IsDirectory(tmpdir));
+    rmdir(tmpdir);
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -271,6 +294,8 @@ int main(int argc, char const *argv[])
 
     TestGetMimeType_Common();
     TestGetMimeType_Unknown();
+
+    TestIsDirectory();
 
     // std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 

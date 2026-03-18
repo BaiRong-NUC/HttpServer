@@ -7,6 +7,7 @@ class Utils
 {
    public:
     static std::unordered_map<int, std::string> status_messages;
+    static std::unordered_map<std::string, std::string> mime_types;
     // 获取文件内容
     static bool GetFileContent(const std::string &file_name, Buffer *buffer);
     // 写文件

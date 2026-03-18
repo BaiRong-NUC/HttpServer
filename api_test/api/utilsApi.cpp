@@ -221,6 +221,25 @@ void TestGetStatusMessage_UnknownStatus()
     assert(Utils::GetStatusMessage(0) == "Unknown Status");
 }
 
+// ---- GetMimeType ----
+
+void TestGetMimeType_Common()
+{
+    assert(Utils::GetMimeType("a.txt") == "text/plain");
+    assert(Utils::GetMimeType("b.html") == "text/html");
+    assert(Utils::GetMimeType("c.jpg") == "image/jpeg");
+    assert(Utils::GetMimeType("d.png") == "image/png");
+    assert(Utils::GetMimeType("e.json") == "application/json");
+}
+
+void TestGetMimeType_Unknown()
+{
+    assert(Utils::GetMimeType("file.unknownext") == "application/octet-stream");
+    assert(Utils::GetMimeType("noext") == "application/octet-stream");
+    assert(Utils::GetMimeType(".hiddenfile") == "application/octet-stream");
+    assert(Utils::GetMimeType("/path/to/file.with.many.dots.abc") == "application/octet-stream");
+}
+
 int main(int argc, char const *argv[])
 {
     TestSplitBasic();
@@ -249,6 +268,9 @@ int main(int argc, char const *argv[])
     TestGetStatusMessage_CommonStatus();
     TestGetStatusMessage_EdgeCases();
     TestGetStatusMessage_UnknownStatus();
+
+    TestGetMimeType_Common();
+    TestGetMimeType_Unknown();
 
     // std::cout << Utils::UrlEncode("/login?user=hello&passwd=123") << std::endl;
 

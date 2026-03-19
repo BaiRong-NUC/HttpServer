@@ -24,3 +24,4 @@
 #include <condition_variable>
 #include <fstream>
 #include <sys/stat.h>
+#include <regex>

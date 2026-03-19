@@ -59,6 +59,7 @@ Requests: 213 succeed, 0 failed.
 - Http模块:
     - HttpRequest模块: HTTP请求解析与管理，支持GET、POST等方法，解析请求行、头部和消息体。
     - HttpResponse模块: 业务处理,HTTP响应构建与管理，设置状态码、响应头和消息体，生成完整HTTP响应数据。
+    - HttpContext模块: HTTP请求上下文管理，保存请求和响应对象，处理请求生命周期，提供接口供业务处理使用。
     - HttpServer模块: 上述模块的整合,快速构建HTTP服务器，处理HTTP请求，生成HTTP响应，支持静态文件服务和动态请求处理。
 - 其他协议模块（如FTP、SMTP等）可根据需要添加，提供相应的请求解析和响应构建功能。
 

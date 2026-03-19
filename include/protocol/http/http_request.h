@@ -35,7 +35,7 @@ class HttpRequest
     // 获取头部字段的值,如果不存在则返回空字符串
     std::string GetHeader(const std::string &key) const;
     // 设置查询字符串
-    std::string SetQueryParams(const std::string &query);
+    void SetQueryParams(const std::string &key, const std::string &value);
     // 判断是否有某个查询字符串参数
     bool HasQueryParam(const std::string &key) const;
     // 获取查询字符串中某个参数的值,如果不存在则返回空字符串
@@ -44,4 +44,7 @@ class HttpRequest
     size_t GetBodyLength() const;
     // 判断是否是长连接,根据Connection头部字段确定,如果值为"keep-alive"则认为是长连接,否则认为是短连接
     bool IsKeepAlive() const;
+
+    // 重置
+    void Clear();
 };

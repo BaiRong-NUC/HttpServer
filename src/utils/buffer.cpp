@@ -1,20 +1,13 @@
 #include "utils/buffer.h"
 
 // 构造函数,多分配一个字节的空间来区分满和空
-Buffer::Buffer(size_t size) : _readIndex(0), _writeIndex(0),
-                              _size(size + 1), _buffer(size + 1) {}
+Buffer::Buffer(size_t size) : _readIndex(0), _writeIndex(0), _size(size + 1), _buffer(size + 1) {}
 
 // 获取当前写位置
-uint64_t Buffer::GetWriteIndex() const
-{
-    return this->_writeIndex;
-}
+uint64_t Buffer::GetWriteIndex() const { return this->_writeIndex; }
 
 // 获取当前读位置
-uint64_t Buffer::GetReadIndex() const
-{
-    return this->_readIndex;
-}
+uint64_t Buffer::GetReadIndex() const { return this->_readIndex; }
 
 // 清理缓冲区
 void Buffer::Clear()
@@ -24,21 +17,18 @@ void Buffer::Clear()
 }
 
 // 获取当前可读数据大小
-uint64_t Buffer::GetReadableSize() const
-{
-    return (this->_writeIndex - this->_readIndex + this->_size) % this->_size;
-}
+uint64_t Buffer::GetReadableSize() const { return (this->_writeIndex - this->_readIndex + this->_size) % this->_size; }
 
 // 获取当前可写空间大小
 uint64_t Buffer::GetWriteableSize() const
 {
-    return this->_size - this->GetReadableSize() - 1; // 留一个字节区分满和空
+    return this->_size - this->GetReadableSize() - 1;  // 留一个字节区分满和空
 }
 
 // 读指针偏移len
 bool Buffer::MoveReadIndex(uint64_t len)
 {
-    if (len > this->GetReadableSize()) // 超过可读数据大小,无法移动
+    if (len > this->GetReadableSize())  // 超过可读数据大小,无法移动
         return false;
     this->_readIndex = (this->_readIndex + len) % this->_size;
     return true;
@@ -47,7 +37,7 @@ bool Buffer::MoveReadIndex(uint64_t len)
 // 写指针偏移len
 bool Buffer::MoveWriteIndex(uint64_t len)
 {
-    if (len > this->GetWriteableSize()) // 超过可写空间大小,无法移动
+    if (len > this->GetWriteableSize())  // 超过可写空间大小,无法移动
         return false;
     this->_writeIndex = (this->_writeIndex + len) % this->_size;
     return true;
@@ -106,8 +96,7 @@ bool Buffer::_HaveSpace(uint64_t size)
 // 写入数据
 bool Buffer::Write(const void *data, uint64_t len)
 {
-    if (this->_HaveSpace(len) == false)
-        return false; // 没有足够的空间写入数据
+    if (this->_HaveSpace(len) == false) return false;  // 没有足够的空间写入数据
 
     // 写入数据
     const char *charData = static_cast<const char *>(data);
@@ -118,15 +107,11 @@ bool Buffer::Write(const void *data, uint64_t len)
     }
     return true;
 }
-bool Buffer::Write(const std::string &data)
-{
-    return this->Write(data.data(), data.size());
-}
+bool Buffer::Write(const std::string &data) { return this->Write(data.data(), data.size()); }
 bool Buffer::Write(const Buffer &buffer)
 {
     uint64_t readableSize = buffer.GetReadableSize();
-    if (readableSize == 0)
-        return true; // 没有数据可写入
+    if (readableSize == 0) return true;  // 没有数据可写入
 
     return this->Write(buffer._buffer.data() + buffer._readIndex, readableSize);
 }
@@ -134,8 +119,7 @@ bool Buffer::Write(const Buffer &buffer)
 // 读取数据
 bool Buffer::Read(void *data, uint64_t len)
 {
-    if (len > this->GetReadableSize() || data == nullptr)
-        return false; // 没有足够的数据可读
+    if (len > this->GetReadableSize() || data == nullptr) return false;  // 没有足够的数据可读
 
     // 读取数据
     char *charData = static_cast<char *>(data);
@@ -149,17 +133,17 @@ bool Buffer::Read(void *data, uint64_t len)
 
 std::string Buffer::Read(uint64_t len)
 {
-    if (len > this->GetReadableSize())
-        return ""; // 没有足够的数据可读
+    if (len > this->GetReadableSize()) return "";  // 没有足够的数据可读
 
     std::string result;
     result.resize(len);
-    this->Read(&result[0], len); // 直接读取到字符串的内存中
+    this->Read(&result[0], len);  // 直接读取到字符串的内存中
     return result;
 }
 
 // 从当前读取位置读到\n(一行数据,不包括换行)
-std::string Buffer::ReadLine()
+// include_newline参数控制当没有换行符的时候读取是否要全部读完,true代表全部读完(默认)
+std::string Buffer::ReadLine(bool include_newline)
 {
     uint64_t readableSize = this->GetReadableSize();
     for (uint64_t i = 0; i < readableSize; ++i)
@@ -167,13 +151,14 @@ std::string Buffer::ReadLine()
         char c = this->_buffer[(this->_readIndex + i) % this->_size];
         if (c == '\n')
         {
-            std::string result(i, 0);      // 分配 i 个字节
-            this->Read(&result[0], i + 1); // 读走 i+1 个字节（包括换行符）
+            std::string result(i, 0);   // 分配 i 个字节（不包括换行符）
+            this->Read(&result[0], i);  // 读走 i 个字节
+            this->MoveReadIndex(1);     // 跳过换行符
             return result;
         }
     }
     // 没有遇到换行符，返回剩余内容(最后一行)
-    if (readableSize > 0)
+    if (readableSize > 0 && include_newline == true)
     {
         std::string result(readableSize, 0);
         this->Read(&result[0], readableSize);
@@ -183,7 +168,4 @@ std::string Buffer::ReadLine()
 }
 
 // 获取缓冲区大小
-uint64_t Buffer::GetSize() const
-{
-    return this->_size - 1;
-}
+uint64_t Buffer::GetSize() const { return this->_size - 1; }

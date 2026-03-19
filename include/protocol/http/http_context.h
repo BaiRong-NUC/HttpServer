@@ -3,6 +3,9 @@
 #include <utils/utils.h>
 #include <protocol/http/http_request.h>
 #include <protocol/http/http_response.h>
+#include <utils/buffer.h>
+
+#define MAX_LINE_SIZE 8192
 
 /**
  * HTTP请求上下文管理，保存请求和响应对象，处理请求生命周期，提供接口供业务处理使用。
@@ -46,7 +49,7 @@ class HttpContext
     HttpResponse _response;
 
    public:
-    HttpContext() {}
+    HttpContext();
 
     int GetResponseStatus() const;
 
@@ -57,5 +60,5 @@ class HttpContext
     HttpResponse &GetResponse();
 
     // 获取Http请求并解析
-    bool RecvRequest();
+    bool RecvRequest(Buffer &buffer);
 };

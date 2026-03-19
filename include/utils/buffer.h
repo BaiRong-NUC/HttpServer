@@ -4,7 +4,7 @@
 // Buffer类定义了一个简单的缓冲区,使用std::vector<char>来存储数据,并维护读写索引.
 class Buffer
 {
-private:
+   private:
     std::vector<char> _buffer;
     uint64_t _readIndex;
     uint64_t _writeIndex;
@@ -16,7 +16,7 @@ private:
     // 获取新的缓冲区大小
     uint64_t _GetNewSize(uint64_t size);
 
-public:
+   public:
     Buffer(size_t size = BUFFER_DEFAULT_SIZE);
     // 获取当前写位置
     uint64_t GetWriteIndex() const;
@@ -46,7 +46,7 @@ public:
     std::string Read(uint64_t len);
 
     // 从当前读取位置读到\n(一行数据,不包括换行)
-    std::string ReadLine();
+    std::string ReadLine(bool include_newline = true);
 
     // 获取当前缓冲区大小
     uint64_t GetSize() const;

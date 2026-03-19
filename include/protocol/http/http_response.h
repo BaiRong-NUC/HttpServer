@@ -22,6 +22,9 @@ class HttpResponse
     std::string body;                                      // 响应消息体
     bool is_redirect;                                      // 是否是重定向响应
     std::string redirect_location;                         // 重定向目标URL
+    std::string version;                                   // HTTP版本,默认为HTTP/1.1
+
+    HttpResponse(int status = 200);  // 默认状态码为200 OK,非重定向响应
 
     // 设置头部字段
     void SetHeader(const std::string &key, const std::string &value);

@@ -48,6 +48,9 @@ class HttpContext
     // 解析完成Http响应信息
     HttpResponse _response;
 
+    // http请求行正则表达式,用于解析请求行,提取请求方法、URI和HTTP版本等信息
+    std::regex _http_request_line_re;
+
    public:
     HttpContext();
 
@@ -59,6 +62,6 @@ class HttpContext
 
     HttpResponse &GetResponse();
 
-    // 获取Http请求并解析
-    bool RecvRequest(Buffer &buffer);
+    // Http请求解析
+    bool ParseRequest(Buffer &buffer);
 };

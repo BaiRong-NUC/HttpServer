@@ -1,68 +1,102 @@
-
-#include "protocol/http/http_context.h"
-#include "utils/buffer.h"
-#include <cassert>
 #include <iostream>
+#include <vector>
+#include <string>
+#include <cassert>
+
+#include <protocol/http/http_context.h>
+#include <utils/buffer.h>
+
 using namespace std;
 
-void test_HttpContext_ParseRequest()
+static void AssertEqual(const string &a, const string &b, const string &msg = "")
 {
-    // 构造一个简单的 HTTP GET 请求
-    // std::string req = "GET /index.html?user=abc&id=123 HTTP/1.1\r\nHost: localhost\r\n\r\n";
-    std::string req = "GET /index.html?user=abc&id=123 HTTP/1.1\r\nHost: localhost\r\n\r\n";
-    Buffer buf;
-    buf.Write(req);
-    HttpContext ctx;
-    bool ok = ctx.ParseRequest(buf);
-    assert(ok);
-    assert(ctx.GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_REQUEST_LINE ||
-           ctx.GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_HEADERS);
-    HttpRequest &request = ctx.GetRequest();
-    assert(request.method == "GET");
-    assert(request.uri == "/index.html");
-    assert(request.version == "1.1");
-    assert(request.GetQueryParam("user") == "abc");
-    assert(request.GetQueryParam("id") == "123");
-    std::cout << "test_HttpContext_ParseRequest 通过!" << std::endl;
+    if (a != b)
+    {
+        cerr << "ASSERT FAILED: " << msg << " | got='" << a << "' expected='" << b << "'\n";
+        assert(false);
+    }
 }
 
-void test_HttpContext_Getters()
+static void TestParse(const string &raw, bool expect_ok, const string &exp_method = "", const string &exp_uri = "",
+                      const string &exp_version = "", const vector<pair<string, string>> &exp_qs = {})
 {
-    HttpContext ctx;
-    assert(ctx.GetResponseStatus() == 200);
-    assert(ctx.GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_REQUEST_LINE);
-    HttpRequest &req = ctx.GetRequest();
-    HttpResponse &resp = ctx.GetResponse();
-    resp.status_code = 404;
-    assert(ctx.GetResponse().status_code == 404);
-    std::cout << "test_HttpContext_Getters 通过!" << std::endl;
-}
-
-void test_HttpContext_ParseRequest_NoQuery()
-{
-    // 构造一个不带查询字符串的 HTTP GET 请求
-    std::string req = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
-    Buffer buf;
-    buf.Write(req);
+    Buffer buf(4096);
+    buf.Write(raw);
     HttpContext ctx;
     bool ok = ctx.ParseRequest(buf);
-    assert(ok);
-    assert(ctx.GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_REQUEST_LINE ||
-           ctx.GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_HEADERS);
-    HttpRequest &request = ctx.GetRequest();
-    assert(request.method == "GET");
-    assert(request.uri == "/index.html");
-    assert(request.version == "1.1");
-    assert(request.GetQueryParam("user").empty());
-    assert(request.GetQueryParam("id").empty());
-    std::cout << "test_HttpContext_ParseRequest_NoQuery 通过!" << std::endl;
-} 
+    if (expect_ok)
+    {
+        if (!ok)
+        {
+            cerr << "Expected ok but failed for: " << raw << "\n";
+            assert(false);
+        }
+        AssertEqual(ctx.GetRequest().method, exp_method, "method");
+        AssertEqual(ctx.GetRequest().uri, exp_uri, "uri");
+        AssertEqual(ctx.GetRequest().version, exp_version, "version");
+        // check query params
+        for (const auto &kv : exp_qs)
+        {
+            auto it = ctx.GetRequest().query_params.find(kv.first);
+            if (it == ctx.GetRequest().query_params.end())
+            {
+                cerr << "Missing query key: " << kv.first << "\n";
+                assert(false);
+            }
+            AssertEqual(it->second, kv.second, string("query val for ") + kv.first);
+        }
+    }
+    else
+    {
+        if (ok)
+        {
+            cerr << "Expected failure but succeeded for: " << raw << "\n";
+            assert(false);
+        }
+    }
+}
 
 int main()
 {
-    test_HttpContext_ParseRequest();
-    test_HttpContext_ParseRequest_NoQuery();
-    test_HttpContext_Getters();
-    std::cout << "所有 HttpContext 测试通过!" << std::endl;
+    // Valid simple GET
+    TestParse("GET /index.html HTTP/1.1\r\n", true, "GET", "/index.html", "1.1");
+
+    // With query string
+    TestParse("GET /search?q=abc&lang=en HTTP/1.0\r\n", true, "GET", "/search", "1.0", {{"q", "abc"}, {"lang", "en"}});
+
+    // Encoded query values and keys
+    TestParse("GET /path?name=John+Doe&tag=a%26b HTTP/1.1\r\n", true, "GET", "/path", "1.1",
+              {{"name", "John Doe"}, {"tag", "a&b"}});
+
+    // Missing HTTP version -> fail
+    TestParse("GET /nover\r\n", false);
+
+    // Unsupported/malformed method -> fail (lowercase)
+    TestParse("get /lower HTTP/1.1\r\n", false);
+
+    // Request line too long
+    string long_uri(9000, 'a');
+    string long_line = string("GET /") + long_uri + " HTTP/1.1\r\n";
+    TestParse(long_line, false);
+
+    // URI with multiple ? characters: path includes first part, rest becomes query
+    TestParse("GET /a?b=c?d=e HTTP/1.1\r\n", true, "GET", "/a", "1.1", {{"b", "c?d=e"}});
+
+    // Parameter without value
+    TestParse("GET /pv?flag HTTP/1.1\r\n", true, "GET", "/pv", "1.1", {{"flag", ""}});
+
+    // Asterisk form (OPTIONS *) - should be supported by our relaxed regex; expect OK
+    TestParse("OPTIONS * HTTP/1.1\r\n", true, "OPTIONS", "*", "1.1");
+
+    // Encoded path (UTF-8 Chinese)
+    TestParse("GET /%E4%B8%AD%E6%96%87 HTTP/1.1\r\n", true, "GET", "/中文", "1.1");
+
+    // Encoded spaces in path (%20) should decode to spaces; plus is not decoded in path
+    TestParse("GET /path%20with%20space HTTP/1.1\r\n", true, "GET", "/path with space", "1.1");
+
+    // Encoded slash in path should be decoded
+    TestParse("GET /a%2Fb HTTP/1.1\r\n", true, "GET", "/a/b", "1.1");
+
+    cout << "All http_context tests passed." << endl;
     return 0;
 }

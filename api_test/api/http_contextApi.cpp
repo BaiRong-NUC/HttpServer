@@ -130,24 +130,25 @@ static void TestParseFull(const string &raw, bool expect_ok, const string &exp_m
 int main()
 {
     // Valid simple GET
-    TestParse("GET /index.html HTTP/1.1\r\n", true, "GET", "/index.html", "1.1");
+    TestParse("GET /index.html HTTP/1.1\r\n\r\n", true, "GET", "/index.html", "1.1");
 
     // With query string
-    TestParse("GET /search?q=abc&lang=en HTTP/1.0\r\n", true, "GET", "/search", "1.0", {{"q", "abc"}, {"lang", "en"}});
+    TestParse("GET /search?q=abc&lang=en HTTP/1.0\r\n\r\n", true, "GET", "/search", "1.0",
+              {{"q", "abc"}, {"lang", "en"}});
 
     // Encoded query values and keys
-    TestParse("GET /path?name=John+Doe&tag=a%26b HTTP/1.1\r\n", true, "GET", "/path", "1.1",
+    TestParse("GET /path?name=John+Doe&tag=a%26b HTTP/1.1\r\n\r\n", true, "GET", "/path", "1.1",
               {{"name", "John Doe"}, {"tag", "a&b"}});
 
     // Missing HTTP version -> fail
-    TestParse("GET /nover\r\n", false);
+    TestParse("GET /nover\r\n\r\n", false);
 
     // Unsupported/malformed method -> fail (lowercase)
-    TestParse("get /lower HTTP/1.1\r\n", false);
+    TestParse("get /lower HTTP/1.1\r\n\r\n", false);
 
     // Request line too long
     string long_uri(9000, 'a');
-    string long_line = string("GET /") + long_uri + " HTTP/1.1\r\n";
+    string long_line = string("GET /") + long_uri + " HTTP/1.1\r\n\r\n";
     TestParse(long_line, false);
 
     // URI with multiple ? characters: path includes first part, rest becomes query

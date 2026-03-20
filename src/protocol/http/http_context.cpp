@@ -1,4 +1,6 @@
 #include <protocol/http/http_context.h>
+#include <algorithm>
+#include <cctype>
 
 HttpContext::HttpContext() : _response_status(200), _accept_status(HttpAcceptStatus::ACCEPTING_REQUEST_LINE)
 {
@@ -77,7 +79,8 @@ bool HttpContext::ParseRequest(Buffer &buffer)
                 }
             }
         }
-        this->_request.version = matchs[3].str();  // HTTP版本
+        this->_request.version = std::string("HTTP/") + matchs[3].str();   // HTTP版本,存为HTTP/x.y
+        this->_response.version = std::string("HTTP/") + matchs[3].str();  // 响应版本与请求版本保持一致
     }
     else
     {
@@ -87,8 +90,110 @@ bool HttpContext::ParseRequest(Buffer &buffer)
         return false;
     }
 
-    // 请求行解析成功,进入接受请求头部阶段
+    // 请求行解析成功,进入解析请求头部阶段
     this->_accept_status = HttpAcceptStatus::ACCEPTING_HEADERS;
 
+    // 2. 解析请求头部直到遇到空行
+    // 注意: Buffer::ReadLine(false) 在遇到 CRLF 时会返回一个只含"\r"的字符串，
+    // 所以要先去掉尾部的 '\r' 再判断是否为空行 ReadLine 返回空字符串表示还没读到换行符。
+    auto trim = [](std::string &s)
+    {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    };
+
+    while (true)
+    {
+        std::string header_line = buffer.ReadLine(false);
+        auto readSize2 = buffer.GetReadableSize();
+
+        // 没有完整行(没有遇到 '\n')——继续等待数据
+        if (header_line.empty())
+        {
+            if (readSize2 > MAX_LINE_SIZE)
+            {
+                // 头部行过长,超过最大限制,返回414错误
+                this->_response_status = 414;
+                this->_accept_status = HttpAcceptStatus::ACCEPTING_ERROR;
+                return false;
+            }
+            this->_accept_status = HttpAcceptStatus::ACCEPTING_HEADERS;
+            return true;
+        }
+
+        // 去掉行尾可能存在的 '\r'(处理 CRLF)
+        if (!header_line.empty() && header_line.back() == '\r')
+        {
+            header_line.pop_back();
+        }
+
+        // 去掉 CR 后如果为空，说明这是一个空行（\r\n），表示头部结束
+        if (header_line.empty())
+        {
+            break;  // 头部解析完成
+        }
+
+        // 检查头部行长度是否超限
+        if (header_line.size() > MAX_LINE_SIZE)
+        {
+            this->_response_status = 414;  // Header line too long
+            this->_accept_status = HttpAcceptStatus::ACCEPTING_ERROR;
+            return false;
+        }
+
+        // 解析 Header: Key: Value
+        size_t colon_pos = header_line.find(':');
+        if (colon_pos == std::string::npos)
+        {
+            // 头部格式错误
+            this->_response_status = 400;  // Bad Request错误
+            this->_accept_status = HttpAcceptStatus::ACCEPTING_ERROR;
+            return false;
+        }
+        std::string key = header_line.substr(0, colon_pos);
+        std::string value = header_line.substr(colon_pos + 1);
+        trim(key);
+        trim(value);
+        this->_request.SetHeader(key, value);
+    }
+
+    // 3. 头部解析完成,处理可能的正文
+    this->_accept_status = HttpAcceptStatus::ACCEPTING_BODY;
+
+    // 如果存在 Transfer-Encoding: chunked, 暂不支持
+    if (this->_request.HasHeader("Transfer-Encoding"))
+    {
+        std::string te = this->_request.GetHeader("Transfer-Encoding");
+        std::string te_low = te;
+        std::transform(te_low.begin(), te_low.end(), te_low.begin(), [](unsigned char c) { return std::tolower(c); });
+        if (te_low.find("chunked") != std::string::npos)
+        {
+            this->_response_status = 501;  // 未实现分块传输解析
+            this->_accept_status = HttpAcceptStatus::ACCEPTING_ERROR;
+            return false;
+        }
+    }
+
+    size_t content_length = this->_request.GetBodyLength();
+    if (content_length > 0)
+    {
+        // 获取当前还需要接受的正文长度
+        size_t remaining_body = content_length - this->_request.body.size();
+        if (buffer.GetReadableSize() >= remaining_body)
+        {
+            // 有足够数据接受完整正文
+            this->_request.body += buffer.Read(remaining_body);
+        }
+        else
+        {
+            // 数据不足,全部接受现有数据,继续等待剩余数据
+            this->_request.body += buffer.Read(buffer.GetReadableSize());
+            this->_accept_status = HttpAcceptStatus::ACCEPTING_BODY;
+            return true;
+        }
+    }
+
+    // 完成解析
+    this->_accept_status = HttpAcceptStatus::ACCEPTED;
     return true;
 }

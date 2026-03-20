@@ -33,7 +33,13 @@ static void TestParse(const string &raw, bool expect_ok, const string &exp_metho
         }
         AssertEqual(ctx.GetRequest().method, exp_method, "method");
         AssertEqual(ctx.GetRequest().uri, exp_uri, "uri");
-        AssertEqual(ctx.GetRequest().version, exp_version, "version");
+        // Normalize stored version: HttpContext may store as "HTTP/x.y" or just "x.y"
+        string actual_version = ctx.GetRequest().version;
+        if (actual_version.rfind("HTTP/", 0) == 0)
+        {
+            actual_version = actual_version.substr(5);
+        }
+        AssertEqual(actual_version, exp_version, "version");
         // check query params
         for (const auto &kv : exp_qs)
         {
@@ -44,6 +50,67 @@ static void TestParse(const string &raw, bool expect_ok, const string &exp_metho
                 assert(false);
             }
             AssertEqual(it->second, kv.second, string("query val for ") + kv.first);
+        }
+    }
+    else
+    {
+        if (ok)
+        {
+            cerr << "Expected failure but succeeded for: " << raw << "\n";
+            assert(false);
+        }
+    }
+}
+
+static void TestParseFull(const string &raw, bool expect_ok, const string &exp_method = "", const string &exp_uri = "",
+                          const string &exp_version = "", const vector<pair<string, string>> &exp_qs = {},
+                          const vector<pair<string, string>> &exp_headers = {}, const string &exp_body = "",
+                          bool expect_keepalive = false)
+{
+    Buffer buf(8192);
+    buf.Write(raw);
+    HttpContext ctx;
+    bool ok = ctx.ParseRequest(buf);
+    if (expect_ok)
+    {
+        if (!ok)
+        {
+            cerr << "Expected ok but failed for: " << raw << "\n";
+            assert(false);
+        }
+        if (!exp_method.empty()) AssertEqual(ctx.GetRequest().method, exp_method, "method");
+        if (!exp_uri.empty()) AssertEqual(ctx.GetRequest().uri, exp_uri, "uri");
+        if (!exp_version.empty())
+        {
+            string actual_version = ctx.GetRequest().version;
+            if (actual_version.rfind("HTTP/", 0) == 0) actual_version = actual_version.substr(5);
+            AssertEqual(actual_version, exp_version, "version");
+        }
+        for (const auto &kv : exp_qs)
+        {
+            auto it = ctx.GetRequest().query_params.find(kv.first);
+            if (it == ctx.GetRequest().query_params.end())
+            {
+                cerr << "Missing query key: " << kv.first << "\n";
+                assert(false);
+            }
+            AssertEqual(it->second, kv.second, string("query val for ") + kv.first);
+        }
+        for (const auto &h : exp_headers)
+        {
+            AssertEqual(ctx.GetRequest().GetHeader(h.first), h.second, string("header ") + h.first);
+        }
+        if (!exp_body.empty())
+        {
+            AssertEqual(ctx.GetRequest().body, exp_body, "body");
+        }
+        if (expect_keepalive)
+        {
+            if (!ctx.GetRequest().IsKeepAlive())
+            {
+                cerr << "Expected keep-alive but IsKeepAlive() returned false for: " << raw << "\n";
+                assert(false);
+            }
         }
     }
     else
@@ -96,6 +163,27 @@ int main()
 
     // Encoded slash in path should be decoded
     TestParse("GET /a%2Fb HTTP/1.1\r\n", true, "GET", "/a/b", "1.1");
+
+    // --- New tests: headers, body, connection behavior ---
+    // Host and Connection: close
+    TestParseFull("GET /hello HTTP/1.1\r\nHost: example.com\r\nConnection: close\r\n\r\n", true, "GET", "/hello", "1.1",
+                  {}, {{"Host", "example.com"}, {"Connection", "close"}}, "", false);
+
+    // POST with Content-Length and body
+    TestParseFull("POST /submit HTTP/1.1\r\nHost: example.com\r\nContent-Length: 11\r\n\r\nHello World", true, "POST",
+                  "/submit", "1.1", {}, {{"Host", "example.com"}, {"Content-Length", "11"}}, "Hello World", true);
+
+    // Transfer-Encoding: chunked should be rejected (not implemented)
+    TestParseFull("POST /chunk HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n", false);
+
+    // Header key casing and trimming
+    TestParseFull("GET /case HTTP/1.1\r\n  CoNNection :   keep-alive  \r\nX-Custom: v\r\n\r\n", true, "GET", "/case",
+                  "1.1", {}, {{"Connection", "keep-alive"}, {"X-Custom", "v"}}, "", true);
+
+    // Too long header line should cause failure (414)
+    string long_header(9000, 'h');
+    string req_long_header = string("GET / HTTP/1.1\r\nHuge: ") + long_header + "\r\n\r\n";
+    TestParseFull(req_long_header, false);
 
     cout << "All http_context tests passed." << endl;
     return 0;

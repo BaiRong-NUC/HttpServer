@@ -1,17 +1,35 @@
 #include <protocol/http/http_request.h>
 
-void HttpRequest::SetHeader(const std::string &key, const std::string &value) { this->headers[key] = value; }
+static std::string ToLowerCopy(const std::string &s)
+{
+    std::string out = s;
+    std::transform(out.begin(), out.end(), out.begin(), [](unsigned char c) { return std::tolower(c); });
+    return out;
+}
 
-bool HttpRequest::HasHeader(const std::string &key) const { return this->headers.find(key) != this->headers.end(); }
+void HttpRequest::SetHeader(const std::string &key, const std::string &value)
+{
+    std::string lkey = ToLowerCopy(key);
+    this->headers[lkey] = value;
+}
+
+bool HttpRequest::HasHeader(const std::string &key) const
+{
+    std::string lkey = ToLowerCopy(key);
+    return this->headers.find(lkey) != this->headers.end();
+}
 
 std::string HttpRequest::GetHeader(const std::string &key) const
 {
-    if (this->HasHeader(key))
+    std::string lkey = ToLowerCopy(key);
+    auto it = this->headers.find(lkey);
+    if (it != this->headers.end())
     {
-        return this->headers.at(key);
+        return it->second;
     }
     return "";
 }
+
 void HttpRequest::SetQueryParams(const std::string &key, const std::string &value) { this->query_params[key] = value; }
 
 bool HttpRequest::HasQueryParam(const std::string &key) const
@@ -51,12 +69,12 @@ bool HttpRequest::IsKeepAlive() const
     if (this->HasHeader("Connection"))
     {
         std::string connection_value = this->GetHeader("Connection");
-        // HTTP/1.1默认是长连接,除非明确指定为"close"
-        if (connection_value == "keep-alive")
+        std::string low = ToLowerCopy(connection_value);
+        if (low == "keep-alive")
         {
             return true;  // 明确指定为keep-alive,认为是长连接
         }
-        else if (connection_value == "close")
+        else if (low == "close")
         {
             return false;  // 明确指定为close,认为是短连接
         }

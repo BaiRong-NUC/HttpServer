@@ -23,7 +23,9 @@ static void TestParse(const string &raw, bool expect_ok, const string &exp_metho
     Buffer buf(4096);
     buf.Write(raw);
     HttpContext ctx;
-    bool ok = ctx.ParseRequest(buf);
+    ctx.ParseRequest(buf);
+    HttpAcceptStatus st = ctx.GetAcceptStatus();
+    bool ok = (st == HttpAcceptStatus::ACCEPTED);
     if (expect_ok)
     {
         if (!ok)
@@ -70,7 +72,9 @@ static void TestParseFull(const string &raw, bool expect_ok, const string &exp_m
     Buffer buf(8192);
     buf.Write(raw);
     HttpContext ctx;
-    bool ok = ctx.ParseRequest(buf);
+    ctx.ParseRequest(buf);
+    HttpAcceptStatus st = ctx.GetAcceptStatus();
+    bool ok = (st == HttpAcceptStatus::ACCEPTED);
     if (expect_ok)
     {
         if (!ok)
@@ -147,22 +151,22 @@ int main()
     TestParse(long_line, false);
 
     // URI with multiple ? characters: path includes first part, rest becomes query
-    TestParse("GET /a?b=c?d=e HTTP/1.1\r\n", true, "GET", "/a", "1.1", {{"b", "c?d=e"}});
+    TestParse("GET /a?b=c?d=e HTTP/1.1\r\n\r\n", true, "GET", "/a", "1.1", {{"b", "c?d=e"}});
 
     // Parameter without value
-    TestParse("GET /pv?flag HTTP/1.1\r\n", true, "GET", "/pv", "1.1", {{"flag", ""}});
+    TestParse("GET /pv?flag HTTP/1.1\r\n\r\n", true, "GET", "/pv", "1.1", {{"flag", ""}});
 
     // Asterisk form (OPTIONS *) - should be supported by our relaxed regex; expect OK
-    TestParse("OPTIONS * HTTP/1.1\r\n", true, "OPTIONS", "*", "1.1");
+    TestParse("OPTIONS * HTTP/1.1\r\n\r\n", true, "OPTIONS", "*", "1.1");
 
     // Encoded path (UTF-8 Chinese)
-    TestParse("GET /%E4%B8%AD%E6%96%87 HTTP/1.1\r\n", true, "GET", "/中文", "1.1");
+    TestParse("GET /%E4%B8%AD%E6%96%87 HTTP/1.1\r\n\r\n", true, "GET", "/中文", "1.1");
 
     // Encoded spaces in path (%20) should decode to spaces; plus is not decoded in path
-    TestParse("GET /path%20with%20space HTTP/1.1\r\n", true, "GET", "/path with space", "1.1");
+    TestParse("GET /path%20with%20space HTTP/1.1\r\n\r\n", true, "GET", "/path with space", "1.1");
 
     // Encoded slash in path should be decoded
-    TestParse("GET /a%2Fb HTTP/1.1\r\n", true, "GET", "/a/b", "1.1");
+    TestParse("GET /a%2Fb HTTP/1.1\r\n\r\n", true, "GET", "/a/b", "1.1");
 
     // --- New tests: headers, body, connection behavior ---
     // Host and Connection: close

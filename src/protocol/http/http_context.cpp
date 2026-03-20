@@ -12,9 +12,9 @@ HttpAcceptStatus HttpContext::GetAcceptStatus() const { return this->_accept_sta
 HttpRequest &HttpContext::GetRequest() { return this->_request; }
 HttpResponse &HttpContext::GetResponse() { return this->_response; }
 
-bool HttpContext::ParseRequest(Buffer &buffer)
+// 1. 解析请求行
+bool HttpContext::_ParseRequestLine(Buffer &buffer)
 {
-    // 1. 解析请求行
     std::string request_line = buffer.ReadLine(false);  // 不足一行先不读出来
     auto readSize = buffer.GetReadableSize();
     if (request_line.empty())
@@ -92,10 +92,19 @@ bool HttpContext::ParseRequest(Buffer &buffer)
 
     // 请求行解析成功,进入解析请求头部阶段
     this->_accept_status = HttpAcceptStatus::ACCEPTING_HEADERS;
+    return true;
+}
 
-    // 2. 解析请求头部直到遇到空行
-    // 注意: Buffer::ReadLine(false) 在遇到 CRLF 时会返回一个只含"\r"的字符串，
-    // 所以要先去掉尾部的 '\r' 再判断是否为空行 ReadLine 返回空字符串表示还没读到换行符。
+// 2. 解析请求头部直到遇到空行
+// 注意: Buffer::ReadLine(false) 在遇到 CRLF 时会返回一个只含"\r"的字符串，
+// 所以要先去掉尾部的 '\r' 再判断是否为空行 ReadLine 返回空字符串表示还没读到换行符。
+bool HttpContext::_ParseHeaders(Buffer &buffer)
+{
+    if (this->_accept_status != HttpAcceptStatus::ACCEPTING_HEADERS)
+    {
+        return false;
+    }
+
     auto trim = [](std::string &s)
     {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
@@ -156,9 +165,18 @@ bool HttpContext::ParseRequest(Buffer &buffer)
         trim(value);
         this->_request.SetHeader(key, value);
     }
-
-    // 3. 头部解析完成,处理可能的正文
+    // 头部解析完成,进入解析请求正文阶段
     this->_accept_status = HttpAcceptStatus::ACCEPTING_BODY;
+    return true;
+}
+
+// 3. 头部解析完成,处理可能的正文
+bool HttpContext::_ParseBody(Buffer &buffer)
+{
+    if (this->_accept_status != HttpAcceptStatus::ACCEPTING_BODY)
+    {
+        return false;
+    }
 
     // 如果存在 Transfer-Encoding: chunked, 暂不支持
     if (this->_request.HasHeader("Transfer-Encoding"))
@@ -192,8 +210,23 @@ bool HttpContext::ParseRequest(Buffer &buffer)
             return true;
         }
     }
-
     // 完成解析
     this->_accept_status = HttpAcceptStatus::ACCEPTED;
     return true;
+}
+
+void HttpContext::ParseRequest(Buffer &buffer)
+{
+    switch (this->_accept_status)
+    {
+            // 解析请求行
+        case HttpAcceptStatus::ACCEPTING_REQUEST_LINE:
+            this->_ParseRequestLine(buffer);
+        case HttpAcceptStatus::ACCEPTING_HEADERS:
+            // 解析请求头部
+            this->_ParseHeaders(buffer);
+        case HttpAcceptStatus::ACCEPTING_BODY:
+            // 解析请求正文
+            this->_ParseBody(buffer);
+    }
 }

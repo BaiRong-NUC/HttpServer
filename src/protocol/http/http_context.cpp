@@ -230,3 +230,11 @@ void HttpContext::ParseRequest(Buffer &buffer)
             this->_ParseBody(buffer);
     }
 }
+
+void HttpContext::Reset()
+{
+    this->_response_status = 200;
+    this->_accept_status = HttpAcceptStatus::ACCEPTING_REQUEST_LINE;
+    this->_request.Clear();
+    this->_response.Clear();
+}

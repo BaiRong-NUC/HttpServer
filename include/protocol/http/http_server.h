@@ -2,7 +2,6 @@
 #include <utils/public.h>
 #include <utils/utils.h>
 #include <protocol/http/http_context.h>
-#include <protocol/http/http_response.h>
 #include <server/tcp_server.h>
 
 /**
@@ -33,8 +32,10 @@ class HttpServer
     std::unordered_map<std::string, HandlerFunc> _delete_handlers;                // DELETE
     TcpServer _tcp_server;                                                        // TCP服務器
     void _OnMessage(const PtrConnection &conn, Buffer &buffer);                   // 處理請求數據的回調函數
-    void _OnConnected();                                                          // 設置tcp上下文
+    void _OnConnected(const PtrConnection &conn);                                 // 設置tcp上下文
     HandlerFunc _FindHandler(const std::string &method, const std::string &uri);  // 查找處理函數
+    void SendResponse(const PtrConnection &conn, const HttpRequest &server_request,
+                      const HttpResponse &server_response);  // 構造并發送HTTP響應
    public:
     const std::string static_root;  // 靜態資源根目錄
     HttpServer();
@@ -43,6 +44,9 @@ class HttpServer
     void Post(const std::string &uri_pattern, HandlerFunc handler);
     void Put(const std::string &uri_pattern, HandlerFunc handler);
     void Delete(const std::string &uri_pattern, HandlerFunc handler);
+
+    // 錯誤響應函數
+    HandlerFunc error_response;
 
     // 設置超時時間,以s為單位,超時後自動關閉不活躍的連接
     void SetInactiveTimeout(int timeout);

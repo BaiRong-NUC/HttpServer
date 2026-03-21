@@ -71,4 +71,7 @@ class HttpContext
 
     // Http请求解析
     void ParseRequest(Buffer &buffer);
+
+    // 重置上下文状态,以便处理下一个请求
+    void Reset();
 };

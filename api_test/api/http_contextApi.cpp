@@ -23,7 +23,7 @@ static void TestParse(const string &raw, bool expect_ok, const string &exp_metho
     Buffer buf(4096);
     buf.Write(raw);
     HttpContext ctx;
-    ctx.ParseRequest(buf);
+    ctx.ParseRequest(&buf);
     HttpAcceptStatus st = ctx.GetAcceptStatus();
     bool ok = (st == HttpAcceptStatus::ACCEPTED);
     if (expect_ok)
@@ -72,7 +72,7 @@ static void TestParseFull(const string &raw, bool expect_ok, const string &exp_m
     Buffer buf(8192);
     buf.Write(raw);
     HttpContext ctx;
-    ctx.ParseRequest(buf);
+    ctx.ParseRequest(&buf);
     HttpAcceptStatus st = ctx.GetAcceptStatus();
     bool ok = (st == HttpAcceptStatus::ACCEPTED);
     if (expect_ok)

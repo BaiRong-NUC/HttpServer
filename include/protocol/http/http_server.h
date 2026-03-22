@@ -3,7 +3,7 @@
 #include <utils/utils.h>
 #include <protocol/http/http_context.h>
 #include <server/tcp_server.h>
-#include <protocol/http/html/error.h>
+#include <protocol/http/html/http_error_html.h>
 
 /**
  * 功能:

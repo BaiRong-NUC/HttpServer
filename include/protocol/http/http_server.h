@@ -26,16 +26,28 @@ class HttpServer
 {
    private:
     using HandlerFunc = std::function<void(const HttpRequest &, HttpResponse &)>;
-    std::unordered_map<std::string, HandlerFunc> _get_handlers;                   // GET
-    std::unordered_map<std::string, HandlerFunc> _post_handlers;                  // POST
-    std::unordered_map<std::string, HandlerFunc> _put_handlers;                   // PUT
-    std::unordered_map<std::string, HandlerFunc> _delete_handlers;                // DELETE
-    TcpServer _tcp_server;                                                        // TCP服務器
-    void _OnMessage(const PtrConnection &conn, Buffer &buffer);                   // 處理請求數據的回調函數
-    void _OnConnected(const PtrConnection &conn);                                 // 設置tcp上下文
-    HandlerFunc _FindHandler(const std::string &method, const std::string &uri);  // 查找處理函數
-    void SendResponse(const PtrConnection &conn, const HttpRequest &client_request,
-                      HttpResponse &server_response);  // 構造并發送HTTP響應
+    std::unordered_map<std::string, HandlerFunc> _get_handlers;     // GET
+    std::unordered_map<std::string, HandlerFunc> _post_handlers;    // POST
+    std::unordered_map<std::string, HandlerFunc> _put_handlers;     // PUT
+    std::unordered_map<std::string, HandlerFunc> _delete_handlers;  // DELETE
+    // 方法到路由映射表的映射表,方便根据方法查找对应的路由映射表
+    std::unordered_map<std::string, std::unordered_map<std::string, HandlerFunc>> _method_handlers;
+    // regex缓存
+    std::unordered_map<std::string, std::regex> _regex_cache;
+    TcpServer _tcp_server;                                       // TCP服務器
+    void _OnMessage(const PtrConnection &conn, Buffer &buffer);  // 處理請求數據的回調函數
+    void _OnConnected(const PtrConnection &conn);                // 設置tcp上下文
+    // 處理請求的函數,根據請求路由查找對應的處理函數,調用函數處理請求,得到響應內容和狀態碼,設置HttpResponse對象
+    void _HandleRequest(const PtrConnection &conn, HttpRequest &request, HttpResponse &response);
+    // 查找处理函数
+    HandlerFunc _FindHandler(const std::string &method, const std::string &uri, int &status_code);
+
+    // 查找正则表达式,如果缓存中没有则创建并缓存
+    std::regex _GetRegex(const std::string &pattern);
+
+    // 判断请求是否是静态资源请求
+    bool _IsStaticResource(HttpRequest &request);
+
    public:
     const std::string static_root;        // 靜態資源根目錄
     HttpServer(const std::string &root);  // 構造函數,參數為靜態資源根目錄,默認為"./static"
@@ -53,4 +65,7 @@ class HttpServer
 
     // 啟動服務器,開始接受和處理請求
     void Listen();
+
+    // 構造并發送HTTP響應
+    void SendResponse(const PtrConnection &conn, const HttpRequest &client_request, HttpResponse &server_response);
 };

@@ -64,16 +64,10 @@ endif()
 
 # 将运行脚本复制到构建目录的 app 下，方便在 build/app 运行脚本来启动服务并把日志写入该目录
 if(BUILD_APP)
-	# 确保输出目录存在并复制 run.sh，每次 configure 时更新
-	add_custom_command(
-		OUTPUT ${CMAKE_BINARY_DIR}/app/run.sh
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/app/run.sh ${CMAKE_BINARY_DIR}/app/run.sh
-		COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/run.sh
-		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/run.sh
-		COMMENT "Copy run.sh to build/app"
-	)
-	add_custom_target(copy_run_sh ALL DEPENDS ${CMAKE_BINARY_DIR}/app/run.sh)
+	# 在配置阶段将 run.sh 复制到 build/app，并设置可执行权限(避免并行构建时的 cmake -E 竞态)
+	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/app)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/run.sh ${CMAKE_BINARY_DIR}/app/run.sh COPYONLY)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/run.sh)
 endif()
 
 # 编译开发阶段的 API 测试代码

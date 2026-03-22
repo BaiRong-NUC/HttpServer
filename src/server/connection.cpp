@@ -8,7 +8,7 @@ void Connection::_HandleRead()
     int ret = this->_channel.GetSocket().Recv(buffer, BUFFER_DEFAULT_SIZE, MSG_DONTWAIT);
     if (ret < 0)
     {
-        LOG(WARNING, "Failed to read from socket, connection will be closed");
+        // LOG(WARNING, "Failed to read from socket, connection will be closed");
         // 查看缓冲区是否有数据再决定删除
         this->Close();
         return;

@@ -641,9 +641,28 @@
                 </section>
                 <section class="footer-card">
                     <h3>项目路径</h3>
+                    <p>/src/server 处理事件循环与连接</p>
+                    <p>/app作为业务示例入口</p>
+                    <p>/api_test 可快速验证模块行为。</p>
+                </section>
+                <section class="footer-card">
+                    <h3>如何启动项目</h3>
+                    <p>在项目根目录执行下面命令来构建项目:</p>
+                    <pre class="api-output">
+mkdir -p build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j
+或者运行./rebuild.sh重新构建
+                    </pre>
+                    <p>或使用示例脚本快速启动/停止服务器:</p>
+                    <pre class="api-output">
+# 启动服务: ./app/loop.sh start
+# 停止服务: ./app/loop.sh stop
+                    </pre>
                     <p>
-                        /src/server 处理事件循环与连接，/app
-                        作为业务示例入口，/api_test 可快速验证模块行为。
+                        更多信息可查看根目录的 README.md,使用
+                        <code>server_api.sh</code> 和
+                        <code>client_api.sh</code> 可以进行TcpServer API测试。
                     </p>
                 </section>
             </footer>

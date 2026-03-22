@@ -64,3 +64,28 @@ Requests: 213 succeed, 0 failed.
 - 其他协议模块（如FTP、SMTP等）可根据需要添加，提供相应的请求解析和响应构建功能。
 
 ---
+
+## 三、如何构建与运行
+
+下面给出在 Linux 环境中的示例步骤，用于快速构建并启动示例服务：
+
+```bash
+# 在项目根目录执行:
+mkdir -p build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j
+# 或者使用rebuild脚本快速构建
+./rebuild.sh
+```
+
+进入到构建目录后，执行以下命令启动/暂停服务:
+
+```bash
+# 启动示例服务 build/目录下
+./app/loop.sh start
+# 停止示例服务
+./app/loop.sh stop
+```
+
+用于测试和演示的脚本：`server_api.sh`, `client_api.sh`, 以及 `webbench`(用于并发压测 TcpServer)。
+更多使用细节请参考仓库内相应脚本和 `api_test/` 下的API测试代码。

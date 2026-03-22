@@ -64,10 +64,10 @@ endif()
 
 # 将运行脚本复制到构建目录的 app 下，方便在 build/app 运行脚本来启动服务并把日志写入该目录
 if(BUILD_APP)
-	# 在配置阶段将 server.sh 复制到 build/app，并设置可执行权限(避免并行构建时的 cmake -E 竞态)
+	# 在配置阶段将 loop.sh 复制到 build/app，并设置可执行权限(避免并行构建时的 cmake -E 竞态)
 	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/app)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/server.sh ${CMAKE_BINARY_DIR}/app/server.sh COPYONLY)
-	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/server.sh)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/loop.sh ${CMAKE_BINARY_DIR}/app/loop.sh COPYONLY)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/loop.sh)
 endif()
 
 # 编译开发阶段的 API 测试代码

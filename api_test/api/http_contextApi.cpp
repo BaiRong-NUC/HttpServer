@@ -143,8 +143,8 @@ int main()
     // Missing HTTP version -> fail
     TestParse("GET /nover\r\n\r\n", false);
 
-    // Unsupported/malformed method -> fail (lowercase)
-    TestParse("get /lower HTTP/1.1\r\n\r\n", false);
+    // method -> 内部将get转换为全大写,URI和版本正常解析
+    TestParse("get /lower HTTP/1.1\r\n\r\n", true, "GET", "/lower", "1.1");
 
     // Request line too long
     string long_uri(9000, 'a');

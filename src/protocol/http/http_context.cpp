@@ -4,7 +4,7 @@
 
 HttpContext::HttpContext() : _response_status(200), _accept_status(HttpAcceptStatus::ACCEPTING_REQUEST_LINE)
 {
-    this->_http_request_line_re = std::regex("^([A-Z]+)\\s+(\\S+)\\s+HTTP/([0-9\\.]+)$");
+    this->_http_request_line_re = std::regex("^([A-Z]+)\\s+(\\S+)\\s+HTTP/([0-9\\.]+)$", std::regex::icase);
 }
 
 int HttpContext::GetResponseStatus() const { return this->_response_status; }
@@ -43,11 +43,14 @@ bool HttpContext::_ParseRequestLine(Buffer &buffer)
         return false;
     }
     // 解析请求行,提取请求方法、URI和HTTP版本等信息
+
     std::smatch matchs;
     if (std::regex_match(request_line, matchs, this->_http_request_line_re))
     {
-        this->_request.method = matchs[1].str();  // 请求方法
-        std::string full_uri = matchs[2].str();   // 包含 path 和可选 query
+        std::string method = matchs[1].str();
+        std::transform(method.begin(), method.end(), method.begin(), ::toupper);
+        this->_request.method = method;          // 请求方法,存为全大写
+        std::string full_uri = matchs[2].str();  // 包含 path 和可选 query
         // 分离 path 与 query,这里可能处理多个?,把第一个之后的都当作 query
         size_t qpos = full_uri.find('?');
         std::string path = (qpos == std::string::npos) ? full_uri : full_uri.substr(0, qpos);

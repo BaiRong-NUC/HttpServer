@@ -168,29 +168,30 @@ bool Socket::CreateServer(uint16_t port, bool reuseAddr, bool noBlock, const std
         LOG(ERROR, "Failed to create listen socket");
         return false;
     }
-    // 2. 绑定IP和端口
+    // 2. 开启地址复用(必须在 Bind 之前设置，否则无效)
+    if (reuseAddr)
+    {
+        this->SetReuseAddr(true);
+    }
+    
+    // 3. 绑定IP和端口
     if (!this->Bind(ip, port))
     {
         LOG(ERROR, "Failed to bind socket to " + ip + ":" + std::to_string(port));
         exit(EXIT_FAILURE);
         return false;
     }
-    // 3. 监听
+    // 4. 监听
     if (!this->Listen())
     {
         LOG(ERROR, "Failed to listen on socket");
         exit(EXIT_FAILURE);
         return false;
     }
-    // 4. 设置非阻塞
+    // 5. 设置非阻塞
     if (noBlock == true)
     {
         this->SetNoBlock();
-    }
-    // 5. 开启地址复用
-    if (reuseAddr)
-    {
-        this->SetReuseAddr(true);
     }
     return true;
 }

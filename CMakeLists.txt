@@ -53,6 +53,12 @@ if(BUILD_APP)
 		set_target_properties(${APP_TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app
 		)
+
+		# 在构建后将静态资源目录复制到运行目录，便于在 build/app 下直接运行可执行文件
+		add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
+			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot ${CMAKE_BINARY_DIR}/app/wwwroot
+		)
 	endforeach()
 endif()
 

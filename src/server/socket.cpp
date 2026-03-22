@@ -172,12 +172,14 @@ bool Socket::CreateServer(uint16_t port, bool reuseAddr, bool noBlock, const std
     if (!this->Bind(ip, port))
     {
         LOG(ERROR, "Failed to bind socket to " + ip + ":" + std::to_string(port));
+        exit(EXIT_FAILURE);
         return false;
     }
     // 3. 监听
     if (!this->Listen())
     {
         LOG(ERROR, "Failed to listen on socket");
+        exit(EXIT_FAILURE);
         return false;
     }
     // 4. 设置非阻塞

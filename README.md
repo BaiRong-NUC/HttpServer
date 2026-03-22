@@ -32,7 +32,7 @@
 
 > 测试结果示例：
 
-```
+````
 Webbench - Simple Web Benchmark 1.5
 Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
 
@@ -44,54 +44,82 @@ Host: 127.0.0.1
 Running info: 100 clients, running 30 sec.
 
 Speed = 426 pages/min, 256 bytes/sec.
-Requests: 213 succeed, 0 failed.
-```
+# HttpServer
 
-### 2. Utils模块
+轻量级的 C++ 高性能事件驱动 HttpServer 示例，采用 Reactor/epoll 模型，便于学习网络库设计与快速构建基础 HTTP 服务。
 
-- **共头文件模块**: 定义项目中使用的公共头文件，包含常用的系统库和项目内的其他模块头文件，方便统一管理和引用。
-- **Log模块**: 日志系统，支持多级别日志输出（DEBUG、INFO、WARN、ERROR），日志文件管理。
-- **工具接口**: 读取文件内容,向文件写入内容,URL编码与解码,字符串分割等常用工具函数.获取文件后缀名等。
-- **Buffer模块**：套接字数据缓冲区管理，保证数据完整，socket可写时发送数据。以及文件读取数据保存位置
+## 主要特点
 
-### 3. Protocol模块
+- 基于 Reactor 的事件调度（epoll）
+- 清晰的模块划分：Socket / Channel / Connection / EventLoop / Poller / TcpServer
+- 支持静态文件服务与简单动态路由示例
+- 可复用的工具与协议模块（位于 `include/` 与 `protocol/`）
 
-- Http模块:
-    - HttpRequest模块: HTTP请求解析与管理，支持GET、POST等方法，解析请求行、头部和消息体。
-    - HttpResponse模块: 业务处理,HTTP响应构建与管理，设置状态码、响应头和消息体，生成完整HTTP响应数据。
-    - HttpContext模块: HTTP请求上下文管理，保存请求和响应对象，处理请求生命周期，提供接口供业务处理使用。
-    - HttpServer模块: 上述模块的整合,快速构建HTTP服务器，处理HTTP请求，生成HTTP响应，支持静态文件服务和动态请求处理。
-- 其他协议模块（如FTP、SMTP等）可根据需要添加，提供相应的请求解析和响应构建功能。
+## 设计简介
 
----
+- 主从 Reactor 思路：一个主 Reactor 负责监听与接收，新连接分配到 IO Reactor（或同一线程）进行读写处理。
+- `EventLoop` 保证每个连接的操作在所属线程/循环中执行，简化并发控制和线程安全。
 
-## 三、如何构建与运行
+## 模块概览
 
-下面给出在 Linux 环境中的示例步骤，用于快速构建并启动示例服务：
+- `src/server`：事件循环与服务器实现核心。
+- `app`：示例应用入口与脚本（`loop.sh` 用于启动/停止示例服务）。
+- `api_test`：用于快速验证各模块行为的测试用例与示例。
+- `include/protocol`：HTTP 等协议相关头文件和解析实现。
+
+## 快速开始（Linux）
+
+1. 在项目根目录构建：
 
 ```bash
-# 在项目根目录执行:
 mkdir -p build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
-# 或者使用rebuild脚本快速构建
+````
+
+或使用仓库提供的脚本快速构建：
+
+```bash
 ./rebuild.sh
 ```
 
-进入到构建目录后，执行以下命令启动/暂停服务:
+2. 启动/停止示例服务：
 
 ```bash
-# 启动示例服务 build/目录下
+# 启动（在项目根或任意位置执行）
 ./app/loop.sh start
-# 停止示例服务
+
+# 停止
 ./app/loop.sh stop
 ```
 
-用于测试和演示的脚本：`server_api.sh`, `client_api.sh`, 以及 `webbench`(用于并发压测 TcpServer)。
-更多使用细节请参考仓库内相应脚本和 `api_test/` 下的API测试代码。
+3. 直接运行可执行文件（构建后）：
 
-## 四、在线演示
+```bash
+./build/app/server
+```
 
-访问示例服务(公网示例):
+## 测试与压测
+
+- 使用提供的脚本进行 API 测试：`server_api.sh`、`client_api.sh`。
+- 使用 `webbench` 做简单并发压测：
+
+```bash
+./webbench -c 100 -t 30 http://127.0.0.1:8085/
+```
+
+## 常用脚本与位置
+
+- 启动脚本：`app/loop.sh`
+- 演示可执行：`build/app/server`（构建产物）
+- API 测试：`api_test/` 目录下的示例
+
+## 在线演示
+
+访问示例服务（公网示例）：
 
 http://38.190.254.70:8085/
+
+## 扩展
+
+在 `protocol/` 下添加新的协议模块，或在 `app/src` 中扩展业务逻辑

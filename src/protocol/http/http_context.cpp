@@ -12,10 +12,10 @@ HttpAcceptStatus HttpContext::GetAcceptStatus() const { return this->_accept_sta
 HttpRequest &HttpContext::GetRequest() { return this->_request; }
 
 // 1. 解析请求行
-bool HttpContext::_ParseRequestLine(Buffer &buffer)
+bool HttpContext::_ParseRequestLine(Buffer *buffer)
 {
-    std::string request_line = buffer.ReadLine(false);  // 不足一行先不读出来
-    auto readSize = buffer.GetReadableSize();
+    std::string request_line = buffer->ReadLine(false);  // 不足一行先不读出来
+    auto readSize = buffer->GetReadableSize();
     if (request_line.empty())
     {
         if (readSize > MAX_LINE_SIZE)
@@ -99,7 +99,7 @@ bool HttpContext::_ParseRequestLine(Buffer &buffer)
 // 2. 解析请求头部直到遇到空行
 // 注意: Buffer::ReadLine(false) 在遇到 CRLF 时会返回一个只含"\r"的字符串，
 // 所以要先去掉尾部的 '\r' 再判断是否为空行 ReadLine 返回空字符串表示还没读到换行符。
-bool HttpContext::_ParseHeaders(Buffer &buffer)
+bool HttpContext::_ParseHeaders(Buffer *buffer)
 {
     if (this->_accept_status != HttpAcceptStatus::ACCEPTING_HEADERS)
     {
@@ -114,8 +114,8 @@ bool HttpContext::_ParseHeaders(Buffer &buffer)
 
     while (true)
     {
-        std::string header_line = buffer.ReadLine(false);
-        auto readSize2 = buffer.GetReadableSize();
+        std::string header_line = buffer->ReadLine(false);
+        auto readSize2 = buffer->GetReadableSize();
 
         // 没有完整行(没有遇到 '\n')——继续等待数据
         if (header_line.empty())
@@ -172,7 +172,7 @@ bool HttpContext::_ParseHeaders(Buffer &buffer)
 }
 
 // 3. 头部解析完成,处理可能的正文
-bool HttpContext::_ParseBody(Buffer &buffer)
+bool HttpContext::_ParseBody(Buffer *buffer)
 {
     if (this->_accept_status != HttpAcceptStatus::ACCEPTING_BODY)
     {
@@ -198,15 +198,15 @@ bool HttpContext::_ParseBody(Buffer &buffer)
     {
         // 获取当前还需要接受的正文长度
         size_t remaining_body = content_length - this->_request.body.size();
-        if (buffer.GetReadableSize() >= remaining_body)
+        if (buffer->GetReadableSize() >= remaining_body)
         {
             // 有足够数据接受完整正文
-            this->_request.body += buffer.Read(remaining_body);
+            this->_request.body += buffer->Read(remaining_body);
         }
         else
         {
             // 数据不足,全部接受现有数据,继续等待剩余数据
-            this->_request.body += buffer.Read(buffer.GetReadableSize());
+            this->_request.body += buffer->Read(buffer->GetReadableSize());
             this->_accept_status = HttpAcceptStatus::ACCEPTING_BODY;
             return true;
         }
@@ -216,7 +216,7 @@ bool HttpContext::_ParseBody(Buffer &buffer)
     return true;
 }
 
-void HttpContext::ParseRequest(Buffer &buffer)
+void HttpContext::ParseRequest(Buffer *buffer)
 {
     switch (this->_accept_status)
     {

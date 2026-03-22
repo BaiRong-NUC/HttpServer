@@ -1,8 +1,22 @@
 #include <protocol/http/http_server.h>
 
-// HttpServer::HttpServer(const std::string& root) : static_root(root) {
+HttpServer::HttpServer(uint16_t port, int timeout, int thread_num = 0, bool reseAddr = true, bool noBlock = true,
+                       const std::string &ip = "0.0.0.0")
+    : _tcp_server(port, thread_num, reseAddr, noBlock, ip), static_root("./static")
+{
+    // 设置超时时间,单位为秒
+    this->SetInactiveTimeout(timeout);
+    // 設置TcpServer回調
+    this->_tcp_server.connected_callback = [this](const PtrConnection &conn) { this->_OnConnected(conn); };
+    this->_tcp_server.message_callback = [this](const PtrConnection &conn, Buffer *buf)
+    {
+        if (buf) this->_OnMessage(conn, buf);
+    };
 
-// }
+    // 初始化默认错误响应内容
+    this->response_404.status_code = 404;
+    // this->response_404.SetBody()
+}
 
 // 設置TcpServer上下文
 void HttpServer::_OnConnected(const PtrConnection &conn)
@@ -13,9 +27,9 @@ void HttpServer::_OnConnected(const PtrConnection &conn)
 }
 
 // 設置TcpServer回調
-void HttpServer::_OnMessage(const PtrConnection &conn, Buffer &buffer)
+void HttpServer::_OnMessage(const PtrConnection &conn, Buffer *buffer)
 {
-    while (buffer.GetReadableSize() > 0)
+    while (buffer->GetReadableSize() > 0)
     {
         // 1. 獲取協議上下文
         HttpContext *context = conn->GetContext().Get<HttpContext>();
@@ -25,9 +39,8 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer &buffer)
         if (context->GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_ERROR)
         {
             // 解析過程中出現錯誤,構造HTTP并發送響應
-            this->error_response.status_code =
-                context->GetResponseStatus();  // 根據上下文中的響應狀態碼設置錯誤響應的狀態碼
-            this->SendResponse(conn, context->GetRequest(), this->error_response);
+            HttpResponse error_response = this->_GetErrorResponse(context->GetResponseStatus());
+            this->SendResponse(conn, context->GetRequest(), error_response);
             // 切斷連接
             conn->Close();
             return;
@@ -107,8 +120,7 @@ void HttpServer::_HandleRequest(const PtrConnection &conn, HttpRequest &request,
         }
         else
         {
-            response.SetBody("Failed to read static resource", "text/plain");
-            response.status_code = 500;  // Internal Server Error
+            response = this->_GetErrorResponse(500);  // Internal Server Error
         }
         return;
     }
@@ -124,8 +136,7 @@ void HttpServer::_HandleRequest(const PtrConnection &conn, HttpRequest &request,
     else
     {
         // 没有找到处理函数,即URI没有匹配的路由,根据状态码设置错误响应
-        response.status_code = status_code;  // 404 Not Found 或 405 Method Not Allowed
-        response.SetBody(Utils::GetStatusMessage(status_code), "text/plain");
+        response = this->_GetErrorResponse(status_code);
     }
 }
 
@@ -202,4 +213,26 @@ bool HttpServer::_IsStaticResource(HttpRequest &request)
     // 请求合法,将请求URI替换为实际文件路径,方便后续处理
     request.uri = req_path;
     return true;
+}
+
+const HttpResponse &HttpServer::_GetErrorResponse(int status_code)
+{
+    if (status_code < 400 || status_code >= 600)
+    {
+        // 非错误状态码,返回500 Internal Server Error
+        LOG(WARNING, "HTTP Error Response requested with non-error status code: "
+                         << status_code << ". Defaulting to 500 Internal Server Error.");
+    }
+    if (status_code == 404)
+    {
+        return this->response_404;
+    }
+    else if (status_code == 405)
+    {
+        return this->response_405;
+    }
+    else
+    {
+        return this->response_error;  // 500 Internal Server Error 或其他错误
+    }
 }

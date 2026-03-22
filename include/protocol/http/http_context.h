@@ -50,11 +50,11 @@ class HttpContext
     std::regex _http_request_line_re;
 
     // 解析请求行
-    bool _ParseRequestLine(Buffer &buffer);
+    bool _ParseRequestLine(Buffer *buffer);
     // 解析请求头部
-    bool _ParseHeaders(Buffer &buffer);
+    bool _ParseHeaders(Buffer *buffer);
     // 解析请求正文
-    bool _ParseBody(Buffer &buffer);
+    bool _ParseBody(Buffer *buffer);
 
    public:
     HttpContext();
@@ -66,7 +66,7 @@ class HttpContext
     HttpRequest &GetRequest();
 
     // Http请求解析
-    void ParseRequest(Buffer &buffer);
+    void ParseRequest(Buffer *buffer);
 
     // 重置上下文状态,以便处理下一个请求
     void Reset();

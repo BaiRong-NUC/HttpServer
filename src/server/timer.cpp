@@ -112,8 +112,9 @@ void Timer::_Remove(uint64_t id, uint64_t version)
             auto versionIt = _taskVersionMap.find(id);
             if (versionIt != _taskVersionMap.end() && versionIt->second == version)
             {
-                _taskMap.erase(id);
+                // 必须先删除版本映射表中的版本号,会导致“内部重入先删掉 version，再用失效迭代器二次删”而崩溃
                 _taskVersionMap.erase(versionIt);
+                _taskMap.erase(id);
             }
         });
 }
@@ -141,8 +142,9 @@ void Timer::Tick()
                     }
                     else
                     {
-                        _taskMap.erase(id);
+                        // Erase version first to avoid re-entrant double-erase from TimerTask::~TimerTask -> _Remove.
                         _taskVersionMap.erase(versionIt);
+                        _taskMap.erase(id);
                     }
                 }
             }

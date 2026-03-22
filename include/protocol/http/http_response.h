@@ -38,8 +38,6 @@ class HttpResponse
     std::string GetBody() const;
     // 设置重定向响应,location为重定向目标URL,status_code默认为302 Found
     void SetRedirect(const std::string &location, int status_code = 302);
-    // 长短链接判断
-    bool IsKeepAlive() const;
 
     // 重置
     void Clear();

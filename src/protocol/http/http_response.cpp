@@ -32,6 +32,7 @@ void HttpResponse::SetBody(const std::string &body, const std::string &content_t
 {
     this->body = body;
     this->SetHeader("Content-Type", content_type);
+    this->SetHeader("Content-Length", std::to_string(body.size()));
 }
 
 std::string HttpResponse::GetBody() const { return this->body; }
@@ -42,25 +43,6 @@ void HttpResponse::SetRedirect(const std::string &location, int status_code)
     this->redirect_location = location;
     this->status_code = status_code;
     this->SetHeader("Location", location);
-}
-
-bool HttpResponse::IsKeepAlive() const
-{
-    if (this->HasHeader("Connection"))
-    {
-        std::string connection_value = this->GetHeader("Connection");
-        // HTTP/1.1默认是长连接,除非明确指定为"close"
-        if (connection_value == "keep-alive")
-        {
-            return true;  // 明确指定为keep-alive,认为是长连接
-        }
-        else if (connection_value == "close")
-        {
-            return false;  // 明确指定为close,认为是短连接
-        }
-    }
-    // 没有Connection头部字段,根据HTTP版本判断默认连接类型
-    return this->version == "HTTP/1.1";  // HTTP/1.1默认是长连接,HTTP/1.0默认是短连接
 }
 
 // 构造HTTP响应报文字符串

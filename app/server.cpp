@@ -19,11 +19,10 @@ int main(int argc, char const *argv[])
                 {
                     // 处理登录请求,这里只是示例,实际应用中需要验证用户名和密码等
                     // 将POST 上传的用户与密码也展示出来
-                    std::string username = req.GetQueryParam("username");
-                    std::string password = req.GetQueryParam("password");
-                    resp.SetBody("<html><body><h1>Login Successful! </h1><p>Username: " + username +
-                                     "</p><p>Password: " + password + "</p></body></html>",
-                                 "text/html");
+                    std::string body = req.body;
+                    resp.SetBody(
+                        "<html><body><h1>Login Successful! </h1><p>request body: " + body + "</p></body></html>",
+                        "text/html");
                     resp.status_code = 200;  // OK
                 });
     // 注册GET请求处理函数

@@ -45,8 +45,6 @@ class HttpContext
     HttpAcceptStatus _accept_status;
     // 解析完成的Http请求信息
     HttpRequest _request;
-    // 解析完成Http响应信息
-    HttpResponse _response;
 
     // http请求行正则表达式,用于解析请求行,提取请求方法、URI和HTTP版本等信息
     std::regex _http_request_line_re;
@@ -66,8 +64,6 @@ class HttpContext
     HttpAcceptStatus GetAcceptStatus() const;
 
     HttpRequest &GetRequest();
-
-    HttpResponse &GetResponse();
 
     // Http请求解析
     void ParseRequest(Buffer &buffer);

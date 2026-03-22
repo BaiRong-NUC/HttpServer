@@ -1,6 +1,6 @@
 #pragma once
 #include <utils/public.h>
-
+#include <utils/utils.h>
 /**
  * HTTP响应构建与管理，支持设置状态码、响应头部和消息体。
  * 1. 存储HTTP响应信息
@@ -43,4 +43,7 @@ class HttpResponse
 
     // 重置
     void Clear();
+
+    // 构造HTTP响应报文字符串
+    std::string ToString() const;
 };

@@ -10,7 +10,6 @@ HttpContext::HttpContext() : _response_status(200), _accept_status(HttpAcceptSta
 int HttpContext::GetResponseStatus() const { return this->_response_status; }
 HttpAcceptStatus HttpContext::GetAcceptStatus() const { return this->_accept_status; }
 HttpRequest &HttpContext::GetRequest() { return this->_request; }
-HttpResponse &HttpContext::GetResponse() { return this->_response; }
 
 // 1. 解析请求行
 bool HttpContext::_ParseRequestLine(Buffer &buffer)
@@ -79,8 +78,7 @@ bool HttpContext::_ParseRequestLine(Buffer &buffer)
                 }
             }
         }
-        this->_request.version = std::string("HTTP/") + matchs[3].str();   // HTTP版本,存为HTTP/x.y
-        this->_response.version = std::string("HTTP/") + matchs[3].str();  // 响应版本与请求版本保持一致
+        this->_request.version = std::string("HTTP/") + matchs[3].str();  // HTTP版本,存为HTTP/x.y
     }
     else
     {
@@ -236,5 +234,4 @@ void HttpContext::Reset()
     this->_response_status = 200;
     this->_accept_status = HttpAcceptStatus::ACCEPTING_REQUEST_LINE;
     this->_request.Clear();
-    this->_response.Clear();
 }

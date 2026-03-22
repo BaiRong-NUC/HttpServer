@@ -1,6 +1,9 @@
 #include <protocol/http/http_response.h>
 
-HttpResponse::HttpResponse(int status) : status_code(status), is_redirect(false) {}
+HttpResponse::HttpResponse(int status) : status_code(status), is_redirect(false)
+{
+    this->version = "HTTP/1.1";  // 默认HTTP版本为1.1
+}
 
 void HttpResponse::Clear()
 {
@@ -9,7 +12,7 @@ void HttpResponse::Clear()
     this->body.clear();
     this->is_redirect = false;
     this->redirect_location.clear();
-    this->version.clear();
+    this->version = "HTTP/1.1";  // 默认HTTP版本为1.1
 }
 
 void HttpResponse::SetHeader(const std::string &key, const std::string &value) { this->headers[key] = value; }
@@ -58,4 +61,28 @@ bool HttpResponse::IsKeepAlive() const
     }
     // 没有Connection头部字段,根据HTTP版本判断默认连接类型
     return this->version == "HTTP/1.1";  // HTTP/1.1默认是长连接,HTTP/1.0默认是短连接
+}
+
+// 构造HTTP响应报文字符串
+std::string HttpResponse::ToString() const
+{
+    std::stringstream response_stream;
+
+    // 请求行
+    response_stream << this->version << " " << this->status_code << " " << Utils::GetStatusMessage(this->status_code)
+                    << "\r\n";
+
+    // 响应头部
+    for (const auto &header : this->headers)
+    {
+        response_stream << header.first << ": " << header.second << "\r\n";
+    }
+
+    // 空行
+    response_stream << "\r\n";
+
+    // 响应正文
+    response_stream << this->body;
+
+    return response_stream.str();
 }

@@ -34,19 +34,19 @@ class HttpServer
     void _OnMessage(const PtrConnection &conn, Buffer &buffer);                   // 處理請求數據的回調函數
     void _OnConnected(const PtrConnection &conn);                                 // 設置tcp上下文
     HandlerFunc _FindHandler(const std::string &method, const std::string &uri);  // 查找處理函數
-    void SendResponse(const PtrConnection &conn, const HttpRequest &server_request,
-                      const HttpResponse &server_response);  // 構造并發送HTTP響應
+    void SendResponse(const PtrConnection &conn, const HttpRequest &client_request,
+                      HttpResponse &server_response);  // 構造并發送HTTP響應
    public:
-    const std::string static_root;  // 靜態資源根目錄
-    HttpServer();
+    const std::string static_root;        // 靜態資源根目錄
+    HttpServer(const std::string &root);  // 構造函數,參數為靜態資源根目錄,默認為"./static"
     // uri_pattern是正則表達式,用於匹配請求URI,handler是處理函數,接受HttpRequest對象和HttpResponse對象參數,用於處理請求並設置響應內容
     void Get(const std::string &uri_pattern, HandlerFunc handler);
     void Post(const std::string &uri_pattern, HandlerFunc handler);
     void Put(const std::string &uri_pattern, HandlerFunc handler);
     void Delete(const std::string &uri_pattern, HandlerFunc handler);
 
-    // 錯誤響應函數
-    HandlerFunc error_response;
+    // 錯誤響應
+    HttpResponse error_response;  // 默認錯誤響應,用戶可以修改默認響應的內容,如狀態碼、響應頭部和消息體等
 
     // 設置超時時間,以s為單位,超時後自動關閉不活躍的連接
     void SetInactiveTimeout(int timeout);

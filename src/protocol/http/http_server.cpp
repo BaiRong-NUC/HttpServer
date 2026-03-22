@@ -1,5 +1,9 @@
 #include <protocol/http/http_server.h>
 
+// HttpServer::HttpServer(const std::string& root) : static_root(root) {
+
+// }
+
 // 設置TcpServer上下文
 void HttpServer::_OnConnected(const PtrConnection &conn)
 {
@@ -16,36 +20,12 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer &buffer)
         // 1. 獲取協議上下文
         HttpContext *context = conn->GetContext().Get<HttpContext>();
 
-        HttpRequest server_request;    // 服務器構造請求行
-        HttpResponse server_response;  // 服務器構造請求正文
         // 2. 通過上下文對緩衝區的數據進行解析,得到HttpRequest對象
         context->ParseRequest(buffer);
         if (context->GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_ERROR)
         {
-            // 解析過程中出現錯誤,根據響應狀態碼設置響應內容
-            if (this->error_response != nullptr)
-            {
-                // 用戶提供的函數構造了請求行和正文
-                this->error_response(server_request, server_response);
-            }
-            else
-            {
-                // 默認響應: 返回 404 Not Found
-                server_request.method = "GET";
-                server_request.uri = "/";
-                server_request.version = "HTTP/1.1";
-                server_request.SetHeader("Host", "localhost");
-
-                server_response.status_code = 404;
-                std::string body = "<html><body><h1>404 Not Found</h1></body></html>";
-                server_response.SetBody(body);
-                // 明確設置內容長度與關閉連接
-                server_response.SetHeader("Content-Length", std::to_string(server_response.GetBody().size()));
-                server_response.SetHeader("Connection", "close");
-            }
-
-            // 構造HTTP并發送響應
-            this->SendResponse(conn, server_request, server_response);
+            // 解析過程中出現錯誤,構造HTTP并發送響應
+            this->SendResponse(conn, context->GetRequest(), this->error_response);
             // 切斷連接
             conn->Close();
             return;
@@ -58,7 +38,6 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer &buffer)
 
         // 請求解析完畢,獲取請求HttpRequest對象
         HttpRequest &client_request = context->GetRequest();
-        HttpResponse &client_response = context->GetResponse();
 
         // 3. 判斷請求路由+業務處理
 
@@ -68,10 +47,41 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer &buffer)
         context->Reset();
 
         // 5. 根據長短連接決定是否關閉連接
-        if (client_response.IsKeepAlive() == false)
+        if (client_request.IsKeepAlive() == false)
         {
             conn->Close();
             return;
         }
     }
+}
+
+void HttpServer::SendResponse(const PtrConnection &conn, const HttpRequest &client_request,
+                              HttpResponse &server_response)
+{
+    // 设置响应头部,防止用户忘记设置必要的头部字段
+    if (client_request.IsKeepAlive() == false)
+    {
+        server_response.SetHeader("Connection", "close");
+    }
+    else
+    {
+        server_response.SetHeader("Connection", "keep-alive");
+    }
+    if (server_response.body.empty() == false)
+    {
+        if (server_response.HasHeader("Content-Length") == false)
+            server_response.SetHeader("Content-Length", std::to_string(server_response.body.size()));
+        if (server_response.HasHeader("Content-Type") == false)
+            server_response.SetHeader("Content-Type", "application/octet-stream");  // 外部没有设置,默认为二进制流
+    }
+    if (server_response.is_redirect == true)
+    {
+        if (server_response.HasHeader("Location") == false)
+        {
+            server_response.SetHeader("Location", server_response.redirect_location);
+        }
+    }
+
+    // 构造HTTP响应报文并发送
+    conn->Send(server_response.ToString());
 }

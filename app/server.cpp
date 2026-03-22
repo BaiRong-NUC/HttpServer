@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-    SetLogLevel(INFO);
+    SetLogLevel(WARNING);
     // 获取计算机CPU核心数量,作为从属线程数量
     int thread_num = std::thread::hardware_concurrency();
     HttpServer server("./wwwroot", 8085, DEFAULT_INACTIVE_TIMEOUT, thread_num);

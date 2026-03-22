@@ -6,16 +6,23 @@ void Connection::_HandleRead()
     // 当数组满了等下次再读.
     char buffer[BUFFER_DEFAULT_SIZE] = {0};
     int ret = this->_channel.GetSocket().Recv(buffer, BUFFER_DEFAULT_SIZE, MSG_DONTWAIT);
-    if (ret < 0)
+    if (ret == -2)
     {
-        // LOG(WARNING, "Failed to read from socket, connection will be closed");
+        // 对端已优雅关闭：记录为 INFO 并关闭连接，但不当作频繁的 WARNING
+        LOG(INFO, "Peer closed connection, closing locally");
+        this->Close();
+        return;
+    }
+    else if (ret < 0)
+    {
+        LOG(WARNING, "Failed to read from socket, connection will be closed");
         // 查看缓冲区是否有数据再决定删除
         this->Close();
         return;
     }
     else if (ret == 0)
     {
-        LOG(WARNING, "No more data to read");
+        // 暂时没有数据可读（非阻塞或被中断），不视为错误，不打印警告
         return;
     }
     else

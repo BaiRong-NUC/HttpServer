@@ -91,18 +91,29 @@ bool Socket::Accept(std::string &clientIp, uint16_t &clientPort, Socket &clientS
 }
 
 // 接受数据
+// 返回值约定:
+//  >0 : 读取到的字节数
+//   0 : 非阻塞/被中断且当前没有数据可读（可重试）
+//  -1 : 发生错误
+//  -2 : 对端已优雅关闭（recv 返回 0）
 ssize_t Socket::Recv(void *buffer, size_t len, int flags)
 {
-    int ret = recv(this->_sockfd, buffer, len, flags);
-    if (ret <= 0)
+    ssize_t ret = recv(this->_sockfd, buffer, len, flags);
+    if (ret == 0)
     {
-        // EANGAIN: 非阻塞套接字没有数据可读(非阻塞情况)
-        // EINTR: recv被信号中断
-        if (errno == EAGAIN || errno == EINTR)
+        // 对端已优雅关闭
+        return -2;
+    }
+
+    if (ret < 0)
+    {
+        // EAGAIN/EWOULDBLOCK: 非阻塞套接字没有数据可读
+        // EINTR: recv 被信号中断
+        if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
         {
             return 0;
         }
-        return -1;  // 其他错误,返回-1表示连接关闭或者发生错误
+        return -1;  // 其他错误
     }
     return ret;
 }
@@ -173,7 +184,7 @@ bool Socket::CreateServer(uint16_t port, bool reuseAddr, bool noBlock, const std
     {
         this->SetReuseAddr(true);
     }
-    
+
     // 3. 绑定IP和端口
     if (!this->Bind(ip, port))
     {

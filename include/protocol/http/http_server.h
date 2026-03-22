@@ -23,6 +23,8 @@
  * 5. 將HttpResponse對象組織成http格式進行發送
  */
 
+#define DEFAULT_INACTIVE_TIMEOUT 30  // 默認非活躍連接超時時間,以s為單位,超時後自動關閉不活躍的連接
+
 class HttpServer
 {
    private:
@@ -54,9 +56,9 @@ class HttpServer
 
    public:
     const std::string static_root;  // 靜態資源根目錄
-    // 構造函數
-    HttpServer(uint16_t port, int timeout = 30, int thread_num = 0, bool reseAddr = true, bool noBlock = true,
-               const std::string &ip = "0.0.0.0");
+    // 構造函數,timeout<=0則不啟用自動關閉非活躍連接的機制
+    HttpServer(const std::string &root, uint16_t port, int timeout = DEFAULT_INACTIVE_TIMEOUT, int thread_num = 0,
+               bool reseAddr = true, bool noBlock = true, const std::string &ip = "0.0.0.0");
     // uri_pattern是正則表達式,用於匹配請求URI,handler是處理函數,接受HttpRequest對象和HttpResponse對象參數,用於處理請求並設置響應內容
     void Get(const std::string &uri_pattern, HandlerFunc handler);
     void Post(const std::string &uri_pattern, HandlerFunc handler);
@@ -68,7 +70,7 @@ class HttpServer
     HttpResponse response_405;
     HttpResponse response_error;
 
-    // 設置超時時間,以s為單位,超時後自動關閉不活躍的連接
+    // 設置超時時間,以s為單位,超時後自動關閉不活躍的連接,如果timeout <= 0則不啟用自動關閉非活躍連接的機制
     void SetInactiveTimeout(int timeout);
 
     // 啟動服務器,開始接受和處理請求

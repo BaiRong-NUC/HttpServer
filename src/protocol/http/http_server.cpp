@@ -1,8 +1,8 @@
 #include <protocol/http/http_server.h>
 
-HttpServer::HttpServer(uint16_t port, int timeout, int thread_num = 0, bool reseAddr = true, bool noBlock = true,
-                       const std::string &ip = "0.0.0.0")
-    : _tcp_server(port, thread_num, reseAddr, noBlock, ip), static_root("./static")
+HttpServer::HttpServer(const std::string &root, uint16_t port, int timeout, int thread_num, bool reseAddr, bool noBlock,
+                       const std::string &ip)
+    : _tcp_server(port, thread_num, reseAddr, noBlock, ip), static_root(root)
 {
     // 设置超时时间,单位为秒
     this->SetInactiveTimeout(timeout);
@@ -238,5 +238,39 @@ const HttpResponse &HttpServer::_GetErrorResponse(int status_code)
     else
     {
         return this->response_error;  // 500 Internal Server Error 或其他错误
+    }
+}
+
+void HttpServer::Get(const std::string &uri_pattern, HandlerFunc handler)
+{
+    this->_get_handlers[uri_pattern] = handler;
+}
+
+void HttpServer::Post(const std::string &uri_pattern, HandlerFunc handler)
+{
+    this->_post_handlers[uri_pattern] = handler;
+}
+
+void HttpServer::Put(const std::string &uri_pattern, HandlerFunc handler)
+{
+    this->_put_handlers[uri_pattern] = handler;
+}
+
+void HttpServer::Delete(const std::string &uri_pattern, HandlerFunc handler)
+{
+    this->_delete_handlers[uri_pattern] = handler;
+}
+
+void HttpServer::Listen() { this->_tcp_server.Run(); }
+
+void HttpServer::SetInactiveTimeout(int timeout)
+{
+    if (timeout <= 0)
+    {
+        this->_tcp_server.SetInactiveRelease(false);  // 不自动释放非活跃连接
+    }
+    else
+    {
+        this->_tcp_server.SetInactiveRelease(true, timeout);  // 自动释放非活跃连接,超时时间为timeout秒
     }
 }

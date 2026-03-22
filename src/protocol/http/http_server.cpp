@@ -194,6 +194,7 @@ std::regex &HttpServer::_GetRegex(const std::string &pattern)
 
     {
         std::unique_lock<std::shared_mutex> write_lock(this->_regex_cache_mutex);
+        // 再次检查是为了避免“读锁释放到写锁获取之间”被别的线程抢先插入
         auto it = this->_regex_cache.find(pattern);
         if (it == this->_regex_cache.end())
         {

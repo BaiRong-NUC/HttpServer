@@ -15,7 +15,11 @@ HttpServer::HttpServer(uint16_t port, int timeout, int thread_num = 0, bool rese
 
     // 初始化默认错误响应内容
     this->response_404.status_code = 404;
-    // this->response_404.SetBody()
+    this->response_404.SetBody(GetEmbedded404(), "text/html");
+    this->response_405.status_code = 405;
+    this->response_405.SetBody(GetEmbedded405(), "text/html");
+    this->response_error.status_code = 500;
+    this->response_error.SetBody(GetEmbeddedError(), "text/html");
 }
 
 // 設置TcpServer上下文

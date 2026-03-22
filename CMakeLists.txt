@@ -66,8 +66,8 @@ endif()
 if(BUILD_APP)
 	# 在配置阶段将 run.sh 复制到 build/app，并设置可执行权限(避免并行构建时的 cmake -E 竞态)
 	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/app)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/run.sh ${CMAKE_BINARY_DIR}/app/run.sh COPYONLY)
-	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/run.sh)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/run.sh ${CMAKE_BINARY_DIR}/app/server.sh COPYONLY)
+	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/server.sh)
 endif()
 
 # 编译开发阶段的 API 测试代码

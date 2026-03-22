@@ -23,10 +23,11 @@ HttpServer::HttpServer(const std::string &root, uint16_t port, int timeout, int 
     this->response_error.status_code = 500;
     this->response_error.SetBody(GetEmbeddedError(), "text/html");
 
-    this->_method_handlers["GET"] = this->_get_handlers;
-    this->_method_handlers["POST"] = this->_post_handlers;
-    this->_method_handlers["PUT"] = this->_put_handlers;
-    this->_method_handlers["DELETE"] = this->_delete_handlers;
+    // 初始化支持的方法映射（为空），以便请求到来时能区分“方法不支持(405)”与“未匹配路由(404)”。
+    this->_method_handlers["GET"] = {};
+    this->_method_handlers["POST"] = {};
+    this->_method_handlers["PUT"] = {};
+    this->_method_handlers["DELETE"] = {};
 
     // 如果静态资源根目录不存在则创建
     if (!Utils::IsDirectory(this->static_root))
@@ -267,22 +268,22 @@ const HttpResponse &HttpServer::_GetErrorResponse(int status_code)
 
 void HttpServer::Get(const std::string &uri_pattern, HandlerFunc handler)
 {
-    this->_get_handlers[uri_pattern] = handler;
+    this->_method_handlers["GET"][uri_pattern] = handler;
 }
 
 void HttpServer::Post(const std::string &uri_pattern, HandlerFunc handler)
 {
-    this->_post_handlers[uri_pattern] = handler;
+    this->_method_handlers["POST"][uri_pattern] = handler;
 }
 
 void HttpServer::Put(const std::string &uri_pattern, HandlerFunc handler)
 {
-    this->_put_handlers[uri_pattern] = handler;
+    this->_method_handlers["PUT"][uri_pattern] = handler;
 }
 
 void HttpServer::Delete(const std::string &uri_pattern, HandlerFunc handler)
 {
-    this->_delete_handlers[uri_pattern] = handler;
+    this->_method_handlers["DELETE"][uri_pattern] = handler;
 }
 
 void HttpServer::Listen() { this->_tcp_server.Run(); }

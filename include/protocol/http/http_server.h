@@ -30,10 +30,6 @@ class HttpServer
 {
    private:
     using HandlerFunc = std::function<void(const HttpRequest &, HttpResponse &)>;
-    std::unordered_map<std::string, HandlerFunc> _get_handlers;     // GET
-    std::unordered_map<std::string, HandlerFunc> _post_handlers;    // POST
-    std::unordered_map<std::string, HandlerFunc> _put_handlers;     // PUT
-    std::unordered_map<std::string, HandlerFunc> _delete_handlers;  // DELETE
     // 方法到路由映射表的映射表,方便根据方法查找对应的路由映射表
     std::unordered_map<std::string, std::unordered_map<std::string, HandlerFunc>> _method_handlers;
     // regex缓存

@@ -27,6 +27,13 @@ HttpServer::HttpServer(const std::string &root, uint16_t port, int timeout, int 
     this->_method_handlers["POST"] = this->_post_handlers;
     this->_method_handlers["PUT"] = this->_put_handlers;
     this->_method_handlers["DELETE"] = this->_delete_handlers;
+
+    // 如果静态资源根目录不存在则创建
+    if (!Utils::IsDirectory(this->static_root))
+    {
+        LOG(ERROR, "Static root directory does not exist: " << this->static_root);
+        exit(EXIT_FAILURE);
+    }
 }
 
 // 設置TcpServer上下文

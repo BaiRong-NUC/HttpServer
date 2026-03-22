@@ -1,4 +1,5 @@
 #pragma once
+#include <shared_mutex>
 #include <utils/public.h>
 #include <utils/utils.h>
 #include <protocol/http/http_context.h>
@@ -37,6 +38,7 @@ class HttpServer
     std::unordered_map<std::string, std::unordered_map<std::string, HandlerFunc>> _method_handlers;
     // regex缓存
     std::unordered_map<std::string, std::regex> _regex_cache;
+    mutable std::shared_mutex _regex_cache_mutex;
     TcpServer _tcp_server;                                       // TCP服務器
     void _OnMessage(const PtrConnection &conn, Buffer *buffer);  // 處理請求數據的回調函數
     void _OnConnected(const PtrConnection &conn);                // 設置tcp上下文
@@ -46,7 +48,7 @@ class HttpServer
     HandlerFunc _FindHandler(const std::string &method, const std::string &uri, int &status_code);
 
     // 查找正则表达式,如果缓存中没有则创建并缓存
-    std::regex _GetRegex(const std::string &pattern);
+    std::regex &_GetRegex(const std::string &pattern);
 
     // 判断请求是否是静态资源请求
     bool _IsStaticResource(HttpRequest &request);

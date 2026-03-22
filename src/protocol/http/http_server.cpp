@@ -1,5 +1,7 @@
 #include <protocol/http/http_server.h>
 
+#include <mutex>
+
 HttpServer::HttpServer(const std::string &root, uint16_t port, int timeout, int thread_num, bool reseAddr, bool noBlock,
                        const std::string &ip)
     : _tcp_server(port, thread_num, reseAddr, noBlock, ip), static_root(root)
@@ -20,6 +22,11 @@ HttpServer::HttpServer(const std::string &root, uint16_t port, int timeout, int 
     this->response_405.SetBody(GetEmbedded405(), "text/html");
     this->response_error.status_code = 500;
     this->response_error.SetBody(GetEmbeddedError(), "text/html");
+
+    this->_method_handlers["GET"] = this->_get_handlers;
+    this->_method_handlers["POST"] = this->_post_handlers;
+    this->_method_handlers["PUT"] = this->_put_handlers;
+    this->_method_handlers["DELETE"] = this->_delete_handlers;
 }
 
 // 設置TcpServer上下文
@@ -174,18 +181,25 @@ HttpServer::HandlerFunc HttpServer::_FindHandler(const std::string &method, cons
     return nullptr;
 }
 
-std::regex HttpServer::_GetRegex(const std::string &pattern)
+std::regex &HttpServer::_GetRegex(const std::string &pattern)
 {
-    auto it = this->_regex_cache.find(pattern);
-    if (it != this->_regex_cache.end())
     {
-        return it->second;
+        std::shared_lock<std::shared_mutex> read_lock(this->_regex_cache_mutex);
+        auto it = this->_regex_cache.find(pattern);
+        if (it != this->_regex_cache.end())
+        {
+            return it->second;
+        }
     }
-    else
+
     {
-        std::regex regex_pattern(pattern);
-        this->_regex_cache[pattern] = regex_pattern;
-        return regex_pattern;
+        std::unique_lock<std::shared_mutex> write_lock(this->_regex_cache_mutex);
+        auto it = this->_regex_cache.find(pattern);
+        if (it == this->_regex_cache.end())
+        {
+            it = this->_regex_cache.emplace(pattern, std::regex(pattern)).first;
+        }
+        return it->second;
     }
 }
 

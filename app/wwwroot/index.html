@@ -225,9 +225,50 @@
                 font-size: 0.86rem;
                 line-height: 1.7;
                 color: #273444;
-                white-space: pre-wrap;
+                white-space: normal;
                 min-height: 250px;
                 overflow: auto;
+            }
+
+            /* 美化 code-panel 内部结构 */
+            .code-panel .status {
+                display: block;
+                margin-top: 6px;
+            }
+
+            .code-panel .line {
+                margin-bottom: 8px;
+                display: flex;
+                gap: 8px;
+                align-items: baseline;
+            }
+
+            .code-panel .label {
+                color: var(--ink-soft);
+                font-weight: 700;
+                min-width: 72px;
+                display: inline-block;
+            }
+
+            .code-panel .value.running {
+                color: #16a34a;
+                font-weight: 700;
+            }
+
+            .code-panel .section {
+                margin-top: 10px;
+            }
+
+            .code-panel ul,
+            .code-panel ol {
+                margin: 6px 0 0 18px;
+            }
+
+            .code-panel code {
+                background: rgba(27, 31, 42, 0.04);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: inherit;
             }
 
             .dots {
@@ -490,11 +531,48 @@
                 <aside class="hero-side">
                     <div class="code-panel" aria-label="server status panel">
                         <div class="dots"><i></i><i></i><i></i></div>
-                        Server: HttpServer/main State : RUNNING Port : 8085 Mode
-                        : Debug [Routes] - GET / -> index.html - GET /hello ->
-                        hello html - POST /login -> login result [Tips] 1) 用
-                        webbench 做并发压测 2) 在 app/src 中扩展业务逻辑 3) 在
-                        include/protocol 中添加协议模块
+                        <div class="status">
+                            <div class="line">
+                                <span class="label">Server:</span>
+                                <span class="value">HttpServer/main</span>
+                            </div>
+                            <div class="line">
+                                <span class="label">State:</span>
+                                <span class="value running">RUNNING</span>
+                            </div>
+                            <div class="line">
+                                <span class="label">Port:</span>
+                                <span class="value">8085</span>
+                            </div>
+                            <div class="line">
+                                <span class="label">Mode:</span>
+                                <span class="value">Debug</span>
+                            </div>
+
+                            <div class="section">
+                                <strong>[Routes]</strong>
+                                <ul>
+                                    <li>GET / → index.html</li>
+                                    <li>GET /hello → hello.html</li>
+                                    <li>POST /login → login result</li>
+                                </ul>
+                            </div>
+
+                            <div class="section">
+                                <strong>[Tips]</strong>
+                                <ol>
+                                    <li>用 <code>webbench</code> 做并发压测</li>
+                                    <li>
+                                        在 <code>app/src</code> 中扩展业务逻辑
+                                    </li>
+                                    <li>
+                                        在
+                                        <code>include/protocol</code>
+                                        中添加协议模块
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
                     </div>
                 </aside>
             </section>

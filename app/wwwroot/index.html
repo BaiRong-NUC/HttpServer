@@ -420,6 +420,29 @@
                 overflow: auto;
             }
 
+            /* Footer-specific command block styling (提升展示效果) */
+            .footer-card .api-output {
+                background: linear-gradient(90deg, #ffffff, #fffdfa);
+                border-left: 4px solid var(--accent-2);
+                padding: 12px 14px;
+                font-size: 0.92rem;
+                min-height: unset;
+                white-space: pre-wrap;
+                box-shadow: 0 6px 18px rgba(25, 114, 120, 0.06);
+            }
+
+            .footer-card .cmd-note {
+                margin-top: 8px;
+                color: var(--ink-soft);
+                font-size: 0.85rem;
+            }
+
+            @media (min-width: 980px) {
+                .footer-card:last-child .api-output {
+                    font-size: 0.9rem;
+                }
+            }
+
             .api-status {
                 margin-top: 10px;
                 display: inline-flex;
@@ -647,22 +670,30 @@
                 </section>
                 <section class="footer-card">
                     <h3>如何启动项目</h3>
-                    <p>在项目根目录执行下面命令来构建项目:</p>
-                    <pre class="api-output">
-mkdir -p build
+                    <p class="cmd-note">
+                        在项目根目录执行以下命令以构建项目（复制粘贴即可）：
+                    </p>
+                    <pre
+                        class="api-output"
+                        aria-label="构建命令"
+                    ><code>mkdir -p build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
-或者运行./rebuild.sh重新构建
-                    </pre>
-                    <p>或使用示例脚本快速启动/停止服务器:</p>
-                    <pre class="api-output">
-# 启动服务: ./app/loop.sh start
-# 停止服务: ./app/loop.sh stop
-                    </pre>
-                    <p>
-                        更多信息可查看根目录的 README.md,使用
+# 或者：
+./rebuild.sh</code></pre>
+
+                    <p class="cmd-note">使用示例脚本快速启动 / 停止服务器：</p>
+                    <pre
+                        class="api-output"
+                        aria-label="启动停止脚本"
+                    ><code>./app/loop.sh start
+./app/loop.sh stop</code></pre>
+
+                    <p class="cmd-note">
+                        更多信息请查看项目根目录的
+                        <a href="/README.md">README.md</a>。也可使用
                         <code>server_api.sh</code> 和
-                        <code>client_api.sh</code> 可以进行TcpServer API测试。
+                        <code>client_api.sh</code> 进行 TcpServer API 测试。
                     </p>
                 </section>
             </footer>

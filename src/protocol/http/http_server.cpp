@@ -42,7 +42,7 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer *buffer)
         context->ParseRequest(buffer);
         if (context->GetAcceptStatus() == HttpAcceptStatus::ACCEPTING_ERROR)
         {
-            // 解析過程中出現錯誤,構造HTTP并發送響應
+            // 解析過程中出現錯誤,構造HTTP并發送響應,失败则client_request使用默认值
             HttpResponse error_response = this->_GetErrorResponse(context->GetResponseStatus());
             this->SendResponse(conn, context->GetRequest(), error_response);
             // 切斷連接
@@ -81,6 +81,8 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer *buffer)
 void HttpServer::SendResponse(const PtrConnection &conn, const HttpRequest &client_request,
                               HttpResponse &server_response)
 {
+    // response 状态码在初始化时设置
+    server_response.version = client_request.version;  // 响应版本与请求版本一致
     // 设置响应头部,防止用户忘记设置必要的头部字段
     if (client_request.IsKeepAlive() == false)
     {

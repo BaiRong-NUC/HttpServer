@@ -87,9 +87,11 @@ void HttpRequest::Clear()
 {
     this->method.clear();
     this->uri.clear();
-    this->version.clear();
+    this->version = "HTTP/1.1";  // 默认HTTP版本为1.1
     this->headers.clear();
     this->query_params.clear();
     this->body.clear();
     this->_matchs = std::smatch();  // 重置正则表达式匹配结果
 }
+
+HttpRequest::HttpRequest() { this->version = "HTTP/1.1"; }

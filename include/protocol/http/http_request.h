@@ -28,6 +28,8 @@ class HttpRequest
     std::unordered_map<std::string, std::string> query_params;  // 查询字符串
     std::string body;                                           // 请求消息体
 
+    HttpRequest();
+
     // 设置头部字段
     void SetHeader(const std::string &key, const std::string &value);
     // 判断是否有某个头部字段

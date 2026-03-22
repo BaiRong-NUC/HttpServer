@@ -91,6 +91,9 @@ cmake --build build -j
 
 # 停止
 ./app/loop.sh stop
+
+注意: kill 命令可能会导致服务器自动重启;
+需要使用 `pkill -f server_supervisor.sh` 停止保活进程。
 ```
 
 3. 直接运行可执行文件（构建后）：

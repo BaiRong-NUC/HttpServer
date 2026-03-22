@@ -89,3 +89,9 @@ cmake --build build -j
 
 用于测试和演示的脚本：`server_api.sh`, `client_api.sh`, 以及 `webbench`(用于并发压测 TcpServer)。
 更多使用细节请参考仓库内相应脚本和 `api_test/` 下的API测试代码。
+
+## 四、在线演示
+
+访问示例服务(公网示例):
+
+http://38.190.254.70:8085/

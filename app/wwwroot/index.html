@@ -88,6 +88,9 @@
                 align-items: center;
                 justify-content: space-between;
                 margin-bottom: 18px;
+                max-width: 880px;
+                margin-left: auto;
+                margin-right: auto;
             }
             .logo {
                 font-family: "ZCOOL XiaoWei", serif;
@@ -149,6 +152,27 @@
             .btn-primary {
                 background: linear-gradient(110deg, #e4572e, #f0904a);
                 color: #fff;
+                transition:
+                    opacity 0.15s ease,
+                    transform 0.1s ease;
+            }
+            .btn-primary:active {
+                transform: scale(0.96);
+                opacity: 0.85;
+            }
+            .btn-feedback {
+                animation: btn-pop 0.3s ease;
+            }
+            @keyframes btn-pop {
+                0% {
+                    transform: scale(1);
+                }
+                40% {
+                    transform: scale(0.93);
+                }
+                100% {
+                    transform: scale(1);
+                }
             }
             .section {
                 margin-top: 20px;
@@ -694,8 +718,8 @@
                         <p class="muted">计算机四级;程序员技术资格</p>
                         <div style="margin-top: 12px; text-align: right">
                             <button
+                                id="export-pdf"
                                 class="btn btn-primary btn-compact"
-                                onclick="window.print()"
                             >
                                 📄 导出为 PDF
                             </button>
@@ -706,22 +730,54 @@
         </main>
 
         <script>
+            function copyToClipboard(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text);
+                }
+                // HTTP 环境 fallback
+                const ta = document.createElement("textarea");
+                ta.value = text;
+                ta.style.cssText =
+                    "position:fixed;top:-9999px;left:-9999px;opacity:0";
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                const ok = document.execCommand("copy");
+                document.body.removeChild(ta);
+                return ok
+                    ? Promise.resolve()
+                    : Promise.reject(new Error("copy failed"));
+            }
+
+            const copyBtn = document.getElementById("copy-email");
+            copyBtn.addEventListener("click", function () {
+                const btn = this;
+                copyToClipboard("gbr@edu.nuc.email")
+                    .then(() => {
+                        btn.textContent = "✓ 已复制";
+                        btn.classList.add("btn-feedback");
+                        setTimeout(() => {
+                            btn.textContent = "复制邮箱";
+                            btn.classList.remove("btn-feedback");
+                        }, 1500);
+                    })
+                    .catch(() => {
+                        btn.textContent = "复制失败";
+                        setTimeout(() => (btn.textContent = "复制邮箱"), 1500);
+                    });
+            });
+
             document
-                .getElementById("copy-email")
+                .getElementById("export-pdf")
                 .addEventListener("click", function () {
-                    const text = "gbr@edu.nuc.email";
-                    navigator.clipboard
-                        ?.writeText(text)
-                        .then(() => {
-                            this.textContent = "已复制";
-                            setTimeout(
-                                () => (this.textContent = "复制邮箱"),
-                                1200,
-                            );
-                        })
-                        .catch(() => {
-                            alert("复制失败，请手动复制：" + text);
-                        });
+                    const btn = this;
+                    btn.textContent = "正在准备...";
+                    btn.classList.add("btn-feedback");
+                    setTimeout(() => {
+                        window.print();
+                        btn.textContent = "📄 导出为 PDF";
+                        btn.classList.remove("btn-feedback");
+                    }, 200);
                 });
         </script>
     </body>

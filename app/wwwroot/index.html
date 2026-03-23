@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>个人简历 | 简洁风格</title>
+        <title>个人简历</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -164,6 +164,32 @@
             p {
                 color: var(--ink-soft);
             }
+            /* 链接样式优化：统一颜色、去除默认下划线并添加悬停效果 */
+            .muted a.external-link {
+                color: var(--accent-2);
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition:
+                    color 0.18s ease,
+                    transform 0.12s ease;
+                border-bottom: 1px dashed rgba(25, 114, 120, 0.12);
+                padding-bottom: 1px;
+            }
+            .muted a.external-link:hover,
+            .muted a.external-link:focus {
+                color: var(--accent);
+                transform: translateY(-2px);
+                outline: none;
+                border-bottom-style: solid;
+            }
+            .muted a.external-link .link-icon {
+                width: 16px;
+                height: 16px;
+                display: inline-block;
+                flex: 0 0 16px;
+            }
             .skills {
                 display: flex;
                 flex-direction: column;
@@ -223,8 +249,8 @@
         <div class="orb two"></div>
         <main class="container">
             <header>
-                <a class="logo" href="#">个人介绍</a>
-                <div class="badge"></div>
+                <a class="logo" href="#">个人简历</a>
+                <div class="badge">在读</div>
             </header>
 
             <section class="resume">
@@ -285,6 +311,14 @@
                             <div class="muted" style="margin-top: 6px">
                                 2020-2024 本科
                             </div>
+                            <ul
+                                class="muted"
+                                style="margin-top: 8px; margin-left: 18px"
+                            >
+                                <li>C/C++基础语法</li>
+                                <li>计算机网络/Linux系统命令</li>
+                                <li>数据结构与算法</li>
+                            </ul>
                         </div>
                         <div class="exp-item">
                             <strong
@@ -294,6 +328,14 @@
                             <div class="muted" style="margin-top: 6px">
                                 2025-2028 研究生
                             </div>
+                            <ul
+                                class="muted"
+                                style="margin-top: 8px; margin-left: 18px"
+                            >
+                                <li>计算机视觉YOLOv8算法</li>
+                                <li>Cocos2d游戏制作</li>
+                                <li>Unity游戏制作</li>
+                            </ul>
                         </div>
                     </div>
                 </article>
@@ -317,6 +359,39 @@
                         <p class="muted">邮箱: gbr@edu.nuc.email</p>
                         <p class="muted">电话: 18935253930</p>
                         <p class="muted">地址: 北京 · 朝阳</p>
+                        <p class="muted">
+                            Gitee:
+                            <a
+                                class="external-link"
+                                href="https://gitee.com/BaiRong-NUC"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <svg
+                                    class="link-icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M10.59 13.41a1 1 0 001.41 0l4.95-4.95a3 3 0 10-4.24-4.24l-1.3 1.3"
+                                        stroke="currentColor"
+                                        stroke-width="1.6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                    <path
+                                        d="M13.41 10.59a1 1 0 00-1.41 0L7.05 15.95a3 3 0 104.24 4.24l1.3-1.3"
+                                        stroke="currentColor"
+                                        stroke-width="1.6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                                <span>gitee.com/BaiRong-NUC</span>
+                            </a>
+                        </p>
                     </div>
 
                     <div class="section">

@@ -121,7 +121,7 @@ cmake --build build -j
 
 访问示例构建的app服务(公网示例):
 
-http://38.190.254.70:8085/
+http://38.190.254.70:8085/http_server.html
 
 ## 扩展
 

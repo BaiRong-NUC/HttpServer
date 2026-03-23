@@ -186,6 +186,18 @@
                 display: inline-block;
                 flex: 0 0 16px;
             }
+            /* 项目标题链接样式 */
+            .project-title-link {
+                color: var(--ink);
+                text-decoration: none;
+                display: inline-block;
+                transition: color 0.2s ease;
+                border-bottom: 2px solid transparent;
+            }
+            .project-title-link:hover {
+                color: var(--accent-2);
+                border-bottom: 2px solid var(--accent-2);
+            }
             .skills {
                 display: flex;
                 flex-wrap: wrap;
@@ -616,32 +628,20 @@
                         <h3>项目经历</h3>
                         <div class="experience">
                             <div class="exp-item project">
-                                <div
-                                    style="
-                                        display: flex;
-                                        justify-content: space-between;
-                                        align-items: flex-start;
-                                        gap: 12px;
-                                    "
-                                >
-                                    <div>
+                                <div>
+                                    <a
+                                        class="project-title-link"
+                                        href="/http_server.html"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
                                         <strong
                                             >C++ 主从Reactor模型 —
                                             高并发服务器</strong
                                         >
-                                        <div class="proj-meta">
-                                            技术栈:C++ · epoll · 线程池 ·
-                                            timerfd
-                                        </div>
-                                    </div>
-                                    <div style="text-align: right">
-                                        <a
-                                            class="btn-small"
-                                            href="/http_server.html"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            >项目链接</a
-                                        >
+                                    </a>
+                                    <div class="proj-meta">
+                                        技术栈:C++ · epoll · 线程池 · timerfd
                                     </div>
                                 </div>
 

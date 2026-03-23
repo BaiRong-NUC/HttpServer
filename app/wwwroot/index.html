@@ -188,26 +188,23 @@
             }
             .skills {
                 display: flex;
-                flex-direction: column;
+                flex-wrap: wrap;
                 gap: 10px;
             }
-            .skill {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+            .skill-tag {
+                background: rgba(25, 114, 120, 0.08);
+                border: 1.5px solid rgba(25, 114, 120, 0.2);
+                color: var(--accent-2);
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
             }
-            .bar {
-                height: 8px;
-                background: rgba(27, 31, 42, 0.06);
-                border-radius: 999px;
-                flex: 1;
-                margin-left: 12px;
-                overflow: hidden;
-            }
-            .bar > i {
-                display: block;
-                height: 100%;
-                background: linear-gradient(90deg, var(--accent-2), #0f646a);
+            .skill-tag:hover {
+                background: rgba(25, 114, 120, 0.15);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(25, 114, 120, 0.15);
             }
             .experience {
                 display: flex;
@@ -260,17 +257,44 @@
                 body {
                     padding: 16px;
                 }
+                .name {
+                    font-size: 1.5rem;
+                }
+                .contact-grid {
+                    grid-template-columns: 1fr;
+                }
+                .section-header {
+                    flex-direction: column;
+                    align-items: flex-start !important;
+                    gap: 10px;
+                }
             }
             .contact-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
                 margin-top: 12px;
             }
             .contact-item {
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 3px;
+            }
+            .contact-item strong {
+                font-size: 0.88rem;
+            }
+            .contact-item .muted {
+                font-size: 0.85rem;
+            }
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            .btn-compact {
+                padding: 6px 12px;
+                font-size: 0.85rem;
             }
         </style>
     </head>
@@ -294,7 +318,15 @@
                     </p>
 
                     <div class="section">
-                        <h3>联系方式</h3>
+                        <div class="section-header">
+                            <h3 style="margin-bottom: 0">联系方式</h3>
+                            <button
+                                class="btn btn-primary btn-compact"
+                                id="copy-email"
+                            >
+                                复制邮箱
+                            </button>
+                        </div>
                         <div class="contact-grid">
                             <div class="contact-item">
                                 <strong>邮箱</strong>
@@ -388,11 +420,6 @@
                                 </a>
                             </p>
                         </div>
-                        <div style="margin-top: 16px">
-                            <button class="btn btn-primary" id="copy-email">
-                                复制邮箱
-                            </button>
-                        </div>
                     </div>
 
                     <div class="section">
@@ -435,30 +462,13 @@
                     <div class="section">
                         <h3>技能</h3>
                         <div class="skills">
-                            <div class="skill">
-                                <span>C++ 后端服务器</span>
-                                <div class="bar">
-                                    <i style="width: 70%"></i>
-                                </div>
-                            </div>
-                            <div class="skill">
-                                <span>Unity</span>
-                                <div class="bar">
-                                    <i style="width: 30%"></i>
-                                </div>
-                            </div>
-                            <div class="skill">
-                                <span>Cocos2d</span>
-                                <div class="bar">
-                                    <i style="width: 50%"></i>
-                                </div>
-                            </div>
-                            <div class="skill">
-                                <span>Linux</span>
-                                <div class="bar">
-                                    <i style="width: 50%"></i>
-                                </div>
-                            </div>
+                            <span class="skill-tag">C++ 后端服务器</span>
+                            <span class="skill-tag">Cocos2d</span>
+                            <span class="skill-tag">Linux</span>
+                            <span class="skill-tag">Unity</span>
+                            <span class="skill-tag">epoll</span>
+                            <span class="skill-tag">多线程</span>
+                            <span class="skill-tag">网络编程</span>
                         </div>
                     </div>
 
@@ -542,19 +552,12 @@
                     <div class="section">
                         <h3>证书</h3>
                         <p class="muted">计算机四级;程序员技术资格</p>
-                    </div>
-
-                    <div class="section">
-                        <h3>导出简历</h3>
-                        <p class="muted">
-                            点击下方按钮导出为 PDF(使用浏览器打印功能)
-                        </p>
-                        <div style="margin-top: 12px">
+                        <div style="margin-top: 12px; text-align: right">
                             <button
-                                class="btn btn-primary"
+                                class="btn btn-primary btn-compact"
                                 onclick="window.print()"
                             >
-                                导出为 PDF
+                                📄 导出为 PDF
                             </button>
                         </div>
                     </div>

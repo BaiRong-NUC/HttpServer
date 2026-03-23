@@ -192,19 +192,53 @@
                 gap: 10px;
             }
             .skill-tag {
-                background: rgba(25, 114, 120, 0.08);
-                border: 1.5px solid rgba(25, 114, 120, 0.2);
-                color: var(--accent-2);
                 padding: 8px 16px;
                 border-radius: 8px;
                 font-weight: 600;
                 font-size: 0.9rem;
                 transition: all 0.2s ease;
+                display: inline-block;
             }
             .skill-tag:hover {
-                background: rgba(25, 114, 120, 0.15);
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(25, 114, 120, 0.15);
+            }
+            /* 精通 - 深色 */
+            .skill-expert {
+                background: linear-gradient(
+                    135deg,
+                    rgba(25, 114, 120, 0.2),
+                    rgba(25, 114, 120, 0.15)
+                );
+                border: 1.5px solid rgba(25, 114, 120, 0.4);
+                color: #0d5054;
+            }
+            .skill-expert:hover {
+                background: linear-gradient(
+                    135deg,
+                    rgba(25, 114, 120, 0.28),
+                    rgba(25, 114, 120, 0.22)
+                );
+                box-shadow: 0 4px 16px rgba(25, 114, 120, 0.25);
+            }
+            /* 熟练 - 中等色 */
+            .skill-proficient {
+                background: rgba(228, 87, 46, 0.1);
+                border: 1.5px solid rgba(228, 87, 46, 0.25);
+                color: #c84523;
+            }
+            .skill-proficient:hover {
+                background: rgba(228, 87, 46, 0.16);
+                box-shadow: 0 4px 16px rgba(228, 87, 46, 0.2);
+            }
+            /* 了解 - 浅色 */
+            .skill-familiar {
+                background: rgba(140, 140, 140, 0.08);
+                border: 1.5px solid rgba(140, 140, 140, 0.2);
+                color: #5a5a5a;
+            }
+            .skill-familiar:hover {
+                background: rgba(140, 140, 140, 0.14);
+                box-shadow: 0 4px 16px rgba(140, 140, 140, 0.15);
             }
             .experience {
                 display: flex;
@@ -462,13 +496,21 @@
                     <div class="section">
                         <h3>技能</h3>
                         <div class="skills">
-                            <span class="skill-tag">C++ 后端服务器</span>
-                            <span class="skill-tag">Cocos2d</span>
-                            <span class="skill-tag">Linux</span>
-                            <span class="skill-tag">Unity</span>
-                            <span class="skill-tag">epoll</span>
-                            <span class="skill-tag">多线程</span>
-                            <span class="skill-tag">网络编程</span>
+                            <span class="skill-tag skill-expert"
+                                >C++ 后端服务器</span
+                            >
+                            <span class="skill-tag skill-expert">网络编程</span>
+                            <span class="skill-tag skill-expert">多线程</span>
+                            <span class="skill-tag skill-proficient"
+                                >Linux</span
+                            >
+                            <span class="skill-tag skill-proficient"
+                                >epoll</span
+                            >
+                            <span class="skill-tag skill-proficient"
+                                >Cocos2d</span
+                            >
+                            <span class="skill-tag skill-familiar">Unity</span>
                         </div>
                     </div>
 

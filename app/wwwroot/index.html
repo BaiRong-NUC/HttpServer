@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="zh-CN">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>HttpServer | 高性能服务入口</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>个人简历 | 简洁风格</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -17,35 +17,32 @@
                 --bg-3: #ffe1d0;
                 --ink: #1b1f2a;
                 --ink-soft: #4a5568;
-                --card: rgba(255, 255, 255, 0.74);
-                --line: rgba(27, 31, 42, 0.14);
+                --card: rgba(255, 255, 255, 0.78);
+                --line: rgba(27, 31, 42, 0.12);
                 --accent: #e4572e;
                 --accent-2: #197278;
-                --shadow: 0 18px 40px rgba(26, 32, 44, 0.14);
-                --radius-xl: 26px;
-                --radius-md: 14px;
+                --radius-xl: 20px;
+                --radius-md: 12px;
+                --shadow: 0 18px 40px rgba(26, 32, 44, 0.12);
             }
-
             * {
                 box-sizing: border-box;
                 margin: 0;
                 padding: 0;
             }
-
             body {
                 min-height: 100vh;
+                font-family: Manrope, "PingFang SC", sans-serif;
                 color: var(--ink);
-                font-family:
-                    "Manrope", "PingFang SC", "Noto Sans SC", sans-serif;
                 background:
                     radial-gradient(
                         circle at 8% 12%,
-                        rgba(25, 114, 120, 0.24),
+                        rgba(25, 114, 120, 0.18),
                         transparent 36%
                     ),
                     radial-gradient(
                         circle at 86% 10%,
-                        rgba(228, 87, 46, 0.21),
+                        rgba(228, 87, 46, 0.16),
                         transparent 30%
                     ),
                     linear-gradient(
@@ -54,9 +51,10 @@
                         var(--bg-2) 52%,
                         var(--bg-3)
                     );
+                -webkit-font-smoothing: antialiased;
                 overflow-x: hidden;
+                padding: 28px;
             }
-
             .orb {
                 position: fixed;
                 border-radius: 50%;
@@ -64,497 +62,158 @@
                 pointer-events: none;
                 z-index: 0;
                 opacity: 0.6;
-                animation: float 9s ease-in-out infinite;
             }
-
             .orb.one {
-                width: 220px;
-                height: 220px;
-                left: -70px;
-                top: 24%;
-                background: rgba(25, 114, 120, 0.22);
+                width: 200px;
+                height: 200px;
+                left: -60px;
+                top: 18%;
+                background: rgba(25, 114, 120, 0.2);
             }
-
             .orb.two {
-                width: 280px;
-                height: 280px;
-                right: -110px;
+                width: 260px;
+                height: 260px;
+                right: -90px;
                 top: 58%;
-                background: rgba(228, 87, 46, 0.22);
-                animation-delay: -3s;
+                background: rgba(228, 87, 46, 0.18);
             }
-
             .container {
-                max-width: 1120px;
+                max-width: 980px;
                 margin: 0 auto;
-                padding: 24px 20px 44px;
                 position: relative;
                 z-index: 1;
             }
-
             header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 16px;
-                padding: 10px 2px;
-                animation: reveal 0.8s ease both;
+                margin-bottom: 18px;
             }
-
             .logo {
                 font-family: "ZCOOL XiaoWei", serif;
-                font-size: 1.45rem;
-                letter-spacing: 1px;
+                font-size: 1.4rem;
                 color: var(--ink);
                 text-decoration: none;
             }
-
             .badge {
                 background: rgba(25, 114, 120, 0.1);
-                border: 1px solid rgba(25, 114, 120, 0.24);
+                border: 1px solid rgba(25, 114, 120, 0.2);
                 color: #114e52;
+                padding: 6px 12px;
                 border-radius: 999px;
-                padding: 7px 14px;
-                font-size: 0.82rem;
                 font-weight: 700;
             }
-
-            /* Header links: make GitHub / Gitee more prominent */
-            .header-right {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .icon-btn {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 14px;
-                border-radius: 999px;
-                font-weight: 800;
-                text-decoration: none;
-                color: #fff;
-                transition:
-                    transform 0.18s ease,
-                    box-shadow 0.18s ease;
-                box-shadow: 0 8px 20px rgba(16, 24, 32, 0.08);
-                font-size: 0.92rem;
-            }
-
-            .icon-btn.github {
-                background: linear-gradient(90deg, #24292e, #2f363d);
-            }
-
-            .icon-btn.gitee {
-                background: linear-gradient(90deg, #ff9f43, #ff6b6b);
-            }
-
-            .icon-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 14px 30px rgba(16, 24, 32, 0.14);
-            }
-
-            .hero {
-                margin-top: 26px;
+            .resume {
                 display: grid;
-                grid-template-columns: 1.1fr 0.9fr;
-                gap: 22px;
+                grid-template-columns: 1fr 320px;
+                gap: 18px;
             }
-
-            .hero-main,
-            .hero-side,
-            .feature,
-            .metric,
-            .footer-card {
+            .main,
+            .side {
                 background: var(--card);
-                backdrop-filter: blur(8px);
+                backdrop-filter: blur(6px);
                 border: 1px solid var(--line);
                 border-radius: var(--radius-xl);
                 box-shadow: var(--shadow);
             }
-
-            .hero-main {
-                padding: 34px;
-                animation: reveal 0.9s ease both;
+            .main {
+                padding: 28px;
             }
-
-            .eyebrow {
-                display: inline-block;
-                background: rgba(228, 87, 46, 0.1);
-                color: #9e3517;
-                border-radius: 999px;
-                padding: 6px 12px;
-                font-size: 0.78rem;
-                letter-spacing: 0.03em;
-                font-weight: 700;
+            .side {
+                padding: 18px;
             }
-
-            h1 {
-                margin-top: 16px;
-                font-size: clamp(2rem, 4vw, 3.4rem);
-                line-height: 1.08;
+            .name {
+                font-size: 1.9rem;
+                font-weight: 800;
                 letter-spacing: -0.02em;
             }
-
-            h1 span {
+            .title {
                 color: var(--accent-2);
+                margin-top: 6px;
+                font-weight: 700;
             }
-
             .lead {
-                margin-top: 16px;
+                margin-top: 12px;
                 color: var(--ink-soft);
-                max-width: 56ch;
-                line-height: 1.75;
-                font-size: 1rem;
+                line-height: 1.7;
             }
-
-            .actions {
-                margin-top: 26px;
+            .row {
                 display: flex;
                 gap: 12px;
-                flex-wrap: wrap;
+                align-items: center;
+                margin-top: 16px;
             }
-
             .btn {
                 border: none;
                 border-radius: 999px;
-                padding: 11px 18px;
+                padding: 10px 14px;
                 font-weight: 700;
-                font-size: 0.95rem;
-                text-decoration: none;
-                transition:
-                    transform 0.25s ease,
-                    box-shadow 0.25s ease,
-                    background 0.25s ease;
                 cursor: pointer;
             }
-
             .btn-primary {
                 background: linear-gradient(110deg, #e4572e, #f0904a);
                 color: #fff;
-                box-shadow: 0 10px 22px rgba(228, 87, 46, 0.28);
             }
-
-            .btn-secondary {
-                background: rgba(25, 114, 120, 0.1);
-                color: #114e52;
-                border: 1px solid rgba(25, 114, 120, 0.28);
+            .section {
+                margin-top: 20px;
             }
-
-            .btn:hover {
-                transform: translateY(-2px);
-            }
-
-            .hero-side {
-                padding: 20px;
-                animation: reveal 1.05s ease both;
-            }
-
-            .code-panel {
-                background: #fffdfa;
-                border: 1px solid rgba(27, 31, 42, 0.1);
-                border-radius: var(--radius-md);
-                padding: 18px;
-                font-family:
-                    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-                font-size: 0.86rem;
-                line-height: 1.7;
-                color: #273444;
-                white-space: normal;
-                min-height: 250px;
-                overflow: auto;
-            }
-
-            /* 美化 code-panel 内部结构 */
-            .code-panel .status {
-                display: block;
-                margin-top: 6px;
-            }
-
-            .code-panel .line {
+            h3 {
+                font-size: 1.02rem;
                 margin-bottom: 8px;
-                display: flex;
-                gap: 8px;
-                align-items: baseline;
             }
-
-            .code-panel .label {
+            p {
                 color: var(--ink-soft);
-                font-weight: 700;
-                min-width: 72px;
-                display: inline-block;
             }
-
-            .code-panel .value.running {
-                color: #16a34a;
-                font-weight: 700;
-            }
-
-            .code-panel .section {
-                margin-top: 10px;
-            }
-
-            .code-panel ul,
-            .code-panel ol {
-                margin: 6px 0 0 18px;
-            }
-
-            .code-panel code {
-                background: rgba(27, 31, 42, 0.04);
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-family: inherit;
-            }
-
-            .dots {
+            .skills {
                 display: flex;
-                gap: 7px;
-                margin-bottom: 12px;
-            }
-
-            .dots i {
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                display: block;
-                background: #f0c674;
-            }
-
-            .dots i:nth-child(2) {
-                background: #86c06a;
-            }
-            .dots i:nth-child(3) {
-                background: #dc6a56;
-            }
-
-            .grid {
-                margin-top: 22px;
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 16px;
-            }
-
-            .feature,
-            .metric,
-            .footer-card {
-                padding: 20px;
-                animation: reveal 1.2s ease both;
-            }
-
-            .feature h3,
-            .metric h3 {
-                font-size: 1rem;
-                margin-bottom: 9px;
-            }
-
-            .feature p,
-            .metric p {
-                color: var(--ink-soft);
-                line-height: 1.65;
-                font-size: 0.93rem;
-            }
-
-            .metric strong {
-                display: block;
-                font-size: 1.55rem;
-                margin-bottom: 8px;
-                color: #0f646a;
-            }
-
-            footer {
-                margin-top: 22px;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-            }
-
-            .footer-card p {
-                color: var(--ink-soft);
-                line-height: 1.7;
-                margin-top: 6px;
-                font-size: 0.93rem;
-            }
-
-            .timeline {
-                display: flex;
-                gap: 10px;
-                margin-top: 12px;
-                flex-wrap: wrap;
-            }
-
-            .timeline span {
-                border-radius: 999px;
-                border: 1px solid rgba(27, 31, 42, 0.15);
-                padding: 5px 10px;
-                font-size: 0.82rem;
-                color: #374151;
-                background: rgba(255, 255, 255, 0.7);
-            }
-
-            .api-lab {
-                margin-top: 22px;
-                background: var(--card);
-                backdrop-filter: blur(8px);
-                border: 1px solid var(--line);
-                border-radius: var(--radius-xl);
-                box-shadow: var(--shadow);
-                padding: 22px;
-                animation: reveal 1.2s ease both;
-            }
-
-            .api-lab h3 {
-                font-size: 1.12rem;
-            }
-
-            .api-lab p {
-                margin-top: 8px;
-                color: var(--ink-soft);
-                line-height: 1.7;
-                font-size: 0.93rem;
-            }
-
-            .api-actions {
-                margin-top: 14px;
-                display: flex;
-                flex-wrap: wrap;
+                flex-direction: column;
                 gap: 10px;
             }
-
-            .api-btn {
-                border-radius: 999px;
-                border: 1px solid rgba(27, 31, 42, 0.16);
-                background: rgba(255, 255, 255, 0.74);
-                color: #1f2937;
-                padding: 9px 14px;
-                font-size: 0.9rem;
-                font-weight: 700;
-                cursor: pointer;
-                transition:
-                    transform 0.2s ease,
-                    border-color 0.2s ease;
-            }
-
-            .api-btn:hover {
-                transform: translateY(-2px);
-                border-color: rgba(25, 114, 120, 0.45);
-            }
-
-            .api-output {
-                margin-top: 14px;
-                border-radius: var(--radius-md);
-                border: 1px solid rgba(27, 31, 42, 0.12);
-                background: #fffdfa;
-                padding: 14px;
-                font-family:
-                    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-                font-size: 0.85rem;
-                line-height: 1.6;
-                color: #273444;
-                min-height: 120px;
-                white-space: pre-wrap;
-                overflow: auto;
-            }
-
-            /* Footer-specific command block styling (提升展示效果) */
-            .footer-card .api-output {
-                background: linear-gradient(90deg, #ffffff, #fffdfa);
-                border-left: 4px solid var(--accent-2);
-                padding: 12px 14px;
-                font-size: 0.92rem;
-                min-height: unset;
-                white-space: pre-wrap;
-                box-shadow: 0 6px 18px rgba(25, 114, 120, 0.06);
-            }
-
-            .footer-card .cmd-note {
-                margin-top: 8px;
-                color: var(--ink-soft);
-                font-size: 0.85rem;
-            }
-
-            @media (min-width: 980px) {
-                .footer-card:last-child .api-output {
-                    font-size: 0.9rem;
-                }
-            }
-
-            .api-status {
-                margin-top: 10px;
-                display: inline-flex;
+            .skill {
+                display: flex;
+                justify-content: space-between;
                 align-items: center;
+            }
+            .bar {
+                height: 8px;
+                background: rgba(27, 31, 42, 0.06);
                 border-radius: 999px;
-                padding: 5px 10px;
-                font-size: 0.8rem;
-                font-weight: 700;
-                background: rgba(25, 114, 120, 0.1);
-                color: #0f646a;
+                flex: 1;
+                margin-left: 12px;
+                overflow: hidden;
             }
-
-            @keyframes reveal {
-                from {
-                    opacity: 0;
-                    transform: translateY(14px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+            .bar > i {
+                display: block;
+                height: 100%;
+                background: linear-gradient(90deg, var(--accent-2), #0f646a);
             }
-
-            @keyframes float {
-                0%,
-                100% {
-                    transform: translateY(0);
-                }
-                50% {
-                    transform: translateY(-20px);
-                }
+            .experience {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
             }
-
-            @media (max-width: 980px) {
-                .hero {
+            .exp-item {
+                padding: 12px;
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.88);
+                border: 1px solid rgba(27, 31, 42, 0.06);
+            }
+            .muted {
+                color: var(--ink-soft);
+                font-size: 0.92rem;
+            }
+            footer {
+                margin-top: 18px;
+                text-align: center;
+                color: var(--ink-soft);
+                font-size: 0.92rem;
+            }
+            @media (max-width: 900px) {
+                .resume {
                     grid-template-columns: 1fr;
                 }
-
-                .grid {
-                    grid-template-columns: 1fr 1fr;
-                }
-
-                footer {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            @media (max-width: 620px) {
-                .container {
-                    padding: 18px 14px 28px;
-                }
-
-                .hero-main,
-                .hero-side,
-                .feature,
-                .metric,
-                .footer-card {
-                    border-radius: 18px;
-                    padding: 16px;
-                }
-
-                .grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .lead {
-                    font-size: 0.94rem;
-                }
-
-                .actions {
-                    width: 100%;
-                }
-
-                .actions .btn {
-                    width: 100%;
-                    text-align: center;
+                .side {
+                    order: 2;
                 }
             }
         </style>
@@ -564,244 +223,167 @@
         <div class="orb two"></div>
         <main class="container">
             <header>
-                <a class="logo" href="#">HttpServer</a>
-                <div class="header-right">
-                    <a
-                        class="icon-btn github"
-                        href="https://github.com/BaiRong-NUC/HttpServer"
-                        target="_blank"
-                        rel="noopener"
-                        aria-label="Open repository on GitHub"
-                        >🐙 GitHub</a
-                    >
-                    <a
-                        class="icon-btn gitee"
-                        href="https://gitee.com/BaiRong-NUC/http-server"
-                        target="_blank"
-                        rel="noopener"
-                        aria-label="Open repository on Gitee"
-                        >🌐 Gitee</a
-                    >
-                </div>
+                <a class="logo" href="#">个人介绍</a>
+                <div class="badge"></div>
             </header>
 
-            <section class="hero">
-                <article class="hero-main">
-                    <span class="eyebrow">部署成功 · 服务就绪</span>
-                    <h1>
-                        你的 <span>高性能 HttpServer</span> 已经准备好处理请求
-                    </h1>
+            <section class="resume">
+                <article class="main">
+                    <div class="name">龚柏荣</div>
+                    <div class="title">
+                        C++ 后端开发工程师; Cocos试玩广告制作
+                    </div>
                     <p class="lead">
-                        基于 Reactor
-                        模型构建，支持连接管理、事件分发、日志记录与协议扩展。
-                        这个页面可以作为默认欢迎页，也可直接改造成项目控制台入口。
+                        计算机DIY发烧友, 热爱计算机技术, 喜欢独立游戏.
                     </p>
-                    <div class="actions">
-                        <a class="btn btn-primary" href="/">访问首页</a>
-                        <a class="btn btn-secondary" href="#api-test"
-                            >测试 API</a
-                        >
+
+                    <div class="section">
+                        <h3>工作经历</h3>
+                        <div class="experience">
+                            <div class="exp-item">
+                                <div
+                                    style="
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: flex-start;
+                                    "
+                                >
+                                    <strong>北京珑索科技Cocos2d开发</strong>
+                                    <span class="muted">2024.06 - 2025.09</span>
+                                </div>
+                                <div class="muted" style="margin-top: 6px">
+                                    小游戏试玩广告制作,使用Cocos制作游戏试玩供投放端投放
+                                    投放平台:AppLovin等海外平台
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>项目经历</h3>
+                        <div class="experience">
+                            <div class="exp-item">
+                                <strong
+                                    >C++ 主从Reactor模型
+                                    实现高并发服务器</strong
+                                >
+                                <div class="muted" style="margin-top: 6px">
+                                    设计并实现了基于主从Reactor模型的高性能服务器框架,
+                                    支持多线程处理和异步I/O 基于 Reactor
+                                    的事件调度(epoll) -
+                                    项目打包成静态库,用户可以快速构建TcpServer -
+                                    内置了HTTP协议解析,支持扩展协议
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3>教育背景</h3>
+                        <div class="exp-item">
+                            <strong>电子信息信息对抗 · 中北大学</strong>
+                            <div class="muted" style="margin-top: 6px">
+                                2020-2024 本科
+                            </div>
+                        </div>
+                        <div class="exp-item">
+                            <strong
+                                >软件工程(计算机视觉-目标检测) ·
+                                中北大学</strong
+                            >
+                            <div class="muted" style="margin-top: 6px">
+                                2025-2028 研究生
+                            </div>
+                        </div>
                     </div>
                 </article>
 
-                <aside class="hero-side">
-                    <div class="code-panel" aria-label="server status panel">
-                        <div class="dots"><i></i><i></i><i></i></div>
-                        <div class="status">
-                            <div class="line">
-                                <span class="label">Server:</span>
-                                <span class="value">HttpServer/main</span>
-                            </div>
-                            <div class="line">
-                                <span class="label">State:</span>
-                                <span class="value running">RUNNING</span>
-                            </div>
-                            <div class="line">
-                                <span class="label">Port:</span>
-                                <span class="value">8085</span>
-                            </div>
-                            <div class="line">
-                                <span class="label">Mode:</span>
-                                <span class="value">Debug</span>
-                            </div>
+                <aside class="side">
+                    <div
+                        style="display: flex; flex-direction: column; gap: 8px"
+                    >
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            "
+                        >
+                            <strong>联系信息</strong>
+                            <button class="btn btn-primary" id="copy-email">
+                                复制邮箱
+                            </button>
+                        </div>
+                        <p class="muted">邮箱: gbr@edu.nuc.email</p>
+                        <p class="muted">电话: 18935253930</p>
+                        <p class="muted">地址: 北京 · 朝阳</p>
+                    </div>
 
-                            <div class="section">
-                                <strong>[Routes]</strong>
-                                <ul>
-                                    <li>GET / → index.html</li>
-                                    <li>GET /hello → hello.html</li>
-                                    <li>POST /login → login result</li>
-                                </ul>
+                    <div class="section">
+                        <h3>技能</h3>
+                        <div class="skills">
+                            <div class="skill">
+                                <span>C++</span>
+                                <div class="bar">
+                                    <i style="width: 80%"></i>
+                                </div>
                             </div>
+                            <div class="skill">
+                                <span>网络编程</span>
+                                <div class="bar">
+                                    <i style="width: 70%"></i>
+                                </div>
+                            </div>
+                            <div class="skill">
+                                <span>Cocos2d</span>
+                                <div class="bar">
+                                    <i style="width: 60%"></i>
+                                </div>
+                            </div>
+                            <div class="skill">
+                                <span>Linux</span>
+                                <div class="bar">
+                                    <i style="width: 60%"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div class="section">
-                                <strong>[Tips]</strong>
-                                <ol>
-                                    <li>用 <code>webbench</code> 做并发压测</li>
-                                    <li>
-                                        在 <code>app/src</code> 中扩展业务逻辑
-                                    </li>
-                                    <li>
-                                        在
-                                        <code>include/protocol</code>
-                                        中添加协议模块
-                                    </li>
-                                </ol>
-                            </div>
+                    <div class="section">
+                        <h3>证书</h3>
+                        <p class="muted">计算机四级;程序员技术资格</p>
+                    </div>
+
+                    <div class="section">
+                        <h3>下载</h3>
+                        <p class="muted">点击下方导出为 PDF(浏览器打印)</p>
+                        <div style="margin-top: 8px">
+                            <button class="btn" onclick="window.print()">
+                                导出为 PDF
+                            </button>
                         </div>
                     </div>
                 </aside>
             </section>
-
-            <section class="grid" aria-label="features">
-                <article class="feature">
-                    <h3>模块化网络层</h3>
-                    <p>
-                        连接、缓冲区、线程池、定时器分层解耦，便于扩展和排障。
-                    </p>
-                </article>
-                <article class="feature">
-                    <h3>可观测性友好</h3>
-                    <p>日志组件与关键路径指标可快速挂接，定位问题更直接。</p>
-                </article>
-                <article class="feature">
-                    <h3>低成本扩展</h3>
-                    <p>在协议与业务层新增处理器，不需要改动核心事件循环。</p>
-                </article>
-                <article class="metric">
-                    <strong>epoll</strong>
-                    <h3>高并发事件模型</h3>
-                    <p>采用 I/O 多路复用，避免线程阻塞造成吞吐下降。</p>
-                </article>
-                <article class="metric">
-                    <strong>Reactor</strong>
-                    <h3>反应式调度架构</h3>
-                    <p>事件驱动处理，业务回调和网络回调更清晰可控。</p>
-                </article>
-                <article class="metric">
-                    <strong>RAII</strong>
-                    <h3>资源生命周期管理</h3>
-                    <p>利用 C++ 资源管理语义减少泄漏与异常路径风险。</p>
-                </article>
-            </section>
-
-            <section id="api-test" class="api-lab" aria-label="api test panel">
-                <h3>接口测试台</h3>
-                <p>
-                    在当前页面直接测试后端示例接口。点击按钮后会展示请求方法、路径、状态码和返回内容。
-                </p>
-                <div class="api-actions">
-                    <button class="api-btn" id="btn-hello" type="button">
-                        测试 GET /hello
-                    </button>
-                    <button class="api-btn" id="btn-login" type="button">
-                        测试 POST /login
-                    </button>
-                </div>
-                <span id="api-status" class="api-status">等待请求</span>
-                <pre id="api-output" class="api-output">尚未发起请求</pre>
-            </section>
-
-            <footer>
-                <section class="footer-card">
-                    <h3>项目路径</h3>
-                    <p>/src/server 处理事件循环与连接</p>
-                    <p>/app作为业务示例入口</p>
-                    <p>/api_test 可快速验证模块行为。</p>
-                </section>
-                <section class="footer-card">
-                    <h3>如何启动项目</h3>
-                    <p class="cmd-note">
-                        在项目根目录执行以下命令以构建项目（复制粘贴即可）：
-                    </p>
-                    <pre
-                        class="api-output"
-                        aria-label="构建命令"
-                    ><code>mkdir -p build
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
-# 或者：
-./rebuild.sh</code></pre>
-
-                    <p class="cmd-note">使用示例脚本快速启动 / 停止服务器：</p>
-                    <pre
-                        class="api-output"
-                        aria-label="启动停止脚本"
-                    ><code>./app/loop.sh start
-./app/loop.sh stop</code></pre>
-
-                    <p class="cmd-note">
-                        更多信息请查看项目根目录的
-                        <code>README.md</code>;也可使用
-                        <code>server_api.sh</code> 和
-                        <code>client_api.sh</code> 进行 TcpServer API 测试。
-                    </p>
-                </section>
-            </footer>
         </main>
 
         <script>
-            const outputEl = document.getElementById("api-output");
-            const statusEl = document.getElementById("api-status");
-
-            function setStatus(text, isError = false) {
-                statusEl.textContent = text;
-                statusEl.style.background = isError
-                    ? "rgba(220, 106, 86, 0.15)"
-                    : "rgba(25, 114, 120, 0.1)";
-                statusEl.style.color = isError ? "#8b2b18" : "#0f646a";
-            }
-
-            async function runApiTest(url, options, title) {
-                setStatus("请求中...");
-                outputEl.textContent = "";
-                try {
-                    const resp = await fetch(url, options);
-                    const text = await resp.text();
-                    setStatus(`完成: ${resp.status} ${resp.statusText}`);
-                    outputEl.textContent = [
-                        `[${title}]`,
-                        `URL: ${url}`,
-                        `METHOD: ${options.method || "GET"}`,
-                        `STATUS: ${resp.status} ${resp.statusText}`,
-                        "",
-                        "RESPONSE:",
-                        text,
-                    ].join("\n");
-                } catch (err) {
-                    setStatus("请求失败", true);
-                    outputEl.textContent = [
-                        `[${title}]`,
-                        `URL: ${url}`,
-                        `METHOD: ${options.method || "GET"}`,
-                        "",
-                        "ERROR:",
-                        err instanceof Error ? err.message : String(err),
-                    ].join("\n");
-                }
-            }
-
             document
-                .getElementById("btn-hello")
-                .addEventListener("click", () => {
-                    runApiTest("/hello", {}, "测试 GET /hello");
-                });
-
-            document
-                .getElementById("btn-login")
-                .addEventListener("click", () => {
-                    runApiTest(
-                        "/login",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/x-www-form-urlencoded",
-                            },
-                            body: "username=test&password=123456",
-                        },
-                        "测试 POST /login",
-                    );
+                .getElementById("copy-email")
+                .addEventListener("click", function () {
+                    const text = "gbr@edu.nuc.email";
+                    navigator.clipboard
+                        ?.writeText(text)
+                        .then(() => {
+                            this.textContent = "已复制";
+                            setTimeout(
+                                () => (this.textContent = "复制邮箱"),
+                                1200,
+                            );
+                        })
+                        .catch(() => {
+                            alert("复制失败，请手动复制：" + text);
+                        });
                 });
         </script>
     </body>

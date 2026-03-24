@@ -116,6 +116,8 @@ cmake --build build -j
 - 启动脚本：`app/loop.sh`
 - 演示可执行：`build/app/server`（构建产物）
 - API 测试：`api_test/` 目录下的示例
+- test 目录：编写客户端,主要为了验证服务器的各种功能是否正常
+- build/app/server_supervisor.sh: 服务器保活脚本,当服务器异常退出时会自动重启服务器
 
 ## 在线访问app演示
 

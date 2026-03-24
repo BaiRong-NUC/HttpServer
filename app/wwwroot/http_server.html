@@ -589,9 +589,7 @@
                 <article class="hero-main">
                     <span class="eyebrow">部署成功 · 服务就绪</span>
                     <h1><span>HttpServer</span> 可以处理请求</h1>
-                    <p class="lead">
-                        基于 Reactor模型构建.
-                    </p>
+                    <p class="lead">基于 Reactor模型构建.</p>
                     <p class="lead">
                         支持连接管理, 事件分发, 日志记录与协议扩展.
                     </p>
@@ -695,6 +693,12 @@
                     </button>
                     <button class="api-btn" id="btn-login" type="button">
                         测试 POST /login
+                    </button>
+                    <button class="api-btn" id="btn-update" type="button">
+                        测试 PUT /update
+                    </button>
+                    <button class="api-btn" id="btn-delete" type="button">
+                        测试 DELETE /delete
                     </button>
                 </div>
                 <span id="api-status" class="api-status">等待请求</span>
@@ -800,6 +804,40 @@ cmake --build build -j
                             body: "username=test&password=123456",
                         },
                         "测试 POST /login",
+                    );
+                });
+
+            document
+                .getElementById("btn-update")
+                .addEventListener("click", () => {
+                    runApiTest(
+                        "/update",
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded",
+                            },
+                            body: "id=1&field=value",
+                        },
+                        "测试 PUT /update",
+                    );
+                });
+
+            document
+                .getElementById("btn-delete")
+                .addEventListener("click", () => {
+                    runApiTest(
+                        "/delete",
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type":
+                                    "application/x-www-form-urlencoded",
+                            },
+                            body: "id=1",
+                        },
+                        "测试 DELETE /delete",
                     );
                 });
         </script>

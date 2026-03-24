@@ -11,7 +11,10 @@ int main(int argc, char const *argv[])
                {
                    // req对象是客户端请求解析结果,这里用不到
                    // resp对象是服务器响应,用于设置响应内容,发送给服务器
-                   resp.SetBody("<html><body><h1>Hello, World!</h1></body></html>", "text/html");
+                   resp.SetBody(req.body.empty() ? "<html><body><h1>Hello, World!</h1></body></html>"
+                                                 : "<html><body><h1>Hello, World!</h1><p>request body: " + req.body +
+                                                       "</p></body></html>",
+                                "text/html");
                    resp.status_code = 200;  // OK
                });
     server.Post("/login",
@@ -25,6 +28,27 @@ int main(int argc, char const *argv[])
                         "text/html");
                     resp.status_code = 200;  // OK
                 });
+    server.Put("/update",
+               [](const HttpRequest &req, HttpResponse &resp)
+               {
+                   // 处理更新请求,这里只是示例,实际应用中需要根据URI和请求内容进行相应的更新操作
+                   std::string body = req.body;
+                   resp.SetBody(
+                       "<html><body><h1>Update Successful! </h1><p>request body: " + body + "</p></body></html>",
+                       "text/html");
+                   resp.status_code = 200;  // OK
+               });
+
+    server.Delete("/delete",
+                  [](const HttpRequest &req, HttpResponse &resp)
+                  {
+                      // 处理删除请求,这里只是示例,实际应用中需要根据URI和请求内容进行相应的删除操作
+                      std::string body = req.body;
+                      resp.SetBody(
+                          "<html><body><h1>Delete Successful! </h1><p>request body: " + body + "</p></body></html>",
+                          "text/html");
+                      resp.status_code = 200;  // OK
+                  });
     // 注册GET请求处理函数
     server.Listen();
 }

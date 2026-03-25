@@ -57,7 +57,11 @@ Timer::Timer(EventLoop *eventLoop, size_t wheelSize)
             LOG(ERROR, "Failed to read timerfd");
             exit(EXIT_FAILURE);
         }
-        this->Tick();
+        // 根据超时次数执行定时器任务
+        for (int i = 0; i < s; i++)
+        {
+            this->Tick();
+        }
     };
 
     // 开启定时器事件监控

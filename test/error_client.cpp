@@ -76,7 +76,7 @@ void ClientTest2()
 // 3. 单次业务处理达到服务器处理瓶颈(超时时间),可能导致其他连接没有刷新而释放
 /**
  * 当客户套接字定时器描述符因为瓶颈,导致被释放.会释放客户套接字,最后服务器使用套接字时出错崩溃
- * 所以Connection释放时机应该在event_loop在所有事件执行完毕后
+ * 所以Connection释放时机应该在event_loop在所有事件执行完毕后(已修改)
  */
 
 int main(int argc, char const *argv[])

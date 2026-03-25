@@ -1,6 +1,9 @@
 #include "server/event_loop.h"
 // 构造函数
-Channel::Channel(EventLoop *event_loop, Socket &&sock) : _event_loop(event_loop), _sock(std::move(sock)), _events(0), _revents(0) {}
+Channel::Channel(EventLoop *event_loop, Socket &&sock)
+    : _event_loop(event_loop), _sock(std::move(sock)), _events(0), _revents(0)
+{
+}
 
 // Channel::Channel(Poller *poller, Socket &&sock) : _poller(poller), _sock(std::move(sock)), _events(0), _revents(0) {}
 
@@ -69,38 +72,34 @@ Socket &Channel::GetSocket() { return this->_sock; }
  */
 void Channel::HandleEvent()
 {
-    if (this->eventAction)
-    {
-        this->eventAction();
-    }
     // 注意: 某些回调(例如 close/error/read/write)内部可能会 Remove + delete Channel。
     // 因此一旦执行这类回调,必须立刻返回,避免后续再次访问 this 导致悬空指针。
     if (this->_revents & EPOLLERR)
     {
-        if (this->errorAction)
-            this->errorAction();
+        if (this->errorAction) this->errorAction();
         return;
     }
 
     if (this->_revents & EPOLLHUP)
     {
-        if (this->closeAction)
-            this->closeAction();
+        if (this->closeAction) this->closeAction();
         return;
     }
 
     if ((this->_revents & EPOLLIN) || (this->_revents & EPOLLRDHUP) || (this->_revents & EPOLLPRI))
     {
-        if (this->readAction)
-            this->readAction();
+        if (this->readAction) this->readAction();
         return;
     }
 
     if (this->_revents & EPOLLOUT)
     {
-        if (this->writeAction)
-            this->writeAction();
+        if (this->writeAction) this->writeAction();
         return;
+    }
+    if (this->eventAction)
+    {
+        this->eventAction();
     }
 }
 

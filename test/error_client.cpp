@@ -78,10 +78,50 @@ void ClientTest2()
  * 当客户套接字定时器描述符因为瓶颈,导致被释放.会释放客户套接字,最后服务器使用套接字时出错崩溃
  * 所以Connection释放时机应该在event_loop在所有事件执行完毕后(已修改)
  */
+void ClientTest3()
+{
+    signal(SIGCHLD, SIG_IGN);  // 防止僵尸进程
+    for (int i = 0; i < 10; i++)
+    {
+        pid_t pid = fork();
+        if (pid < 0)
+        {
+            std::cerr << "Failed to fork process" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        else if (pid == 0)
+        {
+            Socket clientSocket;
+            clientSocket.CreateClient("127.0.0.1", 8085);
+            std::string req = "GET /overdate HTTP/1.1\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\n12345";
+            while (true)
+            {
+                int ret = clientSocket.Send(req.c_str(), req.size());
+                if (ret < 0)
+                {
+                    std::cerr << "Failed to send request to server" << std::endl;
+                    break;
+                }
+                std::cout << "Sent request to server: " << req;
+                char buffer[1024] = {0};
+                ret = clientSocket.Recv(buffer, sizeof(buffer) - 1);
+                if (ret < 0)
+                {
+                    std::cerr << "Failed to receive response from server" << std::endl;
+                    break;
+                }
+            }
+            clientSocket.Close();
+            exit(0);
+        }
+    }
+    while (true) sleep(1);
+}
 
 int main(int argc, char const *argv[])
 {
     // ClientTest1();
-    ClientTest2();
+    // ClientTest2();
+    ClientTest3();
     return 0;
 }

@@ -6,6 +6,7 @@ int main(int argc, char const *argv[])
     // 获取计算机CPU核心数量,作为从属线程数量
     int thread_num = std::thread::hardware_concurrency();
     HttpServer server("./wwwroot", 8085, DEFAULT_INACTIVE_TIMEOUT, thread_num);
+    // HttpServer server("./wwwroot", 8085, 10, thread_num);  // 测试
     server.Get("/hello",
                [](const HttpRequest &req, HttpResponse &resp)
                {
@@ -49,6 +50,17 @@ int main(int argc, char const *argv[])
                           "text/html");
                       resp.status_code = 200;  // OK
                   });
-    // 注册GET请求处理函数
+    // server.Get("/overdate",
+    //             [](const HttpRequest &req, HttpResponse &resp)
+    //             {
+    //                 // req对象是客户端请求解析结果,这里用不到
+    //                 // resp对象是服务器响应,用于设置响应内容,发送给服务器
+    //                 resp.SetBody(req.body.empty() ? "<html><body><h1>Hello, World!</h1></body></html>"
+    //                                                 : "<html><body><h1>Hello, World!</h1><p>request body: " + req.body +
+    //                                                     "</p></body></html>",
+    //                             "text/html");
+    //                 sleep(10); //模拟业务处理超瓶颈
+    //                 resp.status_code = 200;  // OK
+    //             });
     server.Listen();
 }

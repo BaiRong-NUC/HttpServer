@@ -144,32 +144,38 @@ void Connection::_Release()
 {
     if (this->_state == ConnectState::DISCONNECTED) return;
 
-    // 修改连接状态
-    this->_state = ConnectState::DISCONNECTED;
+    this->_event_loop->RunTask(
+        [this]()
+        {
+            if (this->_state == ConnectState::DISCONNECTED) return;
 
-    // 移除事件监控
-    this->_channel.Remove();  // 从EventLoop的监控列表中移除当前Channel
+            // 修改连接状态
+            this->_state = ConnectState::DISCONNECTED;
 
-    // 关闭描述符
-    this->_channel.GetSocket().Close();
+            // 移除事件监控
+            this->_channel.Remove();  // 从EventLoop的监控列表中移除当前Channel
 
-    // 取消定时器任务,因为_Release()可能重复调用,这里需要判定timer id是否存在
-    if (this->_inactive_release == true)
-    {
-        this->_event_loop->CancelTimerTask(this->_id);
-    }
+            // 关闭描述符
+            this->_channel.GetSocket().Close();
 
-    // 用户设置的连接关闭回调
-    if (this->closed_callback)
-    {
-        this->closed_callback(shared_from_this());
-    }
+            // 取消定时器任务,因为_Release()可能重复调用,这里需要判定timer id是否存在
+            if (this->_inactive_release == true)
+            {
+                this->_event_loop->CancelTimerTask(this->_id);
+            }
 
-    // 移除服务器内部对连接的管理,从连接列表中移除连接对象,必须先调用用户设置的函数
-    if (this->_server_closed_callback)
-    {
-        this->_server_closed_callback(shared_from_this());
-    }
+            // 用户设置的连接关闭回调
+            if (this->closed_callback)
+            {
+                this->closed_callback(shared_from_this());
+            }
+
+            // 移除服务器内部对连接的管理,从连接列表中移除连接对象,必须先调用用户设置的函数
+            if (this->_server_closed_callback)
+            {
+                this->_server_closed_callback(shared_from_this());
+            }
+        });
 }
 
 // message使用临时变量保存,防止Send函数来不及执行外界message变量销毁

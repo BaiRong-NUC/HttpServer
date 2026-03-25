@@ -62,6 +62,7 @@ void HttpServer::_OnMessage(const PtrConnection &conn, Buffer *buffer)
             this->SendResponse(conn, context->GetRequest(), error_response);
             // 切斷連接
             context->Reset();  // 重置上下文状态,以防止conn关闭因为缓冲区不为空,进入这个函数导致死循环
+            buffer->Clear();   // 缓冲区剩下的内容不处理了
             conn->Close();
             return;
         }

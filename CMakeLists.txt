@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_APP "Build App Executables" ON)
 option(BUILD_API_TEST "Build Api Test Executables" ON)
+option(BUILD_TEST "Build Test Executables" ON)
 
 file(GLOB_RECURSE SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
@@ -58,6 +59,38 @@ if(BUILD_APP)
 		add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
 			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot ${CMAKE_BINARY_DIR}/app/wwwroot
+		)
+	endforeach()
+endif()
+
+# 编译 test 目录下的程序，输出到 build/test
+if(BUILD_TEST)
+	set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
+
+	file(GLOB_RECURSE TEST_CPP_FILES CONFIGURE_DEPENDS ${TEST_DIR}/*.cpp)
+
+	set(TEST_EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/test)
+
+	foreach(TEST_CPP_FILE ${TEST_CPP_FILES})
+		get_filename_component(FILE_NAME ${TEST_CPP_FILE} NAME_WE)
+		file(RELATIVE_PATH REL_PATH ${TEST_DIR} ${TEST_CPP_FILE})
+		get_filename_component(REL_DIR ${REL_PATH} DIRECTORY)
+		string(REPLACE "/" "_" TARGET_SUFFIX ${REL_PATH})
+		string(REPLACE ".cpp" "" TARGET_SUFFIX ${TARGET_SUFFIX})
+		set(TARGET_NAME test_${TARGET_SUFFIX})
+
+		add_executable(${TARGET_NAME} ${TEST_CPP_FILE})
+		target_link_libraries(${TARGET_NAME} PRIVATE HttpServer::httpserver)
+
+		if(REL_DIR STREQUAL "")
+			set(TARGET_OUTPUT_DIR ${TEST_EXECUTABLE_OUTPUT_PATH})
+		else()
+			set(TARGET_OUTPUT_DIR ${TEST_EXECUTABLE_OUTPUT_PATH}/${REL_DIR})
+		endif()
+
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			OUTPUT_NAME ${FILE_NAME}
+			RUNTIME_OUTPUT_DIRECTORY ${TARGET_OUTPUT_DIR}
 		)
 	endforeach()
 endif()

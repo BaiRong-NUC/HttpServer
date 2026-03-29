@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import pandas as pd
 import numpy as np
 import joblib
 from tensorflow import keras # type: ignore
@@ -47,12 +48,27 @@ def predict(req: PredictRequest):
     try:
         x = np.array(req.features).reshape(1, -1)
         # pre can be a preprocessor object with transform(), or a dict containing a 'scaler'
+        transformer = None
         if hasattr(pre, 'transform'):
-            x_p = pre.transform(x)
+            transformer = pre
         elif isinstance(pre, dict) and 'scaler' in pre and hasattr(pre['scaler'], 'transform'):
-            x_p = pre['scaler'].transform(x)
-        else:
+            transformer = pre['scaler']
+
+        if transformer is None:
             raise RuntimeError('preprocessor does not support transform')
+
+        # If the transformer was fitted with feature names (DataFrame columns),
+        # provide a DataFrame with matching column names to avoid sklearn warning.
+        x_for_transform = x
+        if hasattr(transformer, 'feature_names_in_'):
+            try:
+                cols = list(transformer.feature_names_in_)
+                x_for_transform = pd.DataFrame([req.features], columns=cols)
+            except Exception:
+                # fallback to numpy array if DataFrame construction fails
+                x_for_transform = x
+
+        x_p = transformer.transform(x_for_transform)
         pred = model.predict(x_p)
         # convert numpy arrays to python types
         return {"pred": pred.tolist()}

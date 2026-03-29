@@ -8,10 +8,29 @@ Quick steps:
 pip install -r app/serving/requirements.txt
 ```
 
-- Start the service (run from repository root):
+- Start the service:
 
 ```
 bash app/serving/run_model.sh
+```
+
+- Start in background and keep it running after terminal exits:
+
+```
+bash app/serving/run_model.sh start
+```
+
+- Stop or inspect the background service:
+
+```
+bash app/serving/run_model.sh status
+bash app/serving/run_model.sh stop
+```
+
+You can also run it directly from [app/serving](app/serving):
+
+```
+./run_model.sh
 ```
 
 - Test with curl:
@@ -31,4 +50,5 @@ Notes:
 
 - The service expects the Keras model and `preprocessor.joblib` to be at `app/artifacts/` (this repo already contains them).
 - If your feature vector length differs, update the JSON in `model_client.cpp` and the example curl body.
-- For production, remove `--reload` and consider using a process manager (systemd, docker, etc.).
+- `./run_model.sh` defaults to foreground development mode with `--reload`; `./run_model.sh start` runs without reload and writes PID/log files under `build/app/serving/`.
+- For production, a process manager such as systemd or docker is still preferable.

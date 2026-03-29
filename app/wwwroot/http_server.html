@@ -856,8 +856,9 @@ cmake --build build -j
                                 "Content-Type": "application/json",
                             },
                             body: JSON.stringify({
-                                // 示例输入，请按后端要求修改
-                                instances: [1, 2, 3]
+                                // 已替换为用户提供的样例数据（按 manifest 的 example_input_columns 顺序）
+                                // 示例数据: [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]
+                                features: [6, 148, 72, 35, 0, 33.6, 0.627, 50]
                             }),
                         },
                         "测试 POST /ml_predict",

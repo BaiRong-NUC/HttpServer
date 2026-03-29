@@ -1,4 +1,44 @@
 #include <protocol/http/http_server.h>
+#include <curl/curl.h>
+#include <iostream>
+#include <stdexcept>
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string *)userp)->append((char *)contents, size * nmemb);
+    return size * nmemb;
+}
+
+static std::string call_model_service(const std::string &json_body,
+                                      const std::string &url = "http://127.0.0.1:8000/predict")
+{
+    CURL *curl = curl_easy_init();
+    if (!curl)
+    {
+        throw std::runtime_error("curl init failed");
+    }
+
+    std::string response;
+    struct curl_slist *headers = nullptr;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_POST, 1L);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_body.c_str());
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+    CURLcode res = curl_easy_perform(curl);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+
+    if (res != CURLE_OK)
+    {
+        throw std::runtime_error(std::string("curl perform failed: ") + curl_easy_strerror(res));
+    }
+    return response;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -50,6 +90,30 @@ int main(int argc, char const *argv[])
                           "text/html");
                       resp.status_code = 200;  // OK
                   });
+
+    // POST /ml_predict  将请求体（JSON）转发给本地运行的 Python 模型服务，并返回模型响应
+    server.Post("/ml_predict",
+                [](const HttpRequest &req, HttpResponse &resp)
+                {
+                    if (req.body.empty())
+                    {
+                        resp.SetBody("{\"error\": \"empty body\"}", "application/json");
+                        resp.status_code = 400;
+                        return;
+                    }
+                    try
+                    {
+                        std::string model_resp = call_model_service(req.body);
+                        resp.SetBody(model_resp, "application/json");
+                        resp.status_code = 200;
+                    }
+                    catch (const std::exception &e)
+                    {
+                        std::string err = std::string("{\"error\": \"") + e.what() + "\"}";
+                        resp.SetBody(err, "application/json");
+                        resp.status_code = 500;
+                    }
+                });
     // server.Get("/overdate",
     //             [](const HttpRequest &req, HttpResponse &resp)
     //             {

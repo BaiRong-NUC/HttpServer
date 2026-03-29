@@ -46,7 +46,13 @@ def predict(req: PredictRequest):
         raise HTTPException(status_code=500, detail="Model or preprocessor not loaded")
     try:
         x = np.array(req.features).reshape(1, -1)
-        x_p = pre.transform(x)
+        # pre can be a preprocessor object with transform(), or a dict containing a 'scaler'
+        if hasattr(pre, 'transform'):
+            x_p = pre.transform(x)
+        elif isinstance(pre, dict) and 'scaler' in pre and hasattr(pre['scaler'], 'transform'):
+            x_p = pre['scaler'].transform(x)
+        else:
+            raise RuntimeError('preprocessor does not support transform')
         pred = model.predict(x_p)
         # convert numpy arrays to python types
         return {"pred": pred.tolist()}

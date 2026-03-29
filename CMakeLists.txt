@@ -26,6 +26,12 @@ target_include_directories(httpserver
 find_package(Threads REQUIRED)
 target_link_libraries(httpserver PUBLIC Threads::Threads)
 
+# Optional: libcurl for app HTTP client calls (used by app/server.cpp)
+find_package(CURL REQUIRED)
+if(CURL_FOUND)
+	message(STATUS "Found libcurl: ${CURL_VERSION}")
+endif()
+
 set_target_properties(httpserver PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	OUTPUT_NAME httpserver
@@ -46,7 +52,7 @@ if(BUILD_APP)
 	foreach(APP_CPP_FILE ${APP_CPP_FILES})
 		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
 		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE} ${APP_SRC_CPP_FILES})
-		target_link_libraries(${APP_TARGET_NAME} PRIVATE HttpServer::httpserver)
+			target_link_libraries(${APP_TARGET_NAME} PRIVATE HttpServer::httpserver CURL::libcurl)
 		target_include_directories(${APP_TARGET_NAME}
 			PRIVATE
 				${CMAKE_CURRENT_SOURCE_DIR}/app/include

@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_APP "Build App Executables" ON)
-option(BUILD_API_TEST "Build Api Test Executables" ON)
+option(BUILD_API_TEST "Build Api Test Executables" OFF)
 option(BUILD_TEST "Build Test Executables" ON)
 
 file(GLOB_RECURSE SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

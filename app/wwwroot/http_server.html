@@ -627,7 +627,8 @@
                                 <ul>
                                     <li>GET / → index.html</li>
                                     <li>GET /hello → hello.html</li>
-                                    <li>POST /login → login result</li>
+                                            <li>POST /login → login result</li>
+                                            <li>POST /ml_predict → model prediction</li>
                                 </ul>
                             </div>
 
@@ -699,6 +700,9 @@
                     </button>
                     <button class="api-btn" id="btn-delete" type="button">
                         测试 DELETE /delete
+                    </button>
+                    <button class="api-btn" id="btn-mlpredict" type="button">
+                        测试 POST /ml_predict
                     </button>
                 </div>
                 <span id="api-status" class="api-status">等待请求</span>
@@ -838,6 +842,25 @@ cmake --build build -j
                             body: "id=1",
                         },
                         "测试 DELETE /delete",
+                    );
+                });
+
+            document
+                .getElementById("btn-mlpredict")
+                .addEventListener("click", () => {
+                    runApiTest(
+                        "/ml_predict",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                // 示例输入，请按后端要求修改
+                                instances: [1, 2, 3]
+                            }),
+                        },
+                        "测试 POST /ml_predict",
                     );
                 });
         </script>

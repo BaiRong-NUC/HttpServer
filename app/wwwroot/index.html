@@ -678,7 +678,6 @@
                                     <a
                                         class="project-title-link"
                                         href="/http_server.html"
-                                        target="_blank"
                                         rel="noopener noreferrer"
                                     >
                                         <strong
@@ -709,7 +708,41 @@
                                         HTTP)支持静态/动态请求处理
                                     </li>
                                 </ul>
+                        </div>
+                        <div class="exp-item project">
+                            <div>
+                                <a
+                                    class="project-title-link"
+                                    href="/ml_predict.html"
+                                    rel="noopener noreferrer"
+                                >
+                                    <strong
+                                        >基于机器学习的糖尿病预测系统</strong
+                                    >
+                                </a>
+                                <div class="proj-meta">
+                                    技术栈:机器学习, FastAPI, C++高并发服务器
+                                </div>
                             </div>
+
+                            <div class="muted" style="margin-top: 8px">
+                                完成了数据预处理到特征提取,模型训练,超参数优化,并且对比了不同的分类器优劣。
+                            </div>
+
+                            <ul
+                                class="muted"
+                                style="margin-top: 8px; margin-left: 18px"
+                            >
+                                <li>
+                                    C++服务器负责接受前端用户传入的数据作为中转,服务器使用之前的高并发服务器
+                                </li>
+                                <li>
+                                    服务器接受到请求后传递给由FastAPI搭建的Python服务器进行预测
+                                </li>
+                                <li>
+                                    Python服务器将预测结果传回服务器,服务器给前端相应,前端根据与测试给用户提示
+                                </li>
+                            </ul>
                         </div>
                     </div>
 

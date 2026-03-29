@@ -56,7 +56,8 @@ int main(int argc, char const *argv[])
     //                 // req对象是客户端请求解析结果,这里用不到
     //                 // resp对象是服务器响应,用于设置响应内容,发送给服务器
     //                 resp.SetBody(req.body.empty() ? "<html><body><h1>Hello, World!</h1></body></html>"
-    //                                                 : "<html><body><h1>Hello, World!</h1><p>request body: " + req.body +
+    //                                                 : "<html><body><h1>Hello, World!</h1><p>request body: " +
+    //                                                 req.body +
     //                                                     "</p></body></html>",
     //                             "text/html");
     //                 sleep(10); //模拟业务处理超瓶颈

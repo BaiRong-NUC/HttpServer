@@ -48,35 +48,6 @@ def _get_transformer(pre):
     return None
 
 
-def _build_features(raw: list) -> pd.DataFrame:
-    """按 manifest 流程：原始输入 -> 筛选基础特征 -> 构建交互项 -> final_input_columns"""
-    input_cols = MANIFEST['example_input_columns']
-    selected = MANIFEST['selected_base_features']
-    final_cols = MANIFEST['final_input_columns']
-
-    if len(raw) != len(input_cols):
-        raise ValueError(
-            f"期望 {len(input_cols)} 个特征值（顺序：{input_cols}），实际收到 {len(raw)} 个"
-        )
-
-    df = pd.DataFrame([raw], columns=input_cols)
-
-    # 筛选基础特征
-    df = df[selected].copy()
-
-    # 构建交互特征
-    if 'Glucose_BMI' in final_cols and 'Glucose' in df.columns and 'BMI' in df.columns:
-        df['Glucose_BMI'] = df['Glucose'] * df['BMI']
-    if 'Age_BMI' in final_cols and 'Age' in df.columns and 'BMI' in df.columns:
-        df['Age_BMI'] = df['Age'] * df['BMI']
-    if 'Glucose_BP' in final_cols and 'Glucose' in df.columns and 'BloodPressure' in df.columns:
-        df['Glucose_BP'] = df['Glucose'] * df['BloodPressure']
-
-    # 按 final_input_columns 顺序排列
-    df = df[final_cols]
-    return df
-
-
 @app.get("/health")
 def health():
     return {"status": "ok", "model_loaded": model is not None}
@@ -91,9 +62,35 @@ def predict(req: PredictRequest):
         if transformer is None:
             raise RuntimeError('preprocessor does not support transform')
 
-        df = _build_features(req.features)
-        x_p = transformer.transform(df)
-        pred = model.predict(x_p, verbose=0)
+        input_cols = MANIFEST['example_input_columns']
+        selected = MANIFEST['selected_base_features']
+        final_cols = MANIFEST['final_input_columns']
+
+        if len(req.features) != len(input_cols):
+            raise ValueError(
+                f"期望 {len(input_cols)} 个特征值（顺序：{input_cols}），实际收到 {len(req.features)} 个"
+            )
+
+        # Step 1: 原始 8 列标准化（preprocessor 在原始特征上 fit）
+        df_raw = pd.DataFrame([req.features], columns=input_cols)
+        scaled = transformer.transform(df_raw)
+        df_scaled = pd.DataFrame(scaled, columns=input_cols)
+
+        # Step 2: 筛选 selected_base_features
+        df = df_scaled[selected].copy()
+
+        # Step 3: 构建交互项（基于标准化后的值）
+        if 'Glucose_BMI' in final_cols and 'Glucose' in df.columns and 'BMI' in df.columns:
+            df['Glucose_BMI'] = df['Glucose'] * df['BMI']
+        if 'Age_BMI' in final_cols and 'Age' in df.columns and 'BMI' in df.columns:
+            df['Age_BMI'] = df['Age'] * df['BMI']
+        if 'Glucose_BP' in final_cols and 'Glucose' in df.columns and 'BloodPressure' in df.columns:
+            df['Glucose_BP'] = df['Glucose'] * df['BloodPressure']
+
+        # Step 4: 按 final_input_columns 顺序排列
+        df = df[final_cols]
+
+        pred = model.predict(df.values, verbose=0)
         prob = float(pred[0][0])
         threshold = MANIFEST.get('threshold', 0.5)
         return {

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import numpy as np
 import joblib
-from tensorflow import keras
+from tensorflow import keras # type: ignore
 import os
 
 app = FastAPI(title="Model Serving")

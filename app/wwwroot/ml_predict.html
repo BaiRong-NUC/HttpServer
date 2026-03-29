@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>HttpServer | 糖尿病预测</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Manrope:wght@400;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg-1: #f8f3e8;
+                --bg-2: #dfe8f1;
+                --bg-3: #ffe1d0;
+                --ink: #1b1f2a;
+                --ink-soft: #4a5568;
+                --card: rgba(255, 255, 255, 0.74);
+                --line: rgba(27, 31, 42, 0.14);
+                --accent: #e4572e;
+                --accent-2: #197278;
+                --shadow: 0 18px 40px rgba(26, 32, 44, 0.14);
+                --radius-xl: 26px;
+                --radius-md: 14px;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                color: var(--ink);
+                font-family:
+                    "Manrope", "PingFang SC", "Noto Sans SC", sans-serif;
+                background:
+                    radial-gradient(
+                        circle at 8% 12%,
+                        rgba(25, 114, 120, 0.24),
+                        transparent 36%
+                    ),
+                    radial-gradient(
+                        circle at 86% 10%,
+                        rgba(228, 87, 46, 0.21),
+                        transparent 30%
+                    ),
+                    linear-gradient(
+                        120deg,
+                        var(--bg-1),
+                        var(--bg-2) 52%,
+                        var(--bg-3)
+                    );
+                overflow-x: hidden;
+            }
+
+            .orb {
+                position: fixed;
+                border-radius: 50%;
+                filter: blur(1px);
+                pointer-events: none;
+                z-index: 0;
+                opacity: 0.6;
+                animation: float 9s ease-in-out infinite;
+            }
+
+            .orb.one {
+                width: 220px;
+                height: 220px;
+                left: -70px;
+                top: 24%;
+                background: rgba(25, 114, 120, 0.22);
+            }
+
+            .orb.two {
+                width: 280px;
+                height: 280px;
+                right: -110px;
+                top: 58%;
+                background: rgba(228, 87, 46, 0.22);
+                animation-delay: -3s;
+            }
+
+            .container {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 24px 20px 44px;
+                position: relative;
+                z-index: 1;
+            }
+
+            header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding: 10px 2px;
+                animation: reveal 0.8s ease both;
+            }
+
+            .logo {
+                font-family: "ZCOOL XiaoWei", serif;
+                font-size: 1.45rem;
+                letter-spacing: 1px;
+                color: var(--ink);
+                text-decoration: none;
+            }
+
+            .badge {
+                background: rgba(25, 114, 120, 0.1);
+                border: 1px solid rgba(25, 114, 120, 0.24);
+                color: #114e52;
+                border-radius: 999px;
+                padding: 7px 14px;
+                font-size: 0.82rem;
+                font-weight: 700;
+            }
+
+            .hero {
+                margin-top: 22px;
+                background: var(--card);
+                backdrop-filter: blur(8px);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-xl);
+                box-shadow: var(--shadow);
+                padding: 28px;
+                animation: reveal 0.9s ease both;
+            }
+
+            .eyebrow {
+                display: inline-block;
+                background: rgba(228, 87, 46, 0.1);
+                color: #9e3517;
+                border-radius: 999px;
+                padding: 6px 12px;
+                font-size: 0.78rem;
+                letter-spacing: 0.03em;
+                font-weight: 700;
+            }
+
+            h1 {
+                margin-top: 14px;
+                font-size: clamp(1.8rem, 3.5vw, 2.7rem);
+                line-height: 1.1;
+                letter-spacing: -0.02em;
+            }
+
+            h1 span {
+                color: var(--accent-2);
+            }
+
+            .lead {
+                margin-top: 14px;
+                color: var(--ink-soft);
+                line-height: 1.7;
+                font-size: 0.96rem;
+                max-width: 70ch;
+            }
+
+            .panel-grid {
+                margin-top: 18px;
+                display: grid;
+                grid-template-columns: 1.15fr 0.85fr;
+                gap: 18px;
+            }
+
+            .card {
+                background: rgba(255, 255, 255, 0.72);
+                border: 1px solid var(--line);
+                border-radius: var(--radius-md);
+                box-shadow: 0 10px 24px rgba(26, 32, 44, 0.08);
+                padding: 18px;
+            }
+
+            .card h2 {
+                font-size: 1.06rem;
+                margin-bottom: 10px;
+            }
+
+            .hint {
+                color: var(--ink-soft);
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 12px;
+            }
+
+            .field-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .field label {
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: #2b3343;
+            }
+
+            .field input {
+                height: 40px;
+                border-radius: 10px;
+                border: 1px solid rgba(27, 31, 42, 0.22);
+                background: rgba(255, 255, 255, 0.92);
+                padding: 0 10px;
+                font-size: 0.95rem;
+                color: #1f2937;
+                outline: none;
+                transition:
+                    border-color 0.18s ease,
+                    box-shadow 0.18s ease;
+            }
+
+            .field input:focus {
+                border-color: rgba(25, 114, 120, 0.55);
+                box-shadow: 0 0 0 3px rgba(25, 114, 120, 0.14);
+            }
+
+            .actions {
+                margin-top: 14px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .btn {
+                border: none;
+                border-radius: 999px;
+                padding: 10px 16px;
+                font-weight: 700;
+                font-size: 0.92rem;
+                text-decoration: none;
+                transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease,
+                    background 0.2s ease;
+                cursor: pointer;
+            }
+
+            .btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .btn-primary {
+                background: linear-gradient(110deg, #e4572e, #f0904a);
+                color: #fff;
+                box-shadow: 0 10px 22px rgba(228, 87, 46, 0.24);
+            }
+
+            .btn-secondary {
+                background: rgba(25, 114, 120, 0.1);
+                color: #114e52;
+                border: 1px solid rgba(25, 114, 120, 0.28);
+            }
+
+            .btn-ghost {
+                background: rgba(255, 255, 255, 0.86);
+                color: #1f2937;
+                border: 1px solid rgba(27, 31, 42, 0.18);
+            }
+
+            .status {
+                margin-top: 12px;
+                display: inline-flex;
+                align-items: center;
+                border-radius: 999px;
+                padding: 5px 10px;
+                font-size: 0.8rem;
+                font-weight: 700;
+                background: rgba(25, 114, 120, 0.1);
+                color: #0f646a;
+            }
+
+            .api-output {
+                margin-top: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(27, 31, 42, 0.12);
+                background: #fffdfa;
+                padding: 12px;
+                font-family:
+                    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+                font-size: 0.85rem;
+                line-height: 1.6;
+                color: #273444;
+                min-height: 220px;
+                white-space: pre-wrap;
+                overflow: auto;
+            }
+
+            .meta-list {
+                list-style: none;
+                display: grid;
+                gap: 8px;
+            }
+
+            .meta-list li {
+                border-radius: 10px;
+                border: 1px solid rgba(27, 31, 42, 0.12);
+                background: rgba(255, 255, 255, 0.8);
+                padding: 9px 10px;
+                font-size: 0.88rem;
+                color: #374151;
+            }
+
+            .meta-list code {
+                background: rgba(27, 31, 42, 0.04);
+                border-radius: 4px;
+                padding: 2px 6px;
+                font-family: inherit;
+            }
+
+            @keyframes reveal {
+                from {
+                    opacity: 0;
+                    transform: translateY(14px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes float {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-20px);
+                }
+            }
+
+            @media (max-width: 940px) {
+                .panel-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 620px) {
+                .container {
+                    padding: 18px 14px 28px;
+                }
+
+                .hero {
+                    border-radius: 18px;
+                    padding: 16px;
+                }
+
+                .field-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+
+        <main class="container">
+            <header>
+                <a class="logo" href="/http_server.html">HttpServer</a>
+                <span class="badge">模型推理页面</span>
+            </header>
+
+            <section class="hero">
+                <span class="eyebrow">POST /ml_predict</span>
+                <h1><span>Diabetes</span> 特征预测</h1>
+                <p class="lead">
+                    按照后端模型要求填写 8 个输入特征，页面会将数据按顺序组装为
+                    <code>features</code> 数组并发送到后端接口。
+                </p>
+
+                <div class="panel-grid">
+                    <section class="card" aria-label="predict form">
+                        <h2>输入特征</h2>
+                        <p class="hint">
+                            后端模型接受固定顺序: Pregnancies, Glucose, BloodPressure,
+                            SkinThickness, Insulin, BMI,
+                            DiabetesPedigreeFunction, Age
+                        </p>
+
+                        <form id="predict-form">
+                            <div class="field-grid">
+                                <div class="field">
+                                    <label for="pregnancies">Pregnancies</label>
+                                    <input
+                                        id="pregnancies"
+                                        name="pregnancies"
+                                        type="number"
+                                        step="1"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="glucose">Glucose</label>
+                                    <input
+                                        id="glucose"
+                                        name="glucose"
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="blood-pressure"
+                                        >BloodPressure</label
+                                    >
+                                    <input
+                                        id="blood-pressure"
+                                        name="bloodPressure"
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="skin-thickness"
+                                        >SkinThickness</label
+                                    >
+                                    <input
+                                        id="skin-thickness"
+                                        name="skinThickness"
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="insulin">Insulin</label>
+                                    <input
+                                        id="insulin"
+                                        name="insulin"
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="bmi">BMI</label>
+                                    <input
+                                        id="bmi"
+                                        name="bmi"
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="dpf"
+                                        >DiabetesPedigreeFunction</label
+                                    >
+                                    <input
+                                        id="dpf"
+                                        name="dpf"
+                                        type="number"
+                                        step="0.0001"
+                                        required
+                                    />
+                                </div>
+                                <div class="field">
+                                    <label for="age">Age</label>
+                                    <input
+                                        id="age"
+                                        name="age"
+                                        type="number"
+                                        step="1"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="actions">
+                                <button class="btn btn-primary" type="submit">
+                                    发送预测请求
+                                </button>
+                                <button
+                                    class="btn btn-secondary"
+                                    type="button"
+                                    id="btn-example"
+                                >
+                                    填充示例数据
+                                </button>
+                                <a
+                                    class="btn btn-ghost"
+                                    href="/index.html"
+                                    >返回主页</a
+                                >
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="card" aria-label="predict result">
+                        <h2>请求信息</h2>
+                        <ul class="meta-list">
+                            <li>接口: <code>POST /ml_predict</code></li>
+                            <li>
+                                请求头:
+                                <code>Content-Type: application/json</code>
+                            </li>
+                            <li>请求体: <code>{"features": [...]}</code></li>
+                        </ul>
+
+                        <span id="api-status" class="status">等待请求</span>
+                        <pre id="api-output" class="api-output">
+尚未发起请求</pre
+                        >
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <script>
+            const outputEl = document.getElementById("api-output");
+            const statusEl = document.getElementById("api-status");
+            const formEl = document.getElementById("predict-form");
+            const exampleBtn = document.getElementById("btn-example");
+
+            const fieldIds = [
+                "pregnancies",
+                "glucose",
+                "blood-pressure",
+                "skin-thickness",
+                "insulin",
+                "bmi",
+                "dpf",
+                "age",
+            ];
+
+            const exampleFeatures = [6, 148, 72, 35, 0, 33.6, 0.627, 50];
+
+            function setStatus(text, isError = false) {
+                statusEl.textContent = text;
+                statusEl.style.background = isError
+                    ? "rgba(220, 106, 86, 0.15)"
+                    : "rgba(25, 114, 120, 0.1)";
+                statusEl.style.color = isError ? "#8b2b18" : "#0f646a";
+            }
+
+            function fillExampleValues() {
+                fieldIds.forEach((id, idx) => {
+                    const input = document.getElementById(id);
+                    input.value = String(exampleFeatures[idx]);
+                });
+            }
+
+            function collectFeatures() {
+                const values = fieldIds.map((id) => {
+                    const input = document.getElementById(id);
+                    const value = Number(input.value);
+                    if (!Number.isFinite(value)) {
+                        throw new Error(`字段 ${input.name || id} 输入无效`);
+                    }
+                    return value;
+                });
+                return values;
+            }
+
+            async function runPredict(features) {
+                const payload = { features };
+                setStatus("请求中...");
+                outputEl.textContent = "";
+
+                try {
+                    const resp = await fetch("/ml_predict", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const text = await resp.text();
+                    setStatus(`完成: ${resp.status} ${resp.statusText}`);
+                    outputEl.textContent = [
+                        "[POST /ml_predict]",
+                        "URL: /ml_predict",
+                        "METHOD: POST",
+                        `STATUS: ${resp.status} ${resp.statusText}`,
+                        "",
+                        "REQUEST:",
+                        JSON.stringify(payload, null, 2),
+                        "",
+                        "RESPONSE:",
+                        text,
+                    ].join("\n");
+                } catch (err) {
+                    setStatus("请求失败", true);
+                    outputEl.textContent = [
+                        "[POST /ml_predict]",
+                        "URL: /ml_predict",
+                        "METHOD: POST",
+                        "",
+                        "ERROR:",
+                        err instanceof Error ? err.message : String(err),
+                    ].join("\n");
+                }
+            }
+
+            formEl.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                try {
+                    const features = collectFeatures();
+                    await runPredict(features);
+                } catch (err) {
+                    setStatus("输入有误", true);
+                    outputEl.textContent =
+                        err instanceof Error ? err.message : String(err);
+                }
+            });
+
+            exampleBtn.addEventListener("click", () => {
+                fillExampleValues();
+                setStatus("示例数据已填充");
+            });
+
+            fillExampleValues();
+        </script>
+    </body>
+</html>

@@ -370,14 +370,53 @@
 
             .hero-return {
                 margin-left: 12px;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.94);
+                border: 1px solid rgba(27, 31, 42, 0.08);
+                box-shadow: 0 8px 20px rgba(26, 32, 44, 0.06);
+                color: var(--ink);
+                text-decoration: none;
+                transition:
+                    transform 0.16s ease,
+                    box-shadow 0.16s ease,
+                    background 0.16s ease;
+            }
+
+            .hero-return svg {
+                width: 16px;
+                height: 16px;
+                flex: none;
+            }
+            .hero-return span {
+                line-height: 1;
+                font-weight: 700;
+                font-size: 0.92rem;
+            }
+            .hero-return:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 34px rgba(26, 32, 44, 0.12);
+            }
+            .hero-return:focus-visible {
+                outline: 3px solid rgba(25, 114, 120, 0.14);
+                outline-offset: 2px;
             }
 
             /* Hide any leftover ghost return button inside .actions when present */
-            .actions .btn-ghost[href="/index.html"] { display: none; }
+            .actions .btn-ghost[href="/index.html"] {
+                display: none;
+            }
 
             @media (max-width: 620px) {
-                .hero-top { padding: 0 18px; }
-                .hero-return { white-space: nowrap; }
+                .hero-top {
+                    padding: 0 18px;
+                }
+                .hero-return {
+                    white-space: nowrap;
+                }
             }
 
             /* ===== Result Modal ===== */
@@ -399,8 +438,12 @@
             }
 
             @keyframes fadeIn {
-                from { opacity: 0; }
-                to   { opacity: 1; }
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
             }
 
             .result-card {
@@ -416,8 +459,14 @@
             }
 
             @keyframes cardIn {
-                from { opacity: 0; transform: scale(0.88) translateY(22px); }
-                to   { opacity: 1; transform: scale(1)    translateY(0);    }
+                from {
+                    opacity: 0;
+                    transform: scale(0.88) translateY(22px);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
             }
 
             .result-close {
@@ -438,7 +487,9 @@
                 justify-content: center;
                 transition: background 0.15s;
             }
-            .result-close:hover { background: rgba(27, 31, 42, 0.14); }
+            .result-close:hover {
+                background: rgba(27, 31, 42, 0.14);
+            }
 
             .result-icon-wrap {
                 width: 76px;
@@ -450,11 +501,19 @@
                 justify-content: center;
             }
             .result-icon-wrap.danger {
-                background: linear-gradient(135deg, rgba(228,87,46,.14), rgba(228,87,46,.28));
+                background: linear-gradient(
+                    135deg,
+                    rgba(228, 87, 46, 0.14),
+                    rgba(228, 87, 46, 0.28)
+                );
                 border: 2px solid rgba(228, 87, 46, 0.32);
             }
             .result-icon-wrap.safe {
-                background: linear-gradient(135deg, rgba(25,114,120,.14), rgba(25,114,120,.28));
+                background: linear-gradient(
+                    135deg,
+                    rgba(25, 114, 120, 0.14),
+                    rgba(25, 114, 120, 0.28)
+                );
                 border: 2px solid rgba(25, 114, 120, 0.32);
             }
 
@@ -464,8 +523,12 @@
                 letter-spacing: -0.02em;
                 margin-bottom: 7px;
             }
-            .result-title.danger { color: #b73a1a; }
-            .result-title.safe   { color: #0e4f54; }
+            .result-title.danger {
+                color: #b73a1a;
+            }
+            .result-title.safe {
+                color: #0e4f54;
+            }
 
             .result-subtitle {
                 font-size: 0.89rem;
@@ -496,8 +559,12 @@
                 stroke-linecap: round;
                 transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .ring-fill.danger { stroke: url(#dangerGrad); }
-            .ring-fill.safe   { stroke: url(#safeGrad);   }
+            .ring-fill.danger {
+                stroke: url(#dangerGrad);
+            }
+            .ring-fill.safe {
+                stroke: url(#safeGrad);
+            }
 
             .prob-center-text {
                 position: absolute;
@@ -513,8 +580,12 @@
                 line-height: 1;
                 letter-spacing: -0.03em;
             }
-            .prob-pct.danger { color: #c94a1f; }
-            .prob-pct.safe   { color: #197278; }
+            .prob-pct.danger {
+                color: #c94a1f;
+            }
+            .prob-pct.safe {
+                color: #197278;
+            }
             .prob-label {
                 font-size: 0.71rem;
                 color: #9ca3af;
@@ -583,8 +654,12 @@
                 flex-shrink: 0;
                 font-weight: 800;
             }
-            .advice-list li.danger-item::before { color: #e4572e; }
-            .advice-list li.safe-item::before   { color: #197278; }
+            .advice-list li.danger-item::before {
+                color: #e4572e;
+            }
+            .advice-list li.safe-item::before {
+                color: #197278;
+            }
 
             .result-actions {
                 display: flex;
@@ -606,7 +681,26 @@
             <section class="hero">
                 <div class="hero-top">
                     <span class="eyebrow">POST /ml_predict</span>
-                    <a class="btn btn-ghost hero-return" href="/index.html">返回主页</a>
+                    <a
+                        class="btn btn-ghost hero-return"
+                        href="/index.html"
+                        title="返回主页"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span>返回主页</span>
+                    </a>
                 </div>
                 <h1><span>Diabetes</span> 特征预测</h1>
                 <p class="lead">
@@ -618,8 +712,8 @@
                     <section class="card" aria-label="predict form">
                         <h2>输入特征</h2>
                         <p class="hint">
-                            后端模型接受固定顺序: Pregnancies, Glucose, BloodPressure,
-                            SkinThickness, Insulin, BMI,
+                            后端模型接受固定顺序: Pregnancies, Glucose,
+                            BloodPressure, SkinThickness, Insulin, BMI,
                             DiabetesPedigreeFunction, Age
                         </p>
 
@@ -724,7 +818,6 @@
                                 >
                                     填充示例数据
                                 </button>
-                                
                             </div>
                         </form>
                     </section>
@@ -750,13 +843,34 @@
         </main>
 
         <!-- Result Modal -->
-        <div id="result-overlay" class="result-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="result-title">
+        <div
+            id="result-overlay"
+            class="result-overlay hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="result-title"
+        >
             <div class="result-card">
-                <button class="result-close" id="result-close" aria-label="关闭">&#x2715;</button>
+                <button
+                    class="result-close"
+                    id="result-close"
+                    aria-label="关闭"
+                >
+                    &#x2715;
+                </button>
 
                 <div class="result-icon-wrap" id="result-icon-wrap">
-                    <svg id="result-icon-svg" width="38" height="38" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+                    <svg
+                        id="result-icon-svg"
+                        width="38"
+                        height="38"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    ></svg>
                 </div>
 
                 <h2 class="result-title" id="result-title"></h2>
@@ -765,20 +879,38 @@
                 <div class="prob-ring-wrap">
                     <svg class="prob-ring" viewBox="0 0 140 140">
                         <defs>
-                            <linearGradient id="dangerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%"   stop-color="#e4572e"/>
-                                <stop offset="100%" stop-color="#f0904a"/>
+                            <linearGradient
+                                id="dangerGrad"
+                                x1="0%"
+                                y1="0%"
+                                x2="100%"
+                                y2="0%"
+                            >
+                                <stop offset="0%" stop-color="#e4572e" />
+                                <stop offset="100%" stop-color="#f0904a" />
                             </linearGradient>
-                            <linearGradient id="safeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%"   stop-color="#197278"/>
-                                <stop offset="100%" stop-color="#2faf7e"/>
+                            <linearGradient
+                                id="safeGrad"
+                                x1="0%"
+                                y1="0%"
+                                x2="100%"
+                                y2="0%"
+                            >
+                                <stop offset="0%" stop-color="#197278" />
+                                <stop offset="100%" stop-color="#2faf7e" />
                             </linearGradient>
                         </defs>
-                        <circle class="ring-bg"   cx="70" cy="70" r="54"/>
-                        <circle class="ring-fill" cx="70" cy="70" r="54" id="ring-fill"/>
+                        <circle class="ring-bg" cx="70" cy="70" r="54" />
+                        <circle
+                            class="ring-fill"
+                            cx="70"
+                            cy="70"
+                            r="54"
+                            id="ring-fill"
+                        />
                     </svg>
                     <div class="prob-center-text">
-                        <span class="prob-pct"   id="prob-pct">0%</span>
+                        <span class="prob-pct" id="prob-pct">0%</span>
                         <span class="prob-label">患病概率</span>
                     </div>
                 </div>
@@ -793,21 +925,31 @@
                 </div>
 
                 <div class="result-actions">
-                    <button class="btn btn-ghost"    id="result-close2">关闭</button>
-                    <button class="btn btn-primary"  id="result-repredict">重新预测</button>
+                    <button class="btn btn-ghost" id="result-close2">
+                        关闭
+                    </button>
+                    <button class="btn btn-primary" id="result-repredict">
+                        重新预测
+                    </button>
                 </div>
             </div>
         </div>
 
         <script>
-            const outputEl  = document.getElementById("api-output");
-            const statusEl  = document.getElementById("api-status");
-            const formEl    = document.getElementById("predict-form");
+            const outputEl = document.getElementById("api-output");
+            const statusEl = document.getElementById("api-status");
+            const formEl = document.getElementById("predict-form");
             const exampleBtn = document.getElementById("btn-example");
 
             const fieldIds = [
-                "pregnancies", "glucose", "blood-pressure",
-                "skin-thickness", "insulin", "bmi", "dpf", "age",
+                "pregnancies",
+                "glucose",
+                "blood-pressure",
+                "skin-thickness",
+                "insulin",
+                "bmi",
+                "dpf",
+                "age",
             ];
             const exampleFeatures = [6, 148, 72, 35, 0, 33.6, 0.627, 50];
 
@@ -816,20 +958,25 @@
 
             function setStatus(text, isError = false) {
                 statusEl.textContent = text;
-                statusEl.style.background = isError ? "rgba(220,106,86,.15)" : "rgba(25,114,120,.1)";
-                statusEl.style.color      = isError ? "#8b2b18"              : "#0f646a";
+                statusEl.style.background = isError
+                    ? "rgba(220,106,86,.15)"
+                    : "rgba(25,114,120,.1)";
+                statusEl.style.color = isError ? "#8b2b18" : "#0f646a";
             }
 
             function fillExampleValues() {
                 fieldIds.forEach((id, i) => {
-                    document.getElementById(id).value = String(exampleFeatures[i]);
+                    document.getElementById(id).value = String(
+                        exampleFeatures[i],
+                    );
                 });
             }
 
             function collectFeatures() {
                 return fieldIds.map((id) => {
                     const v = Number(document.getElementById(id).value);
-                    if (!Number.isFinite(v)) throw new Error(`字段 ${id} 输入无效`);
+                    if (!Number.isFinite(v))
+                        throw new Error(`字段 ${id} 输入无效`);
                     return v;
                 });
             }
@@ -837,9 +984,9 @@
             /* -------- 诊断结果弹窗 -------- */
             function showResult(data) {
                 const isDanger = data.label === 1;
-                const prob     = data.probability;
-                const pct      = Math.round(prob * 100);
-                const cls      = isDanger ? "danger" : "safe";
+                const prob = data.probability;
+                const pct = Math.round(prob * 100);
+                const cls = isDanger ? "danger" : "safe";
 
                 // 图标
                 const iconWrap = document.getElementById("result-icon-wrap");
@@ -848,78 +995,104 @@
                 if (isDanger) {
                     iconSvg.setAttribute("stroke", "#e4572e");
                     iconSvg.innerHTML =
-                        '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>'
-                      + '<line x1="12" y1="9" x2="12" y2="13"/>'
-                      + '<line x1="12" y1="17" x2="12.01" y2="17"/>';
+                        '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>' +
+                        '<line x1="12" y1="9" x2="12" y2="13"/>' +
+                        '<line x1="12" y1="17" x2="12.01" y2="17"/>';
                 } else {
                     iconSvg.setAttribute("stroke", "#197278");
                     iconSvg.innerHTML =
-                        '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>'
-                      + '<polyline points="22 4 12 14.01 9 11.01"/>';
+                        '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>' +
+                        '<polyline points="22 4 12 14.01 9 11.01"/>';
                 }
 
                 // 标题 & 副标题
                 const titleEl = document.getElementById("result-title");
-                titleEl.textContent = isDanger ? "糖尿病风险警示" : "检测结果正常";
-                titleEl.className   = `result-title ${cls}`;
-                document.getElementById("result-subtitle").textContent = isDanger
-                    ? "模型检测到较高患病风险，请尽快咨询医生进行确诊"
-                    : "未检测到明显糖尿病风险，请保持健康生活方式";
+                titleEl.textContent = isDanger
+                    ? "糖尿病风险警示"
+                    : "检测结果正常";
+                titleEl.className = `result-title ${cls}`;
+                document.getElementById("result-subtitle").textContent =
+                    isDanger
+                        ? "模型检测到较高患病风险，请尽快咨询医生进行确诊"
+                        : "未检测到明显糖尿病风险，请保持健康生活方式";
 
                 // 圆环动画
                 const ring = document.getElementById("ring-fill");
                 ring.className = `ring-fill ${cls}`;
-                ring.style.strokeDasharray  = RING_C;
+                ring.style.strokeDasharray = RING_C;
                 ring.style.strokeDashoffset = RING_C; // 从 0 开始
-                requestAnimationFrame(() => requestAnimationFrame(() => {
-                    ring.style.strokeDashoffset = RING_C * (1 - prob);
-                }));
+                requestAnimationFrame(() =>
+                    requestAnimationFrame(() => {
+                        ring.style.strokeDashoffset = RING_C * (1 - prob);
+                    }),
+                );
 
                 // 概率文字
                 const probEl = document.getElementById("prob-pct");
                 probEl.textContent = `${pct}%`;
-                probEl.className   = `prob-pct ${cls}`;
+                probEl.className = `prob-pct ${cls}`;
 
                 // 风险标签
                 const badge = document.getElementById("risk-badge");
                 badge.textContent = isDanger
-                    ? (pct >= 80 ? "极高风险" : pct >= 60 ? "高风险" : "中等风险")
-                    : (pct >= 30 ? "低风险"   : "极低风险");
+                    ? pct >= 80
+                        ? "极高风险"
+                        : pct >= 60
+                          ? "高风险"
+                          : "中等风险"
+                    : pct >= 30
+                      ? "低风险"
+                      : "极低风险";
                 badge.className = `risk-badge ${cls}`;
 
                 // 临床建议
-                const items = isDanger ? [
-                    "建议尽快前往内分泌科进行空腹血糖及糖化血红蛋白 (HbA1c) 检查",
-                    "控制碳水化合物摄入，增加膳食纤维，严格减少精制糖与含糖饮料",
-                    "每周保持 150 分钟以上中等强度有氧运动（快走、游泳等）",
-                    "定期监测血压与体重，目标 BMI < 24，收缩压 < 130 mmHg",
-                ] : [
-                    "保持均衡饮食，每年进行一次空腹血糖筛查",
-                    "维持规律的有氧运动习惯，保持健康体重（BMI 18.5–23.9）",
-                    "避免长期高糖、高脂饮食，减少久坐时间",
-                ];
-                document.getElementById("advice-list").innerHTML =
-                    items.map(t => `<li class="${cls}-item">${t}</li>`).join("");
+                const items = isDanger
+                    ? [
+                          "建议尽快前往内分泌科进行空腹血糖及糖化血红蛋白 (HbA1c) 检查",
+                          "控制碳水化合物摄入，增加膳食纤维，严格减少精制糖与含糖饮料",
+                          "每周保持 150 分钟以上中等强度有氧运动（快走、游泳等）",
+                          "定期监测血压与体重，目标 BMI < 24，收缩压 < 130 mmHg",
+                      ]
+                    : [
+                          "保持均衡饮食，每年进行一次空腹血糖筛查",
+                          "维持规律的有氧运动习惯，保持健康体重（BMI 18.5–23.9）",
+                          "避免长期高糖、高脂饮食，减少久坐时间",
+                      ];
+                document.getElementById("advice-list").innerHTML = items
+                    .map((t) => `<li class="${cls}-item">${t}</li>`)
+                    .join("");
 
-                document.getElementById("result-overlay").classList.remove("hidden");
+                document
+                    .getElementById("result-overlay")
+                    .classList.remove("hidden");
             }
 
             function closeResult() {
-                document.getElementById("result-overlay").classList.add("hidden");
+                document
+                    .getElementById("result-overlay")
+                    .classList.add("hidden");
             }
 
-            document.getElementById("result-close")    .addEventListener("click", closeResult);
-            document.getElementById("result-close2")   .addEventListener("click", closeResult);
-            document.getElementById("result-overlay")  .addEventListener("click", e => {
-                if (e.target === e.currentTarget) closeResult();
-            });
-            document.getElementById("result-repredict").addEventListener("click", () => {
-                closeResult();
-                formEl.reset();
-                fillExampleValues();
-                outputEl.textContent = "尚未发起请求";
-                setStatus("等待请求");
-            });
+            document
+                .getElementById("result-close")
+                .addEventListener("click", closeResult);
+            document
+                .getElementById("result-close2")
+                .addEventListener("click", closeResult);
+            document
+                .getElementById("result-overlay")
+                .addEventListener("click", (e) => {
+                    if (e.target === e.currentTarget) closeResult();
+                });
+            document
+                .getElementById("result-repredict")
+                .addEventListener("click", () => {
+                    closeResult();
+                    formEl.reset();
+                    fillExampleValues();
+                    outputEl.textContent = "尚未发起请求";
+                    setStatus("等待请求");
+                });
 
             /* -------- 预测请求 -------- */
             async function runPredict(features) {
@@ -951,9 +1124,9 @@
 
                     try {
                         const data = JSON.parse(text);
-                        if ("label" in data && "probability" in data) showResult(data);
+                        if ("label" in data && "probability" in data)
+                            showResult(data);
                     } catch (_) {}
-
                 } catch (err) {
                     setStatus("请求失败", true);
                     outputEl.textContent = [
@@ -973,7 +1146,8 @@
                     await runPredict(collectFeatures());
                 } catch (err) {
                     setStatus("输入有误", true);
-                    outputEl.textContent = err instanceof Error ? err.message : String(err);
+                    outputEl.textContent =
+                        err instanceof Error ? err.message : String(err);
                 }
             });
 

@@ -359,6 +359,27 @@
                 }
             }
 
+            /* Hero top layout: eyebrow + return button */
+            .hero-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+            }
+
+            .hero-return {
+                margin-left: 12px;
+            }
+
+            /* Hide any leftover ghost return button inside .actions when present */
+            .actions .btn-ghost[href="/index.html"] { display: none; }
+
+            @media (max-width: 620px) {
+                .hero-top { padding: 0 18px; }
+                .hero-return { white-space: nowrap; }
+            }
+
             /* ===== Result Modal ===== */
             .result-overlay {
                 position: fixed;
@@ -583,7 +604,10 @@
             </header>
 
             <section class="hero">
-                <span class="eyebrow">POST /ml_predict</span>
+                <div class="hero-top">
+                    <span class="eyebrow">POST /ml_predict</span>
+                    <a class="btn btn-ghost hero-return" href="/index.html">返回主页</a>
+                </div>
                 <h1><span>Diabetes</span> 特征预测</h1>
                 <p class="lead">
                     按照后端模型要求填写 8 个输入特征，页面会将数据按顺序组装为
@@ -700,11 +724,7 @@
                                 >
                                     填充示例数据
                                 </button>
-                                <a
-                                    class="btn btn-ghost"
-                                    href="/index.html"
-                                    >返回主页</a
-                                >
+                                
                             </div>
                         </form>
                     </section>

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 import joblib
+import json
 from tensorflow import keras # type: ignore
 import os
 
@@ -13,14 +14,17 @@ class PredictRequest(BaseModel):
     features: list
 
 
-def _load_paths():
+def _load_artifacts():
     base = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    model_path = os.path.join(base, 'artifacts', 'diabetes_model.keras')
-    pre_path = os.path.join(base, 'artifacts', 'preprocessor.joblib')
-    return model_path, pre_path
+    manifest_path = os.path.join(base, 'artifacts', 'manifest.json')
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    model_path = os.path.join(base, 'artifacts', manifest['model_path'])
+    pre_path = os.path.join(base, 'artifacts', manifest['preprocessor_path'])
+    return model_path, pre_path, manifest
 
 
-MODEL_PATH, PRE_PATH = _load_paths()
+MODEL_PATH, PRE_PATH, MANIFEST = _load_artifacts()
 
 
 try:
@@ -36,6 +40,43 @@ except Exception as e:
     print(f"Failed to load preprocessor: {e}")
 
 
+def _get_transformer(pre):
+    if hasattr(pre, 'transform'):
+        return pre
+    if isinstance(pre, dict) and 'scaler' in pre and hasattr(pre['scaler'], 'transform'):
+        return pre['scaler']
+    return None
+
+
+def _build_features(raw: list) -> pd.DataFrame:
+    """按 manifest 流程：原始输入 -> 筛选基础特征 -> 构建交互项 -> final_input_columns"""
+    input_cols = MANIFEST['example_input_columns']
+    selected = MANIFEST['selected_base_features']
+    final_cols = MANIFEST['final_input_columns']
+
+    if len(raw) != len(input_cols):
+        raise ValueError(
+            f"期望 {len(input_cols)} 个特征值（顺序：{input_cols}），实际收到 {len(raw)} 个"
+        )
+
+    df = pd.DataFrame([raw], columns=input_cols)
+
+    # 筛选基础特征
+    df = df[selected].copy()
+
+    # 构建交互特征
+    if 'Glucose_BMI' in final_cols and 'Glucose' in df.columns and 'BMI' in df.columns:
+        df['Glucose_BMI'] = df['Glucose'] * df['BMI']
+    if 'Age_BMI' in final_cols and 'Age' in df.columns and 'BMI' in df.columns:
+        df['Age_BMI'] = df['Age'] * df['BMI']
+    if 'Glucose_BP' in final_cols and 'Glucose' in df.columns and 'BloodPressure' in df.columns:
+        df['Glucose_BP'] = df['Glucose'] * df['BloodPressure']
+
+    # 按 final_input_columns 顺序排列
+    df = df[final_cols]
+    return df
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "model_loaded": model is not None}
@@ -46,32 +87,20 @@ def predict(req: PredictRequest):
     if model is None or pre is None:
         raise HTTPException(status_code=500, detail="Model or preprocessor not loaded")
     try:
-        x = np.array(req.features).reshape(1, -1)
-        # pre can be a preprocessor object with transform(), or a dict containing a 'scaler'
-        transformer = None
-        if hasattr(pre, 'transform'):
-            transformer = pre
-        elif isinstance(pre, dict) and 'scaler' in pre and hasattr(pre['scaler'], 'transform'):
-            transformer = pre['scaler']
-
+        transformer = _get_transformer(pre)
         if transformer is None:
             raise RuntimeError('preprocessor does not support transform')
 
-        # If the transformer was fitted with feature names (DataFrame columns),
-        # provide a DataFrame with matching column names to avoid sklearn warning.
-        x_for_transform = x
-        if hasattr(transformer, 'feature_names_in_'):
-            try:
-                cols = list(transformer.feature_names_in_)
-                x_for_transform = pd.DataFrame([req.features], columns=cols)
-            except Exception:
-                # fallback to numpy array if DataFrame construction fails
-                x_for_transform = x
-
-        x_p = transformer.transform(x_for_transform)
-        pred = model.predict(x_p)
-        # convert numpy arrays to python types
-        return {"pred": pred.tolist()}
+        df = _build_features(req.features)
+        x_p = transformer.transform(df)
+        pred = model.predict(x_p, verbose=0)
+        prob = float(pred[0][0])
+        threshold = MANIFEST.get('threshold', 0.5)
+        return {
+            "probability": prob,
+            "label": int(prob > threshold),
+            "diagnosis": "糖尿病" if prob > threshold else "健康"
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

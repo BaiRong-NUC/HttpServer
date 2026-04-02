@@ -106,11 +106,39 @@ void ClientTest3()
     clientSocket.Close();
 }
 
+// 连续发送多条请求
+void ClientTest4()
+{
+    Socket clientSocket;
+    clientSocket.CreateClient("127.0.0.1", 8085);
+    int times = 0;
+    // 连续请求两条数据
+    std::string req = "GET / HTTP/1.1\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\n12345";
+    req += "GET / HTTP/1.1\r\nConnection: keep-alive\r\nContent-Length: 5\r\n\r\n12345";
+    int ret = clientSocket.Send(req.c_str(), req.size());
+    if (ret < 0)
+    {
+        std::cerr << "Failed to send request to server" << std::endl;
+        return;
+    }
+    std::cout << "Sent request to server: " << req;
+    char buffer[1024] = {0};
+    ret = clientSocket.Recv(buffer, sizeof(buffer) - 1);
+    if (ret < 0)
+    {
+        std::cerr << "Failed to receive response from server" << std::endl;
+        return;
+    }
+    std::cout << "Received response from server: " << buffer << std::endl;
+     // 继续发送请求,测试服务器是否正确处理多条请求
+    clientSocket.Close();
+}
 int main(int argc, char const *argv[])
 {
     // 服务器默认超时时间为30s
     // ClientTest1();
     // ClientTest2();
-    ClientTest3();
+    // ClientTest3();
+    ClientTest4();
     return 0;
 }

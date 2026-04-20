@@ -74,7 +74,7 @@
                             </div>
                             <div class="line">
                                 <span class="label">Mode:</span>
-                                <span class="value">Debug</span>
+                                <span class="value">Build/App Runtime</span>
                             </div>
 
                             <div class="section">
@@ -92,12 +92,13 @@
                                 <ol>
                                     <li>用 <code>webbench</code> 做并发压测</li>
                                     <li>
-                                        在 <code>app/src</code> 中扩展业务逻辑
+                                        拿
+                                        <code>build/lib</code>
+                                        中的静态库和头文件做手动集成
                                     </li>
                                     <li>
-                                        在
-                                        <code>include/protocol</code>
-                                        中添加协议模块
+                                        复制 <code>build/app</code> 到其他 Linux
+                                        后安装依赖再运行
                                     </li>
                                 </ol>
                             </div>
@@ -114,12 +115,18 @@
                     </p>
                 </article>
                 <article class="feature ui-card ui-card--glass">
-                    <h3>可观测性友好</h3>
-                    <p>日志组件与关键路径指标可快速挂接，定位问题更直接。</p>
+                    <h3>静态库可复用</h3>
+                    <p>
+                        构建后可直接从 build/lib 取出 libhttpserver.a 与 include
+                        供其他项目手动链接。
+                    </p>
                 </article>
                 <article class="feature ui-card ui-card--glass">
-                    <h3>低成本扩展</h3>
-                    <p>在协议与业务层新增处理器，不需要改动核心事件循环。</p>
+                    <h3>运行目录可搬运</h3>
+                    <p>
+                        build/app
+                        集中了可执行文件、静态资源、模型脚本和产物，便于整体复制部署。
+                    </p>
                 </article>
                 <article class="metric ui-card ui-card--glass">
                     <strong>epoll</strong>
@@ -174,14 +181,17 @@
                 <section class="footer-card ui-card ui-card--glass">
                     <h3>项目路径</h3>
                     <p>/src/server 处理事件循环与连接</p>
-                    <p>/app作为业务示例入口</p>
-                    <p>/api_test 可快速验证模块行为。</p>
+                    <p>/build/lib 输出静态库与对外头文件</p>
+                    <p>
+                        /build/app 作为业务运行目录，/build/app/log 保存日志与
+                        PID 状态。
+                    </p>
                 </section>
                 <section class="footer-card ui-card ui-card--glass">
                     <h3>如何启动项目</h3>
                     <p class="cmd-note">
-                        在项目根目录执行以下命令完成构建，构建后会把网页资源、模型服务与模型产物同步到
-                        build/app：
+                        在项目根目录执行以下命令完成构建。构建后会同步两类产物：build/lib
+                        供手动链接，build/app 供直接运行：
                     </p>
                     <pre
                         class="ui-output ui-output--command"
@@ -204,7 +214,14 @@ cmake --build build -j
 
                     <p class="cmd-note">
                         上面的脚本会同时管理 C++ HttpServer 和 Python
-                        模型服务；模型服务默认优先使用 conda 的 web 环境。
+                        模型服务；模型服务默认优先使用 conda 的 web 环境，日志和
+                        PID 会写到 build/app/log。
+                    </p>
+
+                    <p class="cmd-note">
+                        如果只想把网络库给别人使用，直接分发
+                        <code>build/lib/libhttpserver.a</code> 和
+                        <code>build/lib/include</code> 即可。
                     </p>
 
                     <p class="cmd-note">

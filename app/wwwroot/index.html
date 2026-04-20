@@ -240,7 +240,7 @@
 
                                 <div class="muted" style="margin-top: 8px">
                                     设计并实现了基于主从Reactor模型的高性能服务器框架,支持多线程与异步
-                                    I/O,模块化协议解析,便于扩展与复用。
+                                    I/O,模块化协议解析,并可同时作为静态库 SDK 与可运行应用目录分发。
                                 </div>
 
                                 <ul
@@ -254,6 +254,9 @@
                                     <li>
                                         可插拔协议解析(内置
                                         HTTP)支持静态/动态请求处理
+                                    </li>
+                                    <li>
+                                        构建后 build/lib 提供 libhttpserver.a 与 include, build/app 可整体复制到其他 Linux 机器运行
                                     </li>
                                 </ul>
                         </div>

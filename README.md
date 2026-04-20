@@ -32,11 +32,17 @@
 - 构建时会把 app/artifacts 同步到 build/app/artifacts。
 - 默认由 build/app/loop.sh 联动启动和停止。
 
+### 3. Library 分发产物
+
+- 构建时会额外把公共头文件同步到 build/lib/include。
+- build/lib/libhttpserver.a 与 build/lib/include 可直接作为手动集成用的静态库 SDK。
+
 ## 三、目录概览
 
 - include 和 src：网络库与协议实现。
 - app：示例业务、网页资源、模型服务脚本与模型产物。
-- build/app：构建后的运行目录，包含 server、loop.sh、serving、artifacts 和 wwwroot。
+- build/lib：静态库分发目录，包含 libhttpserver.a 和 include。
+- build/app：构建后的运行目录，包含 server、loop.sh、serving、artifacts、wwwroot 和 log。
 - api_test：开发阶段的 API 示例与验证代码。
 - test：客户端与错误场景测试程序。
 
@@ -82,6 +88,7 @@ cmake --build build -j
 - start 会同时启动 C++ HttpServer 和 Python 模型服务。
 - status 会同时显示两个服务的状态，并打印模型服务当前选择的 Python 来源。
 - stop 会同时停止两个服务，不需要再手动执行额外的 kill 命令。
+- 运行期日志与状态文件默认写入 build/app/log。
 
 ### 4. 仅启动模型服务
 
@@ -90,6 +97,19 @@ cmake --build build -j
 ./build/app/serving/run_model.sh status
 ./build/app/serving/run_model.sh stop
 ```
+
+### 5. 简单分发方式
+
+静态库给其他项目手动集成：
+
+- 直接提供 build/lib/libhttpserver.a。
+- 直接提供 build/lib/include。
+
+应用给其他 Linux 机器直接运行：
+
+- 直接拷贝整个 build/app 目录。
+- 目标机器自行安装 Python 模型依赖后，运行 ./loop.sh start 即可。
+- 运行日志和 PID 状态会统一写入 build/app/log。
 
 ## 五、测试与压测
 
@@ -150,9 +170,12 @@ curl -X POST "http://127.0.0.1:8000/predict" \
 
 - [build/app/loop.sh](build/app/loop.sh)：整套服务的统一启动、停止、状态脚本。
 - [build/app/server](build/app/server)：C++ HttpServer 可执行文件。
+- [build/app/log](build/app/log)：运行日志与共享 PID 状态目录。
 - [build/app/serving/run_model.sh](build/app/serving/run_model.sh)：模型服务独立启动脚本。
 - [build/app/wwwroot](build/app/wwwroot)：同步后的前端静态资源。
 - [build/app/artifacts](build/app/artifacts)：同步后的模型与预处理器文件。
+- [build/lib/libhttpserver.a](build/lib/libhttpserver.a)：静态库产物。
+- [build/lib/include](build/lib/include)：静态库对外头文件目录。
 
 ## 七、在线演示
 

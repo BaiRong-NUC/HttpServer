@@ -43,5 +43,5 @@ class HttpResponse
     void Clear();
 
     // 构造HTTP响应报文字符串
-    std::string ToString() const;
+    std::string ToString(bool include_body = true) const;
 };

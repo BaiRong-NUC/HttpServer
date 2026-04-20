@@ -46,7 +46,7 @@ void HttpResponse::SetRedirect(const std::string &location, int status_code)
 }
 
 // 构造HTTP响应报文字符串
-std::string HttpResponse::ToString() const
+std::string HttpResponse::ToString(bool include_body) const
 {
     std::stringstream response_stream;
 
@@ -63,8 +63,10 @@ std::string HttpResponse::ToString() const
     // 空行
     response_stream << "\r\n";
 
-    // 响应正文
-    response_stream << this->body;
+    if (include_body)
+    {
+        response_stream << this->body;
+    }
 
     return response_stream.str();
 }

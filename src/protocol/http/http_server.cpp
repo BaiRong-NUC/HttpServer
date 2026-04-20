@@ -124,8 +124,8 @@ void HttpServer::SendResponse(const PtrConnection &conn, const HttpRequest &clie
         }
     }
 
-    // 构造HTTP响应报文并发送
-    conn->Send(server_response.ToString());
+    // HEAD 响应只发送响应头，不发送消息体，但仍保留正确的 Content-Length。
+    conn->Send(server_response.ToString(client_request.method != "HEAD"));
 }
 
 void HttpServer::_HandleRequest(const PtrConnection &conn, HttpRequest &request, HttpResponse &response)

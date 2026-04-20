@@ -210,6 +210,10 @@ h1 span {
         padding: 18px 14px 28px;
     }
 
+    .header-right .badge {
+        display: none;
+    }
+
     .hero {
         border-radius: 18px;
         padding: 16px;

@@ -74,18 +74,6 @@ header {
     gap: 22px;
 }
 
-.hero-main,
-.hero-side,
-.feature,
-.metric,
-.footer-card {
-    background: var(--card);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow);
-}
-
 .hero-main {
     padding: 34px;
     animation: reveal 0.9s ease both;
@@ -154,7 +142,7 @@ h1 span {
 }
 
 /* 美化 code-panel 内部结构 */
-.code-panel .status {
+.code-panel .server-status {
     display: block;
     margin-top: 6px;
 }
@@ -281,11 +269,6 @@ footer {
 
 .api-lab {
     margin-top: 22px;
-    background: var(--card);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow);
     padding: 22px;
     animation: reveal 1.2s ease both;
 }
@@ -327,54 +310,10 @@ footer {
     border-color: rgba(25, 114, 120, 0.45);
 }
 
-.api-output {
-    margin-top: 14px;
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(27, 31, 42, 0.12);
-    background: #fffdfa;
-    padding: 14px;
-    font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: #273444;
-    min-height: 120px;
-    white-space: pre-wrap;
-    overflow: auto;
-}
-
-/* Footer-specific command block styling (提升展示效果) */
-.footer-card .api-output {
-    background: linear-gradient(90deg, #ffffff, #fffdfa);
-    border-left: 4px solid var(--accent-2);
-    padding: 12px 14px;
-    font-size: 0.92rem;
-    min-height: unset;
-    white-space: pre-wrap;
-    box-shadow: 0 6px 18px rgba(25, 114, 120, 0.06);
-}
-
 .footer-card .cmd-note {
     margin-top: 8px;
     color: var(--ink-soft);
     font-size: 0.85rem;
-}
-
-@media (min-width: 980px) {
-    .footer-card:last-child .api-output {
-        font-size: 0.9rem;
-    }
-}
-
-.api-status {
-    margin-top: 10px;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    background: rgba(25, 114, 120, 0.1);
-    color: #0f646a;
 }
 
 @media (max-width: 980px) {

@@ -11,6 +11,7 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/css/common.css" />
+        <link rel="stylesheet" href="/css/page-components.css" />
         <link rel="stylesheet" href="/css/ml_predict.css" />
     </head>
     <body>
@@ -23,7 +24,7 @@
                 <span class="badge">模型推理页面</span>
             </header>
 
-            <section class="hero">
+            <section class="hero ui-card ui-card--glass">
                 <div class="hero-top">
                     <span class="eyebrow">POST /ml_predict</span>
                     <a
@@ -54,7 +55,10 @@
                 </p>
 
                 <div class="panel-grid">
-                    <section class="card" aria-label="predict form">
+                    <section
+                        class="panel-card ui-card ui-card--soft"
+                        aria-label="predict form"
+                    >
                         <h2>输入特征</h2>
                         <p class="hint">
                             后端模型接受固定顺序: Pregnancies, Glucose,
@@ -167,7 +171,10 @@
                         </form>
                     </section>
 
-                    <section class="card" aria-label="predict result">
+                    <section
+                        class="panel-card ui-card ui-card--soft"
+                        aria-label="predict result"
+                    >
                         <h2>请求信息</h2>
                         <ul class="meta-list">
                             <li>接口: <code>POST /ml_predict</code></li>
@@ -178,8 +185,8 @@
                             <li>请求体: <code>{"features": [...]}</code></li>
                         </ul>
 
-                        <span id="api-status" class="status">等待请求</span>
-                        <pre id="api-output" class="api-output">
+                        <span id="api-status" class="ui-status">等待请求</span>
+                        <pre id="api-output" class="ui-output ui-output--tall">
 尚未发起请求</pre
                         >
                     </section>

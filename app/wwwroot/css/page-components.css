@@ -1,0 +1,206 @@
+.ui-card {
+    border: 1px solid var(--line);
+}
+
+.ui-card--glass {
+    background: var(--card);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+}
+
+.ui-card--soft {
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 24px rgba(26, 32, 44, 0.08);
+}
+
+.ui-status {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(25, 114, 120, 0.1);
+    color: #0f646a;
+}
+
+.ui-output {
+    border: 1px solid rgba(27, 31, 42, 0.12);
+    background: #fffdfa;
+    color: #273444;
+    white-space: pre-wrap;
+    overflow: auto;
+    font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.ui-output--compact {
+    margin-top: 14px;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    min-height: 120px;
+}
+
+.ui-output--tall {
+    margin-top: 12px;
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 220px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.ui-output--command {
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--accent-2);
+    background: linear-gradient(90deg, #ffffff, #fffdfa);
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    min-height: unset;
+    box-shadow: 0 6px 18px rgba(25, 114, 120, 0.06);
+}
+
+.ui-link {
+    color: var(--accent-2);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition:
+        color 0.18s ease,
+        transform 0.12s ease;
+    border-bottom: 1px dashed rgba(25, 114, 120, 0.12);
+    padding-bottom: 1px;
+}
+
+.ui-link:hover,
+.ui-link:focus {
+    color: var(--accent);
+    transform: translateY(-2px);
+    outline: none;
+    border-bottom-style: solid;
+}
+
+.ui-link .link-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    flex: 0 0 16px;
+}
+
+.ui-link--project {
+    gap: 6px;
+    border-bottom: 2px solid rgba(25, 114, 120, 0.2);
+    transition: all 0.2s ease;
+}
+
+.ui-link--project:hover {
+    border-bottom: 2px solid var(--accent);
+    transform: translateX(2px);
+}
+
+.ui-link--project::after {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23197278" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.ui-link--project:hover::after {
+    opacity: 1;
+}
+
+.ui-link-btn {
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-weight: 700;
+    background: transparent;
+    border: 1px solid rgba(27, 31, 42, 0.06);
+    color: var(--ink);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease;
+}
+
+.ui-link-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(16, 24, 32, 0.06);
+}
+
+.info-block {
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(27, 31, 42, 0.06);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-item strong {
+    font-size: 0.88rem;
+}
+
+.info-item .muted {
+    font-size: 0.85rem;
+}
+
+@media (min-width: 980px) {
+    .footer-card:last-child .ui-output--command {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) {
+    .info-block > div[style*="display: flex"] {
+        flex-direction: column !important;
+        gap: 6px !important;
+        align-items: flex-start !important;
+    }
+
+    .info-block div[style*="text-align: right"] {
+        text-align: right !important;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .ui-link-btn {
+        margin-top: 0;
+        font-size: 0.82rem;
+        padding: 6px 10px;
+    }
+
+    .info-block > div > .muted {
+        display: block;
+        white-space: nowrap;
+    }
+
+    .info-block {
+        padding: 10px;
+    }
+
+    .muted .ui-link {
+        font-size: 0.82rem;
+    }
+
+    .muted .ui-link span {
+        word-break: break-word;
+    }
+}

@@ -115,62 +115,6 @@ h3 {
 p {
     color: var(--ink-soft);
 }
-/* 链接样式优化：统一颜色、去除默认下划线并添加悬停效果 */
-.muted a.external-link {
-    color: var(--accent-2);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition:
-        color 0.18s ease,
-        transform 0.12s ease;
-    border-bottom: 1px dashed rgba(25, 114, 120, 0.12);
-    padding-bottom: 1px;
-}
-.muted a.external-link:hover,
-.muted a.external-link:focus {
-    color: var(--accent);
-    transform: translateY(-2px);
-    outline: none;
-    border-bottom-style: solid;
-}
-.muted a.external-link .link-icon {
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    flex: 0 0 16px;
-}
-/* 项目标题链接样式 */
-.project-title-link {
-    color: var(--accent-2);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    border-bottom: 2px solid rgba(25, 114, 120, 0.2);
-}
-.project-title-link:hover {
-    color: var(--accent);
-    border-bottom: 2px solid var(--accent);
-    transform: translateX(2px);
-}
-.project-title-link::after {
-    content: "";
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23197278" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>');
-    background-size: contain;
-    background-repeat: no-repeat;
-    flex-shrink: 0;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-.project-title-link:hover::after {
-    opacity: 1;
-}
 .skills {
     display: flex;
     flex-wrap: wrap;
@@ -236,32 +180,6 @@ p {
     color: var(--ink-soft);
     margin-top: 6px;
 }
-.btn-small {
-    border-radius: 12px;
-    padding: 8px 12px;
-    font-weight: 700;
-    background: transparent;
-    border: 1px solid rgba(27, 31, 42, 0.06);
-    color: var(--ink);
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition:
-        transform 0.12s ease,
-        box-shadow 0.12s ease;
-}
-.btn-small:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(16, 24, 32, 0.06);
-}
-.exp-item {
-    padding: 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(27, 31, 42, 0.06);
-}
 .muted {
     color: var(--ink-soft);
     font-size: 0.92rem;
@@ -311,22 +229,6 @@ footer {
         flex-shrink: 0;
     }
     /* 工作经历和项目经历的标题+日期布局 */
-    .exp-item > div[style*="display: flex"] {
-        flex-direction: column !important;
-        gap: 6px !important;
-        align-items: flex-start !important;
-    }
-    /* 项目经历的按钮容器 - 保持右对齐 */
-    .exp-item div[style*="text-align: right"] {
-        text-align: right !important;
-        width: 100%;
-        margin-top: 8px;
-    }
-    .btn-small {
-        margin-top: 0;
-        font-size: 0.82rem;
-        padding: 6px 10px;
-    }
     h3 {
         font-size: 0.98rem;
     }
@@ -350,22 +252,8 @@ footer {
         font-size: 0.85rem;
     }
     /* 确保日期正常显示 */
-    .exp-item > div > .muted {
-        display: block;
-        white-space: nowrap;
-    }
-    .exp-item {
-        padding: 10px;
-    }
     .experience {
         gap: 12px;
-    }
-    /* Gitee和GitHub链接优化 */
-    .muted .external-link {
-        font-size: 0.82rem;
-    }
-    .muted .external-link span {
-        word-break: break-word;
     }
 }
 .contact-grid {
@@ -373,17 +261,6 @@ footer {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-top: 12px;
-}
-.contact-item {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-}
-.contact-item strong {
-    font-size: 0.88rem;
-}
-.contact-item .muted {
-    font-size: 0.85rem;
 }
 .section-header {
     display: flex;

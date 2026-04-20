@@ -11,6 +11,7 @@
             rel="stylesheet"
         />
         <link rel="stylesheet" href="/css/common.css" />
+        <link rel="stylesheet" href="/css/page-components.css" />
         <link rel="stylesheet" href="/css/http_server.css" />
     </head>
     <body>
@@ -40,7 +41,7 @@
             </header>
 
             <section class="hero">
-                <article class="hero-main">
+                <article class="hero-main ui-card ui-card--glass">
                     <span class="eyebrow">部署成功 · 服务就绪</span>
                     <h1><span>HttpServer</span> 可以处理请求</h1>
                     <p class="lead">基于 Reactor模型构建.</p>
@@ -55,10 +56,10 @@
                     </div>
                 </article>
 
-                <aside class="hero-side">
+                <aside class="hero-side ui-card ui-card--glass">
                     <div class="code-panel" aria-label="server status panel">
                         <div class="dots"><i></i><i></i><i></i></div>
-                        <div class="status">
+                        <div class="server-status">
                             <div class="line">
                                 <span class="label">Server:</span>
                                 <span class="value">HttpServer/main</span>
@@ -106,38 +107,42 @@
             </section>
 
             <section class="grid" aria-label="features">
-                <article class="feature">
+                <article class="feature ui-card ui-card--glass">
                     <h3>模块化网络层</h3>
                     <p>
                         连接、缓冲区、线程池、定时器分层解耦，便于扩展和排障。
                     </p>
                 </article>
-                <article class="feature">
+                <article class="feature ui-card ui-card--glass">
                     <h3>可观测性友好</h3>
                     <p>日志组件与关键路径指标可快速挂接，定位问题更直接。</p>
                 </article>
-                <article class="feature">
+                <article class="feature ui-card ui-card--glass">
                     <h3>低成本扩展</h3>
                     <p>在协议与业务层新增处理器，不需要改动核心事件循环。</p>
                 </article>
-                <article class="metric">
+                <article class="metric ui-card ui-card--glass">
                     <strong>epoll</strong>
                     <h3>高并发事件模型</h3>
                     <p>采用 I/O 多路复用，避免线程阻塞造成吞吐下降。</p>
                 </article>
-                <article class="metric">
+                <article class="metric ui-card ui-card--glass">
                     <strong>Reactor</strong>
                     <h3>反应式调度架构</h3>
                     <p>事件驱动处理，业务回调和网络回调更清晰可控。</p>
                 </article>
-                <article class="metric">
+                <article class="metric ui-card ui-card--glass">
                     <strong>RAII</strong>
                     <h3>资源生命周期管理</h3>
                     <p>利用 C++ 资源管理语义减少泄漏与异常路径风险。</p>
                 </article>
             </section>
 
-            <section id="api-test" class="api-lab" aria-label="api test panel">
+            <section
+                id="api-test"
+                class="api-lab ui-card ui-card--glass"
+                aria-label="api test panel"
+            >
                 <h3>接口测试台</h3>
                 <p>
                     在当前页面直接测试后端示例接口。点击按钮后会展示请求方法、路径、状态码和返回内容。
@@ -159,24 +164,26 @@
                         测试 POST /ml_predict
                     </button>
                 </div>
-                <span id="api-status" class="api-status">等待请求</span>
-                <pre id="api-output" class="api-output">尚未发起请求</pre>
+                <span id="api-status" class="ui-status">等待请求</span>
+                <pre id="api-output" class="ui-output ui-output--compact">
+尚未发起请求</pre
+                >
             </section>
 
             <footer>
-                <section class="footer-card">
+                <section class="footer-card ui-card ui-card--glass">
                     <h3>项目路径</h3>
                     <p>/src/server 处理事件循环与连接</p>
                     <p>/app作为业务示例入口</p>
                     <p>/api_test 可快速验证模块行为。</p>
                 </section>
-                <section class="footer-card">
+                <section class="footer-card ui-card ui-card--glass">
                     <h3>如何启动项目</h3>
                     <p class="cmd-note">
                         在项目根目录执行以下命令以构建项目（复制粘贴即可）：
                     </p>
                     <pre
-                        class="api-output"
+                        class="ui-output ui-output--command"
                         aria-label="构建命令"
                     ><code>mkdir -p build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
@@ -186,7 +193,7 @@ cmake --build build -j
 
                     <p class="cmd-note">使用示例脚本快速启动 / 停止服务器：</p>
                     <pre
-                        class="api-output"
+                        class="ui-output ui-output--command"
                         aria-label="启动停止脚本"
                     ><code>./app/loop.sh start
 ./app/loop.sh stop</code></pre>

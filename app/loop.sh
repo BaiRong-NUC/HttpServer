@@ -30,11 +30,9 @@ detect_model_script() {
 
 APP_DIR="$(detect_app_dir)"
 PID_DIR="$SCRIPT_DIR"
-SUP_PID_FILE="$PID_DIR/server_supervisor.pid"
-SRV_PID_FILE="$PID_DIR/server.pid"
+PID_FILE="$PID_DIR/server.pid"
 LOG_FILE="$PID_DIR/server.log"
-STOP_SCRIPT="$PID_DIR/stop_app.sh"
-SUP_SCRIPT="$PID_DIR/server_supervisor.sh"
+SELF_SCRIPT="$SCRIPT_DIR/$(basename "$0")"
 MODEL_SCRIPT="$(detect_model_script)"
 
 usage() {
@@ -43,88 +41,99 @@ usage() {
 }
 
 is_supervisor_running() {
-	if [[ ! -f "$SUP_PID_FILE" ]]; then
-		return 1
-	fi
-
 	local pid
-	pid="$(cat "$SUP_PID_FILE")"
+	pid="$(get_supervisor_pid)"
 	if [[ -z "$pid" ]]; then
 		return 1
 	fi
 
-	kill -0 "$pid" >/dev/null 2>&1
+		kill -0 "$pid" >/dev/null 2>&1
 }
 
-create_stop_script() {
-	cat > "$STOP_SCRIPT" <<SH
-#!/bin/bash
-set -euo pipefail
-SUP_PID_FILE="$SUP_PID_FILE"
-SRV_PID_FILE="$SRV_PID_FILE"
-MODEL_SCRIPT="$MODEL_SCRIPT"
+get_pid_value() {
+	local key="$1"
 
-if [[ -n "\$MODEL_SCRIPT" && -x "\$MODEL_SCRIPT" ]]; then
-	"\$MODEL_SCRIPT" stop || true
-fi
-
-if [[ -f "\$SUP_PID_FILE" ]]; then
-	SUPPID="\$(cat "\$SUP_PID_FILE")"
-	kill "\$SUPPID" 2>/dev/null || true
-	sleep 1
-	if kill -0 "\$SUPPID" 2>/dev/null; then
-		kill -9 "\$SUPPID" 2>/dev/null || true
+	if [[ -f "$PID_FILE" ]]; then
+		while IFS='=' read -r current_key current_value; do
+			if [[ "$current_key" == "$key" ]]; then
+				printf '%s\n' "$current_value"
+				return 0
+			fi
+		done < "$PID_FILE"
 	fi
-fi
 
-if [[ -f "\$SRV_PID_FILE" ]]; then
-	PID="\$(cat "\$SRV_PID_FILE")"
-	kill "\$PID" 2>/dev/null || true
-fi
-
-rm -f "\$SUP_PID_FILE" "\$SRV_PID_FILE"
-echo "Stopped."
-SH
-	chmod +x "$STOP_SCRIPT"
+	return 1
 }
 
-create_supervisor_script() {
-	cat > "$SUP_SCRIPT" <<SH
-#!/bin/bash
-set -euo pipefail
-APP_DIR="$APP_DIR"
-SRV_PID_FILE="$SRV_PID_FILE"
-LOG_FILE="$LOG_FILE"
+write_pid_state() {
+	local supervisor_pid="$1"
+	local server_pid="$2"
 
-cd "$APP_DIR"
-while true; do
-	./server >> "$LOG_FILE" 2>&1 &
-	CHILD=\$!
-	echo \$CHILD > "$SRV_PID_FILE"
-	wait \$CHILD
-	echo "\$(date '+%F %T') server exited with \$?, restarting in 1s" >> "$LOG_FILE"
-	sleep 1
-done
-SH
-	chmod +x "$SUP_SCRIPT"
+	cat > "$PID_FILE" <<EOF
+supervisor_pid=$supervisor_pid
+server_pid=$server_pid
+EOF
+}
+
+get_supervisor_pid() {
+	local pid
+	pid="$(get_pid_value supervisor_pid || true)"
+	if [[ -n "$pid" ]]; then
+		printf '%s\n' "$pid"
+		return 0
+	fi
+
+	return 1
+}
+
+get_server_pid() {
+	local pid
+	pid="$(get_pid_value server_pid || true)"
+	if [[ -n "$pid" ]]; then
+		printf '%s\n' "$pid"
+		return 0
+	fi
+
+	if [[ -f "$PID_FILE" ]]; then
+		pid="$(tr -d '\n' < "$PID_FILE")"
+		if [[ "$pid" =~ ^[0-9]+$ ]]; then
+			printf '%s\n' "$pid"
+			return 0
+		fi
+	fi
+
+	return 1
+}
+
+run_server_supervisor() {
+	cd "$APP_DIR"
+	write_pid_state "$$" ""
+	while true; do
+		./server >> "$LOG_FILE" 2>&1 &
+		CHILD=$!
+		write_pid_state "$$" "$CHILD"
+		wait $CHILD
+		write_pid_state "$$" ""
+		echo "$(date '+%F %T') server exited with $?, restarting in 1s" >> "$LOG_FILE"
+		sleep 1
+	done
 }
 
 start_server_supervisor() {
 	if is_supervisor_running; then
-		echo "Supervisor already running (PID $(cat "$SUP_PID_FILE"))."
+		echo "Supervisor already running (PID $(get_supervisor_pid))."
 		return 0
 	fi
 
-	create_supervisor_script
-	nohup "$SUP_SCRIPT" >/dev/null 2>&1 &
-	echo $! > "$SUP_PID_FILE"
-	echo "Started server supervisor (PID $(cat "$SUP_PID_FILE")). Logs: $LOG_FILE"
+	nohup "$SELF_SCRIPT" __supervise >/dev/null 2>&1 &
+	write_pid_state "$!" ""
+	echo "Started server supervisor (PID $(get_supervisor_pid)). Logs: $LOG_FILE"
 }
 
 stop_server_supervisor() {
-	if [[ -f "$SUP_PID_FILE" ]]; then
-		local sup_pid
-		sup_pid="$(cat "$SUP_PID_FILE")"
+	local sup_pid
+	sup_pid="$(get_supervisor_pid || true)"
+	if [[ -n "$sup_pid" ]]; then
 		kill "$sup_pid" 2>/dev/null || true
 		sleep 1
 		if kill -0 "$sup_pid" 2>/dev/null; then
@@ -132,13 +141,13 @@ stop_server_supervisor() {
 		fi
 	fi
 
-	if [[ -f "$SRV_PID_FILE" ]]; then
-		local server_pid
-		server_pid="$(cat "$SRV_PID_FILE")"
+	local server_pid
+	server_pid="$(get_server_pid || true)"
+	if [[ -n "$server_pid" ]]; then
 		kill "$server_pid" 2>/dev/null || true
 	fi
 
-	rm -f "$SUP_PID_FILE" "$SRV_PID_FILE"
+	rm -f "$PID_FILE"
 }
 
 start_model_service() {
@@ -157,9 +166,17 @@ stop_model_service() {
 
 show_status() {
 	if is_supervisor_running; then
-		echo "Server supervisor is running (PID $(cat "$SUP_PID_FILE"))."
+		echo "Server supervisor is running (PID $(get_supervisor_pid))."
 	else
 		echo "Server supervisor is not running."
+	fi
+
+	local server_pid
+	server_pid="$(get_server_pid || true)"
+	if [[ -n "$server_pid" ]] && kill -0 "$server_pid" >/dev/null 2>&1; then
+		echo "Server process is running (PID $server_pid)."
+	elif [[ -n "$server_pid" ]]; then
+		echo "Server process PID recorded but not running (PID $server_pid)."
 	fi
 
 	if [[ -n "$MODEL_SCRIPT" && -x "$MODEL_SCRIPT" ]]; then
@@ -170,7 +187,6 @@ show_status() {
 }
 
 do_start() {
-	create_stop_script
 	start_server_supervisor
 	start_model_service
 }
@@ -182,6 +198,9 @@ do_stop() {
 }
 
 case "${1:-start}" in
+	__supervise)
+		run_server_supervisor
+		;;
 	start)
 		do_start
 		;;

@@ -297,6 +297,19 @@ footer {
         gap: 12px;
     }
 }
+
+@media (max-width: 620px) {
+    .profile-photo-card {
+        width: min(168px, 46vw);
+        padding: 8px;
+        border-radius: 22px;
+    }
+
+    .profile-photo {
+        border-radius: 16px;
+    }
+}
+
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

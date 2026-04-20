@@ -13,10 +13,37 @@ mode="${1:-fg}"
 cd "$repo_root"
 mkdir -p "$runtimedir"
 
-python_cmd="python3"
-if [[ -x "$repo_root/.venv/bin/python" ]]; then
-	python_cmd="$repo_root/.venv/bin/python"
-fi
+python_cmd=("python3")
+python_source="system python3"
+
+resolve_python_cmd() {
+	local conda_cmd=""
+	local conda_web_prefix=""
+
+	if [[ -n "${CONDA_EXE:-}" && -x "${CONDA_EXE}" ]]; then
+		conda_cmd="$CONDA_EXE"
+	elif command -v conda >/dev/null 2>&1; then
+		conda_cmd="$(command -v conda)"
+	elif [[ -x "$HOME/miniconda3/bin/conda" ]]; then
+		conda_cmd="$HOME/miniconda3/bin/conda"
+	fi
+
+	if [[ -n "$conda_cmd" ]]; then
+		conda_web_prefix="$("$conda_cmd" env list 2>/dev/null | awk '$1 == "web" { print $NF; exit }')"
+		if [[ -n "$conda_web_prefix" && -x "$conda_web_prefix/bin/python" ]]; then
+			python_cmd=("$conda_web_prefix/bin/python")
+			python_source="conda env web"
+			return
+		fi
+	fi
+
+	if [[ -x "$repo_root/.venv/bin/python" ]]; then
+		python_cmd=("$repo_root/.venv/bin/python")
+		python_source="project .venv"
+	fi
+}
+
+resolve_python_cmd
 
 is_running() {
 	if [[ ! -f "$pid_file" ]]; then
@@ -43,9 +70,10 @@ start_background() {
 		return 0
 	fi
 
-	nohup "$python_cmd" -m uvicorn app.serving.model_api:app --host "$host" --port "$port" >"$log_file" 2>&1 < /dev/null &
+	nohup "${python_cmd[@]}" -m uvicorn app.serving.model_api:app --host "$host" --port "$port" >"$log_file" 2>&1 < /dev/null &
 	echo $! > "$pid_file"
 	echo "Model service started in background on http://$host:$port"
+	echo "Python: $python_source"
 	echo "PID: $(cat "$pid_file")"
 	echo "Log: $log_file"
 }
@@ -74,6 +102,7 @@ stop_background() {
 }
 
 show_status() {
+	echo "Python: $python_source"
 	if is_running; then
 		echo "Model service is running on http://$host:$port (pid $(cat "$pid_file"))"
 		echo "Log: $log_file"
@@ -95,7 +124,8 @@ show_usage() {
 
 case "$mode" in
 	fg)
-		exec "$python_cmd" -m uvicorn app.serving.model_api:app --host "$host" --port "$port" --reload
+		echo "Python: $python_source"
+		exec "${python_cmd[@]}" -m uvicorn app.serving.model_api:app --host "$host" --port "$port" --reload
 		;;
 	start)
 		start_background

@@ -48,6 +48,14 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
 if(BUILD_APP)
 	file(GLOB APP_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp)
 	file(GLOB APP_SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/src/*.cpp)
+	file(GLOB_RECURSE APP_WWWROOT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot/*)
+
+	add_custom_target(sync_app_wwwroot ALL
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot ${CMAKE_BINARY_DIR}/app/wwwroot
+		DEPENDS ${APP_WWWROOT_FILES}
+		COMMENT "Sync app static assets to build/app/wwwroot"
+	)
 
 	foreach(APP_CPP_FILE ${APP_CPP_FILES})
 		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
@@ -60,12 +68,7 @@ if(BUILD_APP)
 		set_target_properties(${APP_TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app
 		)
-
-		# 在构建后将静态资源目录复制到运行目录，便于在 build/app 下直接运行可执行文件
-		add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
-			COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot ${CMAKE_BINARY_DIR}/app/wwwroot
-		)
+		add_dependencies(${APP_TARGET_NAME} sync_app_wwwroot)
 	endforeach()
 endif()
 

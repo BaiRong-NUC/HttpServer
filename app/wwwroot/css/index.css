@@ -322,6 +322,10 @@ footer {
     .title {
         grid-area: title;
         margin-top: 0;
+        font-size: 0.72rem;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
     }
 
     .lead {
@@ -333,7 +337,7 @@ footer {
         grid-area: photo;
         justify-self: end;
         align-self: start;
-        width: min(132px, 32vw);
+        width: min(112px, 28vw);
         padding: 8px;
         border-radius: 22px;
     }

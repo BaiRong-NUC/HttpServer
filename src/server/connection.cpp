@@ -52,8 +52,8 @@ void Connection::_HandleWrite()
         return;
     }
 
-    std::string buffer = this->_out_buffer.Read(this->_out_buffer.GetReadableSize());
-    int ret = this->_channel.GetSocket().Send(buffer.c_str(), buffer.size(), MSG_DONTWAIT);
+    std::string pending = this->_out_buffer.Read(this->_out_buffer.GetReadableSize());
+    int ret = this->_channel.GetSocket().Send(pending.data(), pending.size(), MSG_DONTWAIT);
     if (ret < 0)
     {
         LOG(WARNING, "Failed to write to socket, connection will be closed");
@@ -73,13 +73,13 @@ void Connection::_HandleWrite()
     }
     else if (ret == 0)
     {
-        // 发送数据缓冲区为0,提示
-        LOG(WARNING, "No more data can be sent");
+        this->_out_buffer.Write(pending);
         return;
     }
-    else
+
+    if (static_cast<size_t>(ret) < pending.size())
     {
-        // TODO: 待处理
+        this->_out_buffer.Write(pending.data() + ret, pending.size() - static_cast<size_t>(ret));
     }
 }
 

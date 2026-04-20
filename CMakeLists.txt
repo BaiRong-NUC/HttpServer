@@ -13,6 +13,7 @@ option(BUILD_API_TEST "Build Api Test Executables" OFF)
 option(BUILD_TEST "Build Test Executables" ON)
 
 file(GLOB_RECURSE SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE PUBLIC_HEADER_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/*)
 
 add_library(httpserver STATIC ${SRC_CPP_FILES})
 add_library(HttpServer::httpserver ALIAS httpserver)
@@ -36,6 +37,16 @@ set_target_properties(httpserver PROPERTIES
 	ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	OUTPUT_NAME httpserver
 )
+
+add_custom_target(sync_lib_headers ALL
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/lib
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/lib/include
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/lib/include
+	DEPENDS ${PUBLIC_HEADER_FILES}
+	COMMENT "Sync public headers to build/lib/include"
+)
+
+add_dependencies(httpserver sync_lib_headers)
 
 install(TARGETS httpserver
 	EXPORT HttpServerTargets

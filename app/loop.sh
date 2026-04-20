@@ -30,14 +30,37 @@ detect_model_script() {
 
 APP_DIR="$(detect_app_dir)"
 PID_DIR="$SCRIPT_DIR"
-PID_FILE="$PID_DIR/server.pid"
-LOG_FILE="$PID_DIR/server.log"
+LOG_DIR="$APP_DIR/log"
+PID_FILE="$LOG_DIR/server.pid"
+PID_LOCK_FILE="$LOG_DIR/.server.pid.lock"
+LOG_FILE="$LOG_DIR/server.log"
+MODEL_LOG_FILE="$LOG_DIR/model_api.log"
 SELF_SCRIPT="$SCRIPT_DIR/$(basename "$0")"
 MODEL_SCRIPT="$(detect_model_script)"
 
 usage() {
 	echo "Usage: $0 [start|stop|restart|status]"
 	exit 1
+}
+
+ensure_log_dir() {
+	mkdir -p "$LOG_DIR"
+}
+
+with_pid_lock() {
+	ensure_log_dir
+	if command -v flock >/dev/null 2>&1; then
+		local lock_fd
+		exec {lock_fd}> "$PID_LOCK_FILE"
+		flock "$lock_fd"
+		"$@"
+		local status=$?
+		flock -u "$lock_fd"
+		exec {lock_fd}>&-
+		return $status
+	fi
+
+	"$@"
 }
 
 is_supervisor_running() {
@@ -50,7 +73,7 @@ is_supervisor_running() {
 		kill -0 "$pid" >/dev/null 2>&1
 }
 
-get_pid_value() {
+read_pid_value_unlocked() {
 	local key="$1"
 
 	if [[ -f "$PID_FILE" ]]; then
@@ -65,14 +88,35 @@ get_pid_value() {
 	return 1
 }
 
-write_pid_state() {
+get_pid_value() {
+	read_pid_value_unlocked "$1"
+}
+
+write_pid_state_impl() {
 	local supervisor_pid="$1"
 	local server_pid="$2"
+	local model_pid="${3:-$(read_pid_value_unlocked model_pid || true)}"
+	local temp_file
 
-	cat > "$PID_FILE" <<EOF
+	ensure_log_dir
+	temp_file="$(mktemp "$LOG_DIR/server.pid.tmp.XXXXXX")"
+	cat > "$temp_file" <<EOF
 supervisor_pid=$supervisor_pid
 server_pid=$server_pid
+model_pid=$model_pid
 EOF
+	mv "$temp_file" "$PID_FILE"
+}
+
+write_pid_state() {
+	with_pid_lock write_pid_state_impl "$@"
+}
+
+set_model_pid() {
+	with_pid_lock write_pid_state_impl \
+		"$(read_pid_value_unlocked supervisor_pid || true)" \
+		"$(read_pid_value_unlocked server_pid || true)" \
+		"$1"
 }
 
 get_supervisor_pid() {
@@ -106,6 +150,7 @@ get_server_pid() {
 }
 
 run_server_supervisor() {
+	ensure_log_dir
 	cd "$APP_DIR"
 	write_pid_state "$$" ""
 	while true; do
@@ -125,6 +170,7 @@ start_server_supervisor() {
 		return 0
 	fi
 
+	ensure_log_dir
 	nohup "$SELF_SCRIPT" __supervise >/dev/null 2>&1 &
 	write_pid_state "$!" ""
 	echo "Started server supervisor (PID $(get_supervisor_pid)). Logs: $LOG_FILE"
@@ -147,12 +193,13 @@ stop_server_supervisor() {
 		kill "$server_pid" 2>/dev/null || true
 	fi
 
-	rm -f "$PID_FILE"
+	rm -f "$PID_FILE" "$PID_LOCK_FILE"
 }
 
 start_model_service() {
 	if [[ -n "$MODEL_SCRIPT" && -x "$MODEL_SCRIPT" ]]; then
-		"$MODEL_SCRIPT" start
+		PID_STATE_FILE="$PID_FILE" PID_LOCK_FILE="$PID_LOCK_FILE" MODEL_API_LOG_FILE="$MODEL_LOG_FILE" \
+			"$MODEL_SCRIPT" start
 	else
 		echo "Model service script not found, skipped."
 	fi
@@ -160,7 +207,8 @@ start_model_service() {
 
 stop_model_service() {
 	if [[ -n "$MODEL_SCRIPT" && -x "$MODEL_SCRIPT" ]]; then
-		"$MODEL_SCRIPT" stop || true
+		PID_STATE_FILE="$PID_FILE" PID_LOCK_FILE="$PID_LOCK_FILE" MODEL_API_LOG_FILE="$MODEL_LOG_FILE" \
+			"$MODEL_SCRIPT" stop || true
 	fi
 }
 
@@ -180,7 +228,8 @@ show_status() {
 	fi
 
 	if [[ -n "$MODEL_SCRIPT" && -x "$MODEL_SCRIPT" ]]; then
-		"$MODEL_SCRIPT" status
+		PID_STATE_FILE="$PID_FILE" PID_LOCK_FILE="$PID_LOCK_FILE" MODEL_API_LOG_FILE="$MODEL_LOG_FILE" \
+			"$MODEL_SCRIPT" status
 	else
 		echo "Model service script not found."
 	fi

@@ -2,15 +2,29 @@
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(cd "$script_dir/../.." && pwd)"
-runtimedir="$repo_root/build/app/serving"
+app_root="$(cd "$script_dir/.." && pwd)"
+repo_root="$(cd "$app_root/.." && pwd)"
+project_root="$repo_root"
+
+if [[ ! -f "$project_root/CMakeLists.txt" && -f "$project_root/../CMakeLists.txt" ]]; then
+	project_root="$(cd "$project_root/.." && pwd)"
+fi
+
+if [[ -f "$repo_root/CMakeCache.txt" || -d "$repo_root/CMakeFiles" ]]; then
+	work_root="$repo_root"
+	runtimedir="$app_root/serving"
+else
+	work_root="$project_root"
+	runtimedir="$project_root/build/app/serving"
+fi
+
 pid_file="$runtimedir/model_api.pid"
 log_file="$runtimedir/model_api.log"
 host="${MODEL_API_HOST:-127.0.0.1}"
 port="${MODEL_API_PORT:-8000}"
 mode="${1:-fg}"
 
-cd "$repo_root"
+cd "$work_root"
 mkdir -p "$runtimedir"
 
 python_cmd=("python3")
@@ -37,8 +51,8 @@ resolve_python_cmd() {
 		fi
 	fi
 
-	if [[ -x "$repo_root/.venv/bin/python" ]]; then
-		python_cmd=("$repo_root/.venv/bin/python")
+	if [[ -x "$project_root/.venv/bin/python" ]]; then
+		python_cmd=("$project_root/.venv/bin/python")
 		python_source="project .venv"
 	fi
 }

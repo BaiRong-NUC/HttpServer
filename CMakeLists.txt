@@ -49,12 +49,28 @@ if(BUILD_APP)
 	file(GLOB APP_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp)
 	file(GLOB APP_SRC_CPP_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/src/*.cpp)
 	file(GLOB_RECURSE APP_WWWROOT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot/*)
+	file(GLOB_RECURSE APP_SERVING_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/serving/*)
+	file(GLOB_RECURSE APP_ARTIFACT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/artifacts/*)
 
 	add_custom_target(sync_app_wwwroot ALL
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
 		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot ${CMAKE_BINARY_DIR}/app/wwwroot
 		DEPENDS ${APP_WWWROOT_FILES}
 		COMMENT "Sync app static assets to build/app/wwwroot"
+	)
+
+	add_custom_target(sync_app_serving ALL
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/serving
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/serving ${CMAKE_BINARY_DIR}/app/serving
+		DEPENDS ${APP_SERVING_FILES}
+		COMMENT "Sync model serving files to build/app/serving"
+	)
+
+	add_custom_target(sync_app_artifacts ALL
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/artifacts
+		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/app/artifacts ${CMAKE_BINARY_DIR}/app/artifacts
+		DEPENDS ${APP_ARTIFACT_FILES}
+		COMMENT "Sync model artifacts to build/app/artifacts"
 	)
 
 	foreach(APP_CPP_FILE ${APP_CPP_FILES})
@@ -69,6 +85,7 @@ if(BUILD_APP)
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app
 		)
 		add_dependencies(${APP_TARGET_NAME} sync_app_wwwroot)
+		add_dependencies(${APP_TARGET_NAME} sync_app_serving sync_app_artifacts)
 	endforeach()
 endif()
 

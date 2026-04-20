@@ -1,34 +1,44 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 BUILD_DIR="build"
+BUILD_APP_DIR="./build/app"
+BUILD_LOG_DIR="$BUILD_APP_DIR/log"
+LOOP_SCRIPT="$BUILD_APP_DIR/loop.sh"
+BUILD_MODEL_SCRIPT="$BUILD_APP_DIR/serving/run_model.sh"
+SOURCE_MODEL_SCRIPT="./app/serving/run_model.sh"
 
+run_stop_script() {
+	local script_path="$1"
+	local description="$2"
+	shift 2
 
-# 在重构/构建前先尝试停止模型服务（FastAPI）和 loop 脚本
-# 先停止模型服务，以避免占用端口或出现文件被占用的问题
-MODEL_SCRIPT="./app/serving/run_model.sh"
-if [ -f "$MODEL_SCRIPT" ]; then
-	if [ -x "$MODEL_SCRIPT" ]; then
-		echo "发现 $MODEL_SCRIPT，尝试停止模型服务..."
- 		"$MODEL_SCRIPT" stop || echo "警告：停止模型服务返回非零状态"
- 	else
- 		echo "发现 $MODEL_SCRIPT，但没有可执行权限，正在添加权限并停止..."
- 		chmod +x "$MODEL_SCRIPT" || echo "警告：无法为 $MODEL_SCRIPT 添加执行权限"
- 		"$MODEL_SCRIPT" stop || echo "警告：停止模型服务返回非零状态"
- 	fi
-fi
+	if [[ ! -f "$script_path" ]]; then
+		return 1
+	fi
 
-# 如果正在运行 loop 脚本，先停止它
-LOOP_SCRIPT="./build/app/loop.sh"
-if [ -f "$LOOP_SCRIPT" ]; then
-	if [ -x "$LOOP_SCRIPT" ]; then
-		echo "发现 $LOOP_SCRIPT，尝试停止..."
-		"$LOOP_SCRIPT" stop || echo "警告：停止命令返回非零状态"
-	else
-		echo "发现 $LOOP_SCRIPT，但没有可执行权限，正在添加权限并停止..."
-		chmod +x "$LOOP_SCRIPT" || echo "警告：无法为 $LOOP_SCRIPT 添加执行权限"
-		"$LOOP_SCRIPT" stop || echo "警告：停止命令返回非零状态"
+	if [[ ! -x "$script_path" ]]; then
+		echo "发现 $script_path，但没有可执行权限，正在添加权限并执行..."
+		chmod +x "$script_path" || echo "警告：无法为 $script_path 添加执行权限"
+	fi
+
+	echo "发现 $script_path，尝试${description}..."
+	"$script_path" "$@"
+	return 0
+}
+
+# 先停止 build/app/loop.sh，由它统一停掉 C++ 服务和模型服务。
+if ! run_stop_script "$LOOP_SCRIPT" "停止整套服务" stop; then
+	# 如果 loop 脚本不可用，再退回到模型脚本本身，并显式指向 build/app/log 的状态文件。
+	if ! PID_STATE_FILE="$BUILD_LOG_DIR/server.pid" \
+		PID_LOCK_FILE="$BUILD_LOG_DIR/.server.pid.lock" \
+		MODEL_API_LOG_FILE="$BUILD_LOG_DIR/model_api.log" \
+		run_stop_script "$BUILD_MODEL_SCRIPT" "停止模型服务" stop; then
+		PID_STATE_FILE="$BUILD_LOG_DIR/server.pid" \
+		PID_LOCK_FILE="$BUILD_LOG_DIR/.server.pid.lock" \
+		MODEL_API_LOG_FILE="$BUILD_LOG_DIR/model_api.log" \
+			run_stop_script "$SOURCE_MODEL_SCRIPT" "停止模型服务" stop || true
 	fi
 fi
 
@@ -40,11 +50,9 @@ fi
 
 # 创建构建目录
 mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
 
 # 运行 cmake 和 make
-cmake ..
-make -j$(nproc)
+cmake -S . -B "$BUILD_DIR"
+cmake --build "$BUILD_DIR" -j"$(nproc)"
 
-cd ..
 echo "重新构建完成！"

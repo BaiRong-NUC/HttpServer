@@ -180,7 +180,8 @@
                 <section class="footer-card ui-card ui-card--glass">
                     <h3>如何启动项目</h3>
                     <p class="cmd-note">
-                        在项目根目录执行以下命令以构建项目（复制粘贴即可）：
+                        在项目根目录执行以下命令完成构建，构建后会把网页资源、模型服务与模型产物同步到
+                        build/app：
                     </p>
                     <pre
                         class="ui-output ui-output--command"
@@ -191,18 +192,25 @@ cmake --build build -j
 # 或者：
 ./rebuild.sh</code></pre>
 
-                    <p class="cmd-note">使用示例脚本快速启动 / 停止服务器：</p>
+                    <p class="cmd-note">
+                        使用构建目录下的统一脚本启动、查看状态并停止整套服务：
+                    </p>
                     <pre
                         class="ui-output ui-output--command"
                         aria-label="启动停止脚本"
-                    ><code>./app/loop.sh start
-./app/loop.sh stop</code></pre>
+                    ><code>./build/app/loop.sh start
+./build/app/loop.sh status
+./build/app/loop.sh stop</code></pre>
+
+                    <p class="cmd-note">
+                        上面的脚本会同时管理 C++ HttpServer 和 Python
+                        模型服务；模型服务默认优先使用 conda 的 web 环境。
+                    </p>
 
                     <p class="cmd-note">
                         更多信息请查看项目根目录的
-                        <code>README.md</code>;也可使用
-                        <code>server_api.sh</code> 和
-                        <code>client_api.sh</code> 进行 TcpServer API 测试。
+                        <code>README.md</code> 与
+                        <code>app/serving/README.md</code>。
                     </p>
                 </section>
             </footer>

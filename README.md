@@ -1,130 +1,167 @@
 # HttpServer 项目说明
 
-## 一、项目使用模型
+轻量级的 C++ 高性能事件驱动 HttpServer 示例，采用 Reactor 和 epoll 模型，并集成了一个基于 FastAPI 的模型服务示例。
 
-### 1. 多Reactor多线程模型（主从Reactor）
+## 一、项目模型
 
-- 一个Reactor线程专门负责监听事件，其他Reactor线程进行IO处理。
-- IO Reactor线程将数据分发给线程池进行业务处理。
+### 1. 多 Reactor 多线程模型
 
-> 注意：执行流不宜过多，过多会导致线程切换频繁，降低性能。业务处理由IO Reactor线程完成，本HttpServer未添加线程池。
+- 一个 Reactor 线程负责监听新连接。
+- 其他 Reactor 线程负责 I/O 事件处理。
+- 连接的读写、超时和回调处理都在所属 EventLoop 中完成，保证线程安全。
 
-## 二、项目模块划分
+注意：线程数并不是越多越好，线程切换过多会拖累吞吐。本项目当前重点在网络库结构与服务集成，没有额外加入业务线程池。
 
-### 1. Server模块（Reactor模型TCP服务器）
+## 二、核心模块
 
-- **Socket模块**：封装套接字相关操作（创建、绑定、监听、连接、发送、接收、释放等）。
-- **Channel模块**：文件描述符IO事件管理，触发事件时调用回调处理。
-- **Connection模块**：通信连接管理（新建、关闭、超时、数据收发、连接过程函数等）。
-- **Acceptor模块**：监听套接字事件，接受新连接，封装Connection对象，设置回调。
-- **TimerQueue模块**：定时任务管理，连接超时关闭等。
-- **Poller模块**：epoll事件封装，事件注册与分发。
-- **EventLoop模块**：事件监控管理，一个模块一个线程，所有连接操作都在EventLoop中完成，保证线程安全。
-- **TcpServer模块**：服务器整体管理，对外用户接口，快速搭建服务器，用户可设置回调函数。
+### 1. Server 模块
 
-#### 1.1 Server模块性能测试(webbench)
+- Socket 模块：封装创建、绑定、监听、发送、接收和关闭等套接字操作。
+- Channel 模块：管理文件描述符关心的 I/O 事件，并在事件触发时执行回调。
+- Connection 模块：管理连接生命周期、数据收发和超时处理。
+- Acceptor 模块：负责接收新连接并交给 TcpServer。
+- Timer 模块：负责定时任务和连接超时回收。
+- Poller 模块：封装 epoll 的注册、等待与分发。
+- EventLoop 模块：驱动一个线程内的事件循环。
+- TcpServer 模块：对外提供服务启动和回调配置入口。
 
-> 测试命令（忽略带宽，简单测试）：
+### 2. Model Serving 模块
+
+- 基于 FastAPI 和 Uvicorn 提供模型预测接口。
+- 构建时会把 app/serving 同步到 build/app/serving。
+- 构建时会把 app/artifacts 同步到 build/app/artifacts。
+- 默认由 build/app/loop.sh 联动启动和停止。
+
+## 三、目录概览
+
+- include 和 src：网络库与协议实现。
+- app：示例业务、网页资源、模型服务脚本与模型产物。
+- build/app：构建后的运行目录，包含 server、loop.sh、serving、artifacts 和 wwwroot。
+- api_test：开发阶段的 API 示例与验证代码。
+- test：客户端与错误场景测试程序。
+
+## 四、快速开始
+
+### 1. 安装模型服务依赖
+
+推荐安装到 conda 的 web 环境中：
 
 ```bash
-./webbench -c 100 -t 30 http://127.0.0.1:8085/
+conda activate web
+pip install -r app/serving/requirements.txt
 ```
 
-> 测试结果示例：
+如果没有 web 环境，模型服务脚本会继续尝试使用项目根目录下的 .venv；两者都没有时才回退到系统 python3。
 
-````
-Webbench - Simple Web Benchmark 1.5
-Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
-
-Request:
-GET / HTTP/1.0
-User-Agent: WebBench 1.5
-Host: 127.0.0.1
-
-Running info: 100 clients, running 30 sec.
-
-Speed = 426 pages/min, 256 bytes/sec.
-# HttpServer
-
-轻量级的 C++ 高性能事件驱动 HttpServer 示例，采用 Reactor/epoll 模型，便于学习网络库设计与快速构建基础 HTTP 服务。
-
-## 主要特点
-
-- 基于 Reactor 的事件调度（epoll）
-- 清晰的模块划分：Socket / Channel / Connection / EventLoop / Poller / TcpServer
-- 支持静态文件服务与简单动态路由示例
-- 可复用的工具与协议模块（位于 `include/` 与 `protocol/`）
-
-## 设计简介
-
-- 主从 Reactor 思路：一个主 Reactor 负责监听与接收，新连接分配到 IO Reactor（或同一线程）进行读写处理。
-- `EventLoop` 保证每个连接的操作在所属线程/循环中执行，简化并发控制和线程安全。
-
-## 模块概览
-
-- `src/server`：事件循环与服务器实现核心。
-- `app`：示例应用入口与脚本（`loop.sh` 用于启动/停止示例服务）。
-- `api_test`：用于快速验证各模块行为的测试用例与示例。
-- `include/protocol`：HTTP 等协议相关头文件和解析实现。
-
-## 快速开始（Linux）
-
-1. 在项目根目录构建：
+### 2. 构建项目
 
 ```bash
 mkdir -p build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
-````
+```
 
-或使用仓库提供的脚本快速构建：
+或直接执行：
 
 ```bash
 ./rebuild.sh
 ```
 
-2. 启动/停止示例服务：
+### 3. 启动整套服务
+
+构建完成后，推荐直接从 build/app 启动：
 
 ```bash
-# 启动（在项目根或任意位置执行）
-./app/loop.sh start
-
-# 停止
-./app/loop.sh stop
-
-注意: kill 命令可能会导致服务器自动重启;
-需要使用 `pkill -f server_supervisor.sh` 停止保活进程。
+./build/app/loop.sh start
+./build/app/loop.sh status
+./build/app/loop.sh stop
 ```
 
-3. 直接运行可执行文件（构建后）：
+说明：
+
+- start 会同时启动 C++ HttpServer 和 Python 模型服务。
+- status 会同时显示两个服务的状态，并打印模型服务当前选择的 Python 来源。
+- stop 会同时停止两个服务，不需要再手动执行额外的 kill 命令。
+
+### 4. 仅启动模型服务
 
 ```bash
-./build/app/server
+./build/app/serving/run_model.sh start
+./build/app/serving/run_model.sh status
+./build/app/serving/run_model.sh stop
 ```
 
-## 测试与压测
+## 五、测试与压测
 
-- 使用提供的脚本进行 API 测试：`server_api.sh`、`client_api.sh`。
-- 使用 `webbench` 做简单并发压测：
+### 1. 压测 HttpServer
 
 ```bash
 ./webbench -c 100 -t 30 http://127.0.0.1:8085/
 ```
 
-## 常用脚本与位置
+本地压测步骤：
 
-- 启动脚本：`app/loop.sh`
-- 演示可执行：`build/app/server`（构建产物）
-- API 测试：`api_test/` 目录下的示例
-- test 目录：编写客户端,主要为了验证服务器的各种功能是否正常
-- build/app/server_supervisor.sh: 服务器保活脚本,当服务器异常退出时会自动重启服务器
+```bash
+# 1. 启动服务
+./build/app/loop.sh start
 
-## 在线访问app演示
+# 2. 对首页执行 30 秒压测
+./webbench -c 100 -t 30 http://127.0.0.1:8085/
 
-访问示例构建的app服务(公网示例):
+# 3. 测试结束后停止服务
+./build/app/loop.sh stop
+```
+
+本次压测环境：
+
+- 操作系统：Linux 6.17.0-20-generic x86_64 GNU/Linux
+- CPU：Intel(R) Core(TM) Ultra 9 285H
+- 逻辑 CPU 数：16
+- 内存：30 GiB
+- 构建方式：Debug
+- 压测工具：仓库内置 webbench 1.5
+- 压测目标：本机回环地址 http://127.0.0.1:8085/
+
+本次本地实测结果：
+
+```text
+Webbench - Simple Web Benchmark 1.5
+Runing info: 100 clients, running 30 sec.
+
+Speed=1328 pages/min, 395312 bytes/sec.
+Requests: 664 susceed, 0 failed.
+```
+
+说明：
+
+- 这组数据是在本机回环网络下得到的，主要反映当前开发机构建下的本地处理能力。
+
+### 2. 测试模型接口
+
+```bash
+curl -X POST "http://127.0.0.1:8000/predict" \
+	-H "Content-Type: application/json" \
+	-d '{"features":[6,148,72,35,0,33.6,0.627,50]}'
+```
+
+模型接口当前要求传入 8 个基础特征，顺序为：Pregnancies、Glucose、BloodPressure、SkinThickness、Insulin、BMI、DiabetesPedigreeFunction、Age。
+
+## 六、常用产物与脚本
+
+- [build/app/loop.sh](build/app/loop.sh)：整套服务的统一启动、停止、状态脚本。
+- [build/app/server](build/app/server)：C++ HttpServer 可执行文件。
+- [build/app/serving/run_model.sh](build/app/serving/run_model.sh)：模型服务独立启动脚本。
+- [build/app/wwwroot](build/app/wwwroot)：同步后的前端静态资源。
+- [build/app/artifacts](build/app/artifacts)：同步后的模型与预处理器文件。
+
+## 七、在线演示
+
+示例页面：
 
 http://38.190.254.70:8085/http_server.html
 
-## 扩展
+## 八、扩展方向
 
-在 `protocol/` 下添加新的协议模块，或在 `app/src` 中扩展业务逻辑
+- 在 protocol 下添加新的协议模块。
+- 在 app/src 中扩展业务逻辑。
+- 在 app/serving 中扩展模型预处理和预测接口。

@@ -23,14 +23,6 @@ let _prevFocus = null;
 let _scrollY = 0;
 let _prevBodyStyles = {};
 
-function setStatus(text, isError = false) {
-    statusEl.textContent = text;
-    statusEl.style.background = isError
-        ? "rgba(220,106,86,.15)"
-        : "rgba(25,114,120,.1)";
-    statusEl.style.color = isError ? "#8b2b18" : "#0f646a";
-}
-
 function fillExampleValues() {
     fieldIds.forEach((id, i) => {
         document.getElementById(id).value = String(exampleFeatures[i]);
@@ -216,54 +208,30 @@ document.getElementById("result-repredict").addEventListener("click", () => {
 /* -------- 预测请求 -------- */
 async function runPredict(features) {
     const payload = { features };
-    setStatus("请求中...");
-    outputEl.textContent = "";
-
-    try {
-        const resp = await fetch("/ml_predict", {
+    const result = await HttpApi.runTextRequest({
+        url: "/ml_predict",
+        options: {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
-        });
+        },
+        title: "POST /ml_predict",
+        outputEl,
+        statusEl,
+        requestBody: payload,
+        responseTextFormatter: (text) => {
+            const parsed = HttpApi.tryParseJson(text);
+            return parsed ? JSON.stringify(parsed, null, 2) : text;
+        },
+    });
 
-        const text = await resp.text();
-        setStatus(`完成: ${resp.status} ${resp.statusText}`);
-        // 尝试把后端返回的 JSON 格式化为多行，便于在移动端换行显示
-        let formattedResp = text;
-        try {
-            const parsed = JSON.parse(text);
-            formattedResp = JSON.stringify(parsed, null, 2);
-        } catch (e) {
-            // 非 JSON 响应则保留原始文本
-        }
+    if (!result.ok) {
+        return;
+    }
 
-        outputEl.textContent = [
-            "[POST /ml_predict]",
-            "URL: /ml_predict",
-            "METHOD: POST",
-            `STATUS: ${resp.status} ${resp.statusText}`,
-            "",
-            "REQUEST:",
-            JSON.stringify(payload, null, 2),
-            "",
-            "RESPONSE:",
-            formattedResp,
-        ].join("\n");
-
-        try {
-            const data = JSON.parse(text);
-            if ("label" in data && "probability" in data) showResult(data);
-        } catch (_) {}
-    } catch (err) {
-        setStatus("请求失败", true);
-        outputEl.textContent = [
-            "[POST /ml_predict]",
-            "URL: /ml_predict",
-            "METHOD: POST",
-            "",
-            "ERROR:",
-            err instanceof Error ? err.message : String(err),
-        ].join("\n");
+    const data = HttpApi.tryParseJson(result.text);
+    if (data && "label" in data && "probability" in data) {
+        showResult(data);
     }
 }
 
@@ -272,14 +240,14 @@ formEl.addEventListener("submit", async (e) => {
     try {
         await runPredict(collectFeatures());
     } catch (err) {
-        setStatus("输入有误", true);
+        HttpApi.setStatus(statusEl, "输入有误", true);
         outputEl.textContent = err instanceof Error ? err.message : String(err);
     }
 });
 
 exampleBtn.addEventListener("click", () => {
     fillExampleValues();
-    setStatus("示例数据已填充");
+    HttpApi.setStatus(statusEl, "示例数据已填充");
 });
 
 fillExampleValues();

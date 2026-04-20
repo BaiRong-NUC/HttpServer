@@ -1,92 +1,47 @@
 :root {
-    --bg-1: #f8f3e8;
-    --bg-2: #dfe8f1;
-    --bg-3: #ffe1d0;
-    --ink: #1b1f2a;
-    --ink-soft: #4a5568;
+    --page-font-family: Manrope, "PingFang SC", sans-serif;
+    --orb-one-color: rgba(25, 114, 120, 0.18);
+    --orb-two-color: rgba(228, 87, 46, 0.16);
     --card: rgba(255, 255, 255, 0.78);
     --line: rgba(27, 31, 42, 0.12);
-    --accent: #e4572e;
-    --accent-2: #197278;
     --radius-xl: 20px;
     --radius-md: 12px;
     --shadow: 0 18px 40px rgba(26, 32, 44, 0.12);
 }
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
 body {
-    min-height: 100vh;
-    font-family: Manrope, "PingFang SC", sans-serif;
-    color: var(--ink);
-    background:
-        radial-gradient(
-            circle at 8% 12%,
-            rgba(25, 114, 120, 0.18),
-            transparent 36%
-        ),
-        radial-gradient(
-            circle at 86% 10%,
-            rgba(228, 87, 46, 0.16),
-            transparent 30%
-        ),
-        linear-gradient(120deg, var(--bg-1), var(--bg-2) 52%, var(--bg-3));
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
     padding: 28px;
-}
-.orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(1px);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
 }
 .orb.one {
     width: 200px;
     height: 200px;
     left: -60px;
     top: 18%;
-    background: rgba(25, 114, 120, 0.2);
 }
 .orb.two {
     width: 260px;
     height: 260px;
     right: -90px;
     top: 58%;
-    background: rgba(228, 87, 46, 0.18);
 }
 .container {
     max-width: 980px;
     margin: 0 auto;
-    position: relative;
-    z-index: 1;
 }
 header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     margin-bottom: 18px;
     max-width: 880px;
     margin-left: auto;
     margin-right: auto;
 }
 .logo {
-    font-family: "ZCOOL XiaoWei", serif;
     font-size: 1.4rem;
-    color: var(--ink);
-    text-decoration: none;
 }
 .badge {
     background: rgba(25, 114, 120, 0.1);
     border: 1px solid rgba(25, 114, 120, 0.2);
     color: #114e52;
     padding: 6px 12px;
-    border-radius: 999px;
-    font-weight: 700;
 }
 .resume {
     display: grid;
@@ -125,15 +80,9 @@ header {
     margin-top: 16px;
 }
 .btn {
-    border: none;
-    border-radius: 999px;
     padding: 10px 14px;
-    font-weight: 700;
-    cursor: pointer;
 }
 .btn-primary {
-    background: linear-gradient(110deg, #e4572e, #f0904a);
-    color: #fff;
     transition:
         opacity 0.15s ease,
         transform 0.1s ease;

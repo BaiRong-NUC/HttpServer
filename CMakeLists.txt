@@ -109,7 +109,12 @@ if(BUILD_APP)
 	# 在配置阶段将 loop.sh 复制到 build/app，并设置可执行权限(避免并行构建时的 cmake -E 竞态)
 	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/app)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/app/loop.sh ${CMAKE_BINARY_DIR}/app/loop.sh COPYONLY)
-	execute_process(COMMAND ${CMAKE_COMMAND} -E chmod +x ${CMAKE_BINARY_DIR}/app/loop.sh)
+	file(CHMOD ${CMAKE_BINARY_DIR}/app/loop.sh
+		PERMISSIONS
+			OWNER_READ OWNER_WRITE OWNER_EXECUTE
+			GROUP_READ GROUP_EXECUTE
+			WORLD_READ WORLD_EXECUTE
+	)
 endif()
 
 # 编译开发阶段的 API 测试代码

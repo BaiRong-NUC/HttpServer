@@ -141,6 +141,38 @@ header {
 .section {
     margin-top: 20px;
 }
+
+.social-links {
+    margin-top: 16px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.social-links .muted {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.social-links .ui-link {
+    min-width: 0;
+}
+
+.social-links .ui-link span {
+    overflow-wrap: anywhere;
+}
+
+.project ul,
+.section ul.muted {
+    padding-left: 18px;
+}
+
+.project li,
+.section ul.muted li {
+    margin-top: 6px;
+}
 h3 {
     font-size: 1.02rem;
     margin-bottom: 8px;
@@ -292,6 +324,26 @@ footer {
     .muted {
         font-size: 0.85rem;
     }
+
+    .social-links {
+        gap: 12px;
+    }
+
+    .social-links .muted {
+        width: 100%;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .social-links .ui-link {
+        display: inline-flex;
+        align-items: flex-start;
+    }
+
+    .social-links .ui-link span {
+        line-height: 1.5;
+    }
+
     /* 确保日期正常显示 */
     .experience {
         gap: 12px;
@@ -299,6 +351,33 @@ footer {
 }
 
 @media (max-width: 620px) {
+    body {
+        padding: 10px;
+    }
+
+    header {
+        margin-bottom: 14px;
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 1.18rem;
+    }
+
+    .badge {
+        padding: 5px 10px;
+        font-size: 0.78rem;
+    }
+
+    .resume {
+        gap: 12px;
+    }
+
+    .main {
+        padding: 16px;
+        border-radius: 18px;
+    }
+
     .profile-hero {
         grid-template-columns: minmax(0, 1fr) auto;
         grid-template-areas:
@@ -331,6 +410,7 @@ footer {
     .lead {
         grid-area: lead;
         margin-top: 6px;
+        line-height: 1.65;
     }
 
     .profile-photo-card {
@@ -344,6 +424,95 @@ footer {
 
     .profile-photo {
         border-radius: 16px;
+    }
+
+    .section {
+        margin-top: 14px;
+    }
+
+    .section-header {
+        gap: 12px;
+        align-items: center;
+    }
+
+    .btn-compact {
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+
+    .contact-grid {
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .info-block {
+        padding: 12px 11px;
+        border-radius: 12px;
+    }
+
+    .social-links {
+        margin-top: 14px;
+        gap: 10px;
+    }
+
+    .social-links .muted {
+        font-size: 0.82rem;
+    }
+
+    .social-links .ui-link {
+        gap: 6px;
+    }
+
+    .skills {
+        gap: 8px;
+    }
+
+    .skill-tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+    }
+
+    .project .proj-meta {
+        line-height: 1.5;
+    }
+
+    .project ul,
+    .section ul.muted {
+        padding-left: 16px;
+    }
+}
+
+@media (max-width: 420px) {
+    .profile-hero {
+        grid-template-columns: minmax(0, 1fr) 96px;
+        column-gap: 10px;
+    }
+
+    .name {
+        font-size: 1.28rem;
+    }
+
+    .title {
+        font-size: 0.68rem;
+        letter-spacing: -0.03em;
+    }
+
+    .profile-photo-card {
+        width: 96px;
+        padding: 6px;
+        border-radius: 18px;
+    }
+
+    .profile-photo {
+        border-radius: 14px;
+    }
+
+    .section-header {
+        flex-wrap: wrap;
+    }
+
+    .section-header .btn {
+        width: 100%;
     }
 }
 

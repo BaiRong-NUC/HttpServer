@@ -299,8 +299,41 @@ footer {
 }
 
 @media (max-width: 620px) {
+    .profile-hero {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "name photo"
+            "title photo"
+            "lead lead";
+        column-gap: 12px;
+        row-gap: 8px;
+        align-items: start;
+    }
+
+    .profile-copy {
+        display: contents;
+    }
+
+    .name {
+        grid-area: name;
+        margin: 0;
+    }
+
+    .title {
+        grid-area: title;
+        margin-top: 0;
+    }
+
+    .lead {
+        grid-area: lead;
+        margin-top: 6px;
+    }
+
     .profile-photo-card {
-        width: min(168px, 46vw);
+        grid-area: photo;
+        justify-self: end;
+        align-self: start;
+        width: min(132px, 32vw);
         padding: 8px;
         border-radius: 22px;
     }

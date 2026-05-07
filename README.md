@@ -158,6 +158,27 @@ Requests: 664 susceed, 0 failed.
 
 - 这组数据是在本机回环网络下得到的，主要反映当前开发机构建下的本地处理能力。
 
+远端公网地址压测命令：
+
+```bash
+./webbench -c 100 -t 30 http://38.190.254.70:8085/
+```
+
+本次远端实测结果：
+
+```text
+Webbench - Simple Web Benchmark 1.5
+Runing info: 100 clients, running 30 sec.
+
+Speed=3826 pages/min, 1143870 bytes/sec.
+Requests: 1913 susceed, 0 failed.
+```
+
+说明：
+
+- 这组数据是从当前机器对公网地址 http://38.190.254.70:8085/ 发起的远端压测结果。
+- 本次测试同样使用 100 并发、持续 30 秒，结果包含公网链路和远端服务器环境带来的综合影响。
+
 ### 2. 测试模型接口
 
 ```bash

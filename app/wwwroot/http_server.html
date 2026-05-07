@@ -159,6 +159,38 @@
                 </article>
             </section>
 
+            <section class="benchmark-board ui-card ui-card--glass">
+                <div class="benchmark-copy">
+                    <span class="eyebrow">WebBench Result</span>
+                    <h2>公网首页压测结果</h2>
+                    <p>
+                        使用 100 并发、持续 30 秒，对公网地址
+                        http://38.190.254.70:8085/ 进行了首页压测。
+                    </p>
+                </div>
+                <div class="benchmark-grid">
+                    <div class="benchmark-item">
+                        <span class="benchmark-label">Target</span>
+                        <strong>38.190.254.70:8085</strong>
+                    </div>
+                    <div class="benchmark-item">
+                        <span class="benchmark-label">Speed</span>
+                        <strong>3826 pages/min</strong>
+                    </div>
+                    <div class="benchmark-item">
+                        <span class="benchmark-label">Throughput</span>
+                        <strong>1143870 bytes/sec</strong>
+                    </div>
+                    <div class="benchmark-item">
+                        <span class="benchmark-label">Requests</span>
+                        <strong>1913 success / 0 failed</strong>
+                    </div>
+                </div>
+                <pre
+                    class="ui-output ui-output--command"
+                ><code>./webbench -c 100 -t 30 http://38.190.254.70:8085/</code></pre>
+            </section>
+
             <section class="update-board" aria-label="recent updates">
                 <div class="update-header">
                     <span class="eyebrow">Recent Updates</span>

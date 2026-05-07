@@ -210,6 +210,58 @@ h1 span {
     gap: 16px;
 }
 
+.benchmark-board {
+    margin-top: 22px;
+    padding: 24px;
+    animation: reveal 1.1s ease both;
+}
+
+.benchmark-copy h2 {
+    margin-top: 10px;
+    font-size: clamp(1.45rem, 2vw, 1.9rem);
+}
+
+.benchmark-copy p {
+    margin-top: 10px;
+    color: var(--ink-soft);
+    line-height: 1.72;
+    max-width: 64ch;
+}
+
+.benchmark-grid {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.benchmark-item {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 253, 250, 0.86);
+    border: 1px solid rgba(27, 31, 42, 0.08);
+}
+
+.benchmark-label {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.benchmark-item strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 1rem;
+    line-height: 1.45;
+    color: #102a43;
+}
+
+.benchmark-board .ui-output {
+    margin-top: 16px;
+}
+
 .update-board {
     margin-top: 22px;
 }
@@ -382,6 +434,10 @@ footer {
         grid-template-columns: 1fr 1fr;
     }
 
+    .benchmark-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .update-grid {
         grid-template-columns: 1fr;
     }
@@ -407,6 +463,10 @@ footer {
     }
 
     .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .benchmark-grid {
         grid-template-columns: 1fr;
     }
 

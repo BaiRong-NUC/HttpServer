@@ -210,6 +210,63 @@ h1 span {
     gap: 16px;
 }
 
+.update-board {
+    margin-top: 22px;
+}
+
+.update-header {
+    margin-bottom: 14px;
+    padding: 0 2px;
+}
+
+.update-header h2 {
+    margin-top: 10px;
+    font-size: clamp(1.5rem, 2vw, 2rem);
+    line-height: 1.15;
+}
+
+.update-header p {
+    margin-top: 10px;
+    color: var(--ink-soft);
+    line-height: 1.75;
+    max-width: 70ch;
+}
+
+.update-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.update-card {
+    padding: 22px;
+    animation: reveal 1.15s ease both;
+}
+
+.update-card strong {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(25, 114, 120, 0.1);
+    color: #0f646a;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.update-card h3 {
+    margin-top: 14px;
+    font-size: 1.02rem;
+}
+
+.update-card p {
+    margin-top: 10px;
+    color: var(--ink-soft);
+    line-height: 1.72;
+    font-size: 0.93rem;
+}
+
 .feature,
 .metric,
 .footer-card {
@@ -325,6 +382,10 @@ footer {
         grid-template-columns: 1fr 1fr;
     }
 
+    .update-grid {
+        grid-template-columns: 1fr;
+    }
+
     footer {
         grid-template-columns: 1fr;
     }
@@ -339,7 +400,8 @@ footer {
     .hero-side,
     .feature,
     .metric,
-    .footer-card {
+    .footer-card,
+    .update-card {
         border-radius: 18px;
         padding: 16px;
     }

@@ -252,8 +252,7 @@
                                 </div>
 
                                 <div class="muted" style="margin-top: 8px">
-                                    设计并实现了基于主从Reactor模型的高性能服务器框架,支持多线程与异步
-                                    I/O,模块化协议解析,并可同时作为静态库 SDK 与可运行应用目录分发。
+                                    设计并实现了基于主从Reactor模型的高性能服务器框架,将业务线程池统一上提到 TcpServer,并通过连接级任务分发、注册期正则预编译与准确时间轮回收控制请求处理成本。
                                 </div>
 
                                 <ul
@@ -261,18 +260,16 @@
                                     style="margin-top: 8px; margin-left: 18px"
                                 >
                                     <li>
-                                        主从 Reactor
-                                        分工:主线程接受连接，从线程池处理事件与业务回调。
+                                        主从 Reactor 与业务线程池分层: Reactor 线程负责 I/O 状态操作,耗时业务只通过 message_callback 投递到固定 worker。
                                     </li>
                                     <li>
-                                        可插拔协议解析(内置
-                                        HTTP)支持静态/动态请求处理
+                                        HTTP 路由在注册阶段预编译正则,请求到来时只做 regex_match,避免每次请求重复编译。
                                     </li>
                                     <li>
-                                        构建后 build/lib 提供 libhttpserver.a 与 include, 可作为SDK集成,build/app 目录提供可执行文件 server 和loop.sh部署脚本
+                                        timerfd 累计超时计数已修正,30 秒非活跃连接会按真实秒数回收,长耗时代理请求超时也已对齐到 10 分钟。
                                     </li>
                                     <li>
-                                        云服务器测试: 2核4G内存1000客户端30秒压测,Speed=1328 pages/min,采用nohup保活,服务器挂掉1秒后自动重启
+                                        线程池采用每个 worker 一把锁的桶式队列模型,避免全局任务队列锁的集中竞争;构建后仍可同时分发 build/lib SDK 与 build/app 运行目录。
                                     </li>
                                 </ul>
                         </div>

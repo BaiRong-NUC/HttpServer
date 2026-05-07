@@ -44,9 +44,13 @@
                 <article class="hero-main ui-card ui-card--glass">
                     <span class="eyebrow">部署成功 · 服务就绪</span>
                     <h1><span>HttpServer</span> 可以处理请求</h1>
-                    <p class="lead">基于 Reactor模型构建.</p>
                     <p class="lead">
-                        支持连接管理, 事件分发, 日志记录与协议扩展.
+                        基于主从
+                        Reactor、连接级任务分发与业务线程池统一调度构建。
+                    </p>
+                    <p class="lead">
+                        支持连接管理、事件分发、日志记录、协议扩展，以及注册期正则预编译的
+                        HTTP 路由匹配。
                     </p>
                     <div class="actions">
                         <a class="btn btn-primary" href="/">返回简历</a>
@@ -76,6 +80,12 @@
                                 <span class="label">Mode:</span>
                                 <span class="value">Build/App Runtime</span>
                             </div>
+                            <div class="line">
+                                <span class="label">BizPool:</span>
+                                <span class="value"
+                                    >Connection Hashed Workers</span
+                                >
+                            </div>
 
                             <div class="section">
                                 <strong>[Routes]</strong>
@@ -90,15 +100,19 @@
                             <div class="section">
                                 <strong>[Tips]</strong>
                                 <ol>
-                                    <li>用 <code>webbench</code> 做并发压测</li>
                                     <li>
-                                        拿
-                                        <code>build/lib</code>
-                                        中的静态库和头文件做手动集成
+                                        路由在注册阶段预编译
+                                        <code>std::regex</code>
                                     </li>
                                     <li>
-                                        复制 <code>build/app</code> 到其他 Linux
-                                        后安装依赖再运行
+                                        只把
+                                        <code>message_callback</code>
+                                        下沉到业务线程池，I/O 状态仍留在所属
+                                        Reactor 线程
+                                    </li>
+                                    <li>
+                                        任务按连接 id 固定分配到 worker，每个
+                                        worker 独立队列降低锁竞争
                                     </li>
                                 </ol>
                             </div>
@@ -145,6 +159,71 @@
                 </article>
             </section>
 
+            <section class="update-board" aria-label="recent updates">
+                <div class="update-header">
+                    <span class="eyebrow">Recent Updates</span>
+                    <h2>最近这次代码调整</h2>
+                    <p>
+                        这一轮主要围绕超时准确性、HTTP
+                        路由匹配开销、业务线程池的归属层次，以及线程池自身的并发安全做了收敛。
+                    </p>
+                </div>
+                <div class="update-grid">
+                    <article class="update-card ui-card ui-card--glass">
+                        <strong>Timer Wheel</strong>
+                        <h3>修正 timerfd 累计超时计数</h3>
+                        <p>
+                            timerfd 每次 read 返回的是累计超时次数，不是固定的 8
+                            次超时。现在时间轮按真实次数推进，30
+                            秒非活跃回收恢复为按真实秒数触发。
+                        </p>
+                        <p>
+                            图像恢复代理的连接超时也同步放宽到 600 秒，与 curl
+                            的 10 分钟超时保持一致。
+                        </p>
+                    </article>
+                    <article class="update-card ui-card ui-card--glass">
+                        <strong>HTTP Routing</strong>
+                        <h3>路由注册阶段预编译正则</h3>
+                        <p>
+                            Get、Post、Put、Delete 注册路由时就构造
+                            <code>std::regex</code>，请求到来后只执行
+                            <code>std::regex_match</code>。
+                        </p>
+                        <p>
+                            这样把正则编译成本前移到启动阶段，减少高并发下每次请求重复编译带来的开销。
+                        </p>
+                    </article>
+                    <article class="update-card ui-card ui-card--glass">
+                        <strong>Business Pool</strong>
+                        <h3>业务线程池上提到 TcpServer</h3>
+                        <p>
+                            TcpServer
+                            构造时统一创建业务线程池，并在建立连接时传给每个
+                            Connection。以后扩展自定义协议时，只要设置
+                            <code>message_callback</code>
+                            就能复用这套异步处理能力。
+                        </p>
+                    </article>
+                    <article class="update-card ui-card ui-card--glass">
+                        <strong>Thread Safety</strong>
+                        <h3>只下沉业务回调，不破坏 Reactor 串行 I/O</h3>
+                        <p>
+                            没有把 EventLoop 的全部任务改成线程池执行，因为
+                            Send、Close、EnableWrite、RemoveChannel 这类 I/O
+                            状态操作必须留在连接所属 Reactor 线程。
+                        </p>
+                        <p>
+                            现在只把
+                            <code>message_callback</code>
+                            投到业务线程池，投递前暂停读事件，处理完再切回原
+                            EventLoop 恢复读；线程池则采用每个 worker
+                            一把锁的桶式模型，而不是一个全局任务队列锁。
+                        </p>
+                    </article>
+                </div>
+            </section>
+
             <section
                 id="api-test"
                 class="api-lab ui-card ui-card--glass"
@@ -181,6 +260,14 @@
                 <section class="footer-card ui-card ui-card--glass">
                     <h3>项目路径</h3>
                     <p>/src/server 处理事件循环与连接</p>
+                    <p>
+                        /src/server/tcp_server.cpp 统一创建业务线程池并分发到
+                        Connection
+                    </p>
+                    <p>
+                        /src/protocol/http/http_server.cpp
+                        在路由注册阶段预编译正则
+                    </p>
                     <p>/build/lib 输出静态库与对外头文件</p>
                     <p>
                         /build/app 作为业务运行目录，/build/app/log 保存日志与

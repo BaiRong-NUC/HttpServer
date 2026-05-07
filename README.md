@@ -12,6 +12,8 @@
 
 注意：线程数并不是越多越好，线程切换过多会拖累吞吐。本项目当前重点在网络库结构与服务集成，没有额外加入业务线程池。
 
+当前实现已经补上业务线程池，但只用于承载用户的业务回调，不参与 Reactor 线程内必须串行执行的 I/O 状态变更。
+
 ## 二、核心模块
 
 ### 1. Server 模块
@@ -188,3 +190,37 @@ http://38.190.254.70:8085/http_server.html
 - 在 protocol 下添加新的协议模块。
 - 在 app/src 中扩展业务逻辑。
 - 在 app/serving 中扩展模型预处理和预测接口。
+
+## 九、近期更新
+
+### 1. 修正时间轮推进与代理超时配置
+
+- timerfd 每次 read 返回的是 8 字节的累计超时次数，时间轮现在按累计次数推进 Tick，不再把“读到 8 字节”误当成“发生 8 次超时”。
+- 修正后，30 秒非活跃连接超时会按真实秒数触发，不会再在约 4 秒内被提前回收。
+- 图像恢复代理的连接超时已经同步放宽到 600 秒，与 curl 的 10 分钟超时配置保持一致，避免长耗时请求被服务器侧提前中断。
+
+### 2. HTTP 路由正则改为注册期预编译
+
+- 路由注册仍然在 [include/protocol/http/http_server.h](include/protocol/http/http_server.h) 和 [src/protocol/http/http_server.cpp](src/protocol/http/http_server.cpp) 中完成。
+- Get、Post、Put、Delete 在注册路由时就构造 std::regex，请求到来时只做 std::regex_match，不再为每次请求重复编译正则。
+- 这样可以把正则构造成本前移到启动阶段，降低高并发场景下的请求路径匹配开销。
+
+### 3. 业务线程池上提到 TcpServer 层统一管理
+
+- 业务线程池已经从协议层移动到 [include/server/tcp_server.h](include/server/tcp_server.h) 与 [src/server/tcp_server.cpp](src/server/tcp_server.cpp)。
+- TcpServer 在构造时创建业务线程池，并在建立连接时把线程池指针传给每个 Connection。
+- 以后扩展自定义协议时，不需要在协议层重复实现线程池；只要像现在一样设置 message_callback，耗时业务就会被 Connection 统一投递到业务线程池。
+
+### 4. 保持 Reactor 单线程 I/O 模型，只把业务回调下沉到线程池
+
+- 没有把 [src/server/event_loop.cpp](src/server/event_loop.cpp) 中的 \_RunAllTasks() 整体改成线程池执行。
+- 原因是事件循环里的任务并不全是业务逻辑，很多任务属于 Send、Close、EnableWrite、RemoveChannel 这类必须在连接所属 Reactor 线程执行的 I/O 状态操作。
+- 如果直接把整个任务队列丢到线程池，会破坏连接的单线程模型，引入额外锁和竞态风险。
+- 当前做法是在 [src/server/connection.cpp](src/server/connection.cpp) 中只把 message_callback 投递到业务线程池；投递前先暂停该连接读事件，业务完成后再回到原 EventLoop 恢复读事件，避免同一连接的 Buffer 和 Context 被 Reactor 与业务线程同时访问。
+- 任务分配按连接 id 固定落到同一个 worker，每个 worker 维护独立队列，因此没有一个全局任务队列锁，锁竞争相对较低。
+
+### 5. 线程池改成每个 worker 一把锁的桶式并发模型
+
+- 线程池中的任务队列现在是跨线程共享的：Reactor 线程会在 Submit() 时向 worker 的 tasks 队列 push_back，worker 线程会从同一队列 pop_front，析构停止时还会修改 stopping 状态。
+- 这些操作如果不加锁，std::deque 会发生数据竞争，结果是未定义行为；轻则任务丢失，重则直接崩溃。
+- 当前实现不是使用一个全局大锁，而是每个 worker 自带一把互斥锁，既保证 tasks 队列和 stopping 状态的并发安全，也避免所有 worker 共用一把锁带来的集中竞争。

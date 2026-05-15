@@ -63,7 +63,7 @@ if(BUILD_APP)
 	file(GLOB_RECURSE APP_WWWROOT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot/*)
 	file(GLOB_RECURSE APP_SERVING_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/serving/*)
 	file(GLOB_RECURSE APP_ARTIFACT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/artifacts/*)
-	set(APP_ENV_FILE ${CMAKE_CURRENT_SOURCE_DIR}/app/.env)
+	set(APP_ENV_FILE ${CMAKE_CURRENT_SOURCE_DIR}/app/serving/.env)
 
 	add_custom_target(sync_app_wwwroot ALL
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
@@ -89,9 +89,9 @@ if(BUILD_APP)
 	if(EXISTS ${APP_ENV_FILE})
 		add_custom_target(sync_app_env ALL
 			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_ENV_FILE} ${CMAKE_BINARY_DIR}/app/.env
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_ENV_FILE} ${CMAKE_BINARY_DIR}/app/serving/.env
 			DEPENDS ${APP_ENV_FILE}
-			COMMENT "Sync app env file to build/app/.env"
+			COMMENT "Sync app env file to build/app/serving/.env"
 		)
 	endif()
 

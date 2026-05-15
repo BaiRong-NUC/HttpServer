@@ -1,40 +1,123 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Mosaic Restored</title>
-        <link rel="stylesheet" href="./css/styles.css" />
-        <script src="./js/app.js" defer></script>
+        <title>HttpServer | Mosaic Restored</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Manrope:wght@400;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="/css/common.css" />
+        <link rel="stylesheet" href="/css/page-components.css" />
+        <link rel="stylesheet" href="/css/mosaic_restored.css" />
+        <script src="/js/api.js" defer></script>
+        <script src="/js/mosaic_restored.js" defer></script>
     </head>
     <body>
-        <main class="shell">
-            <header class="topbar">
-                <div>
-                    <p class="eyebrow">Image restoration</p>
-                    <h1>Mosaic Restored</h1>
-                </div>
-                <div
-                    id="status"
-                    class="status"
-                    role="status"
-                    aria-live="polite"
-                >
-                    Ready
+        <div class="orb one"></div>
+        <div class="orb two"></div>
+
+        <main class="container mosaic-page">
+            <header>
+                <a class="logo" href="/index.html">个人简历</a>
+                <div class="header-right">
+                    <span class="badge">图像修复体验页</span>
+                    <a class="btn btn-ghost hero-link" href="/http_server.html"
+                        >查看服务说明</a
+                    >
+                    <a
+                        class="btn btn-secondary hero-link"
+                        href="https://arxiv.org/pdf/2206.11253"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >论文链接</a
+                    >
                 </div>
             </header>
 
-            <section class="workspace" aria-label="Image restoration workspace">
-                <article class="panel image-panel input-panel">
-                    <header class="slot-header">
-                        <span>Input</span>
-                    </header>
+            <section class="hero ui-card ui-card--glass">
+                <div class="hero-top">
+                    <div>
+                        <span class="eyebrow">POST /api/restore</span>
+                        <h1><span>Mosaic</span> Restored</h1>
+                    </div>
+                    <div
+                        id="status"
+                        class="ui-status status-pill"
+                        role="status"
+                        aria-live="polite"
+                    >
+                        等待上传
+                    </div>
+                </div>
+                <p class="lead">
+                    基于 C++ 代理层与 Python CodeFormer
+                    服务的马赛克去除体验页。上传图片后，前端会将原图发送到
+                    <strong>/api/restore</strong
+                    >，由后端完成增强、修复和结果回传。
+                </p>
 
-                    <div id="inputBody" class="slot-body image-body input-body">
-                        <div class="placeholder">No image selected</div>
+                <div class="hero-metrics">
+                    <div class="metric-card ui-card ui-card--soft">
+                        <strong>处理链路</strong>
+                        <span>Browser → C++ → FastAPI → Replicate</span>
+                    </div>
+                    <div class="metric-card ui-card ui-card--soft">
+                        <strong>默认模型</strong>
+                        <span>CodeFormer Face Restoration</span>
+                    </div>
+                    <div class="metric-card ui-card ui-card--soft">
+                        <strong>结果输出</strong>
+                        <span>预览、下载、外链回显</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="workspace" aria-label="图像修复工作区">
+                <aside class="brief ui-card ui-card--soft">
+                    <h2>使用说明</h2>
+                    <ol class="brief-list">
+                        <li>上传待修复图片，支持拖拽和点击选择。</li>
+                        <li>调整放大倍数、保真度和增强选项。</li>
+                        <li>点击开始修复，等待结果图返回并下载。</li>
+                    </ol>
+
+                    <div class="meta-stack">
+                        <div class="meta-box">
+                            <span>接口参数</span>
+                            <p>
+                                upscale / face_upsample / background_enhance /
+                                codeformer_fidelity
+                            </p>
+                        </div>
+                        <div class="meta-box">
+                            <span>返回头</span>
+                            <p>X-Output-Url / X-Replicate-Output-Url</p>
+                        </div>
+                        <div class="meta-box">
+                            <span>建议</span>
+                            <p>人脸图像优先，图片越清晰越容易获得稳定结果。</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <article class="panel ui-card ui-card--glass input-panel">
+                    <div class="panel-head">
+                        <h2>输入图像</h2>
+                        <p>选择一张图片并配置修复参数</p>
                     </div>
 
-                    <section class="controls" aria-label="Restore controls">
+                    <div id="inputBody" class="image-stage input-stage">
+                        <div class="placeholder-card">
+                            <strong>尚未选择图片</strong>
+                            <span>支持 JPG、PNG、WEBP</span>
+                        </div>
+                    </div>
+
+                    <section class="controls" aria-label="修复参数">
                         <input
                             id="fileInput"
                             type="file"
@@ -46,37 +129,35 @@
                             id="dropzone"
                             class="dropzone"
                             type="button"
-                            aria-label="Choose image"
+                            aria-label="选择图片"
                         >
-                            <span class="drop-mark" aria-hidden="true"></span>
-                            <span class="drop-title">Choose image</span>
-                            <span class="drop-copy">Drop or browse</span>
+                            <span class="drop-mark" aria-hidden="true">+</span>
+                            <span class="drop-title">上传待修复图片</span>
+                            <span class="drop-copy"
+                                >拖拽到这里，或点击浏览本地文件</span
+                            >
                         </button>
 
-                        <p id="fileMeta" class="file-meta"></p>
+                        <p id="fileMeta" class="file-meta">未选择文件</p>
 
                         <div class="control-grid">
-                            <div class="field-grid">
-                                <label class="field-label" for="upscale"
-                                    >Upscale</label
-                                >
+                            <label class="field-grid">
+                                <span class="field-label">放大倍数</span>
                                 <select id="upscale">
                                     <option value="1">1x</option>
                                     <option value="2" selected>2x</option>
                                     <option value="3">3x</option>
                                     <option value="4">4x</option>
                                 </select>
-                            </div>
+                            </label>
 
-                            <div class="field-grid">
-                                <div class="range-head">
-                                    <label class="field-label" for="fidelity"
-                                        >Fidelity</label
-                                    >
+                            <label class="field-grid">
+                                <span class="range-head">
+                                    <span class="field-label">保真度</span>
                                     <span id="fidelityValue" class="range-value"
                                         >0.20</span
                                     >
-                                </div>
+                                </span>
                                 <input
                                     id="fidelity"
                                     type="range"
@@ -85,7 +166,7 @@
                                     step="0.05"
                                     value="0.2"
                                 />
-                            </div>
+                            </label>
                         </div>
 
                         <div class="toggle-row">
@@ -112,42 +193,77 @@
                         <div class="actions">
                             <button
                                 id="restoreButton"
-                                class="button primary"
+                                class="btn btn-primary"
                                 type="button"
                                 disabled
                             >
-                                Restore
+                                开始修复
                             </button>
                             <button
                                 id="clearButton"
-                                class="button secondary"
+                                class="btn btn-secondary"
                                 type="button"
                                 disabled
                             >
-                                Clear
+                                清空
                             </button>
                         </div>
                     </section>
                 </article>
 
-                <article class="panel image-panel output-panel">
-                    <header class="slot-header">
-                        <span>Output</span>
+                <article class="panel ui-card ui-card--glass output-panel">
+                    <div class="panel-head panel-head--row">
+                        <div>
+                            <h2>修复结果</h2>
+                            <p>后端返回图片后会自动展示在这里</p>
+                        </div>
                         <a
                             id="downloadLink"
-                            class="download-link"
+                            class="btn btn-ghost download-link"
                             href="#"
                             download="restored.png"
                             hidden
                         >
-                            Download
+                            下载结果
                         </a>
-                    </header>
-                    <div
-                        id="resultBody"
-                        class="slot-body image-body result-body"
-                    >
-                        <div class="placeholder">Waiting</div>
+                    </div>
+
+                    <div id="resultBody" class="image-stage result-stage">
+                        <div class="placeholder-card">
+                            <strong>等待处理</strong>
+                            <span>完成后将在此展示结果图</span>
+                        </div>
+                    </div>
+
+                    <div class="result-meta ui-card ui-card--soft">
+                        <div class="result-links">
+                            <a
+                                id="publicLink"
+                                class="ui-link"
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                hidden
+                            >
+                                打开公开结果链接
+                            </a>
+                            <a
+                                id="replicateLink"
+                                class="ui-link"
+                                href="#"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                hidden
+                            >
+                                打开 Replicate 原始结果
+                            </a>
+                        </div>
+                        <pre
+                            id="resultInfo"
+                            class="ui-output ui-output--compact"
+                        >
+尚未发起请求</pre
+                        >
                     </div>
                 </article>
             </section>

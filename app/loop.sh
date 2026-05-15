@@ -39,7 +39,31 @@ SELF_SCRIPT="$SCRIPT_DIR/$(basename "$0")"
 MODEL_SCRIPT="$(detect_model_script)"
 MOSAIC_PY_PATH="${MOSAIC_PY_PATH:-/home/bairong/C++/MosaicRestored/app/serving/mosaic.py}"
 MOSAIC_LOG_FILE="$LOG_DIR/mosaic_restored.log"
-MOSAIC_PYTHON="${MOSAIC_PYTHON:-${PYTHON:-python3}}"
+
+detect_mosaic_python() {
+	if [[ -n "${MOSAIC_PYTHON:-}" ]]; then
+		echo "$MOSAIC_PYTHON"
+		return 0
+	fi
+
+	if command -v conda >/dev/null 2>&1; then
+		local sklearn_env_path
+		sklearn_env_path="$(conda env list | awk '$1 == "sklearn" { print $NF; exit }')"
+		if [[ -n "$sklearn_env_path" && -x "$sklearn_env_path/bin/python" ]]; then
+			echo "$sklearn_env_path/bin/python"
+			return 0
+		fi
+	fi
+
+	if [[ -n "${PYTHON:-}" ]]; then
+		echo "$PYTHON"
+		return 0
+	fi
+
+	echo "python3"
+}
+
+MOSAIC_PYTHON="$(detect_mosaic_python)"
 
 usage() {
 	echo "Usage: $0 [start|stop|restart|status]"

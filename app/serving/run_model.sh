@@ -35,7 +35,8 @@ python_source="system python3"
 
 resolve_python_cmd() {
 	local conda_cmd=""
-	local conda_web_prefix=""
+	local conda_env_prefix=""
+	local env_name=""
 
 	if [[ -n "${CONDA_EXE:-}" && -x "${CONDA_EXE}" ]]; then
 		conda_cmd="$CONDA_EXE"
@@ -46,12 +47,14 @@ resolve_python_cmd() {
 	fi
 
 	if [[ -n "$conda_cmd" ]]; then
-		conda_web_prefix="$("$conda_cmd" env list 2>/dev/null | awk '$1 == "web" { print $NF; exit }')"
-		if [[ -n "$conda_web_prefix" && -x "$conda_web_prefix/bin/python" ]]; then
-			python_cmd=("$conda_web_prefix/bin/python")
-			python_source="conda env web"
-			return
-		fi
+		for env_name in web sklearn; do
+			conda_env_prefix="$("$conda_cmd" env list 2>/dev/null | awk -v target="$env_name" '$1 == target { print $NF; exit }')"
+			if [[ -n "$conda_env_prefix" && -x "$conda_env_prefix/bin/python" ]]; then
+				python_cmd=("$conda_env_prefix/bin/python")
+				python_source="conda env $env_name"
+				return
+			fi
+		done
 	fi
 
 	if [[ -x "$project_root/.venv/bin/python" ]]; then

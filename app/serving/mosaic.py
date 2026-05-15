@@ -1,4 +1,5 @@
-from collections.abc import Iterator, Sequence
+from collections.abc import AsyncIterator, Iterator, Sequence
+from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 import tempfile
@@ -29,7 +30,14 @@ MODEL_VERSION = (
     "sczhou/codeformer:7de2ea26c616d5bf2245ad0d5e24f0ff9a6204578a5c876db53142edd9d2cd56"
 )
 
-app = FastAPI(title="Mosaic Restored Service")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    load_service_env()
+    yield
+
+
+app = FastAPI(title="Mosaic Restored Service", lifespan=lifespan)
 
 
 class ReplicateFileOutput(Protocol):
@@ -141,11 +149,6 @@ def generate_restored_image(
 
     output = cast(ReplicateFileOutput, first_output(result))
     return output.read(), output.url
-
-
-@app.on_event("startup")
-def startup() -> None:
-    load_service_env()
 
 
 @app.get("/health")

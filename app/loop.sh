@@ -189,7 +189,18 @@ get_server_pid() {
 get_mosaic_pid() {
 	local pid
 	pid="$(get_pid_value mosaic_pid || true)"
+	if [[ -n "$pid" ]] && kill -0 "$pid" >/dev/null 2>&1; then
+		printf '%s\n' "$pid"
+		return 0
+	fi
+
 	if [[ -n "$pid" ]]; then
+		set_mosaic_pid ""
+	fi
+
+	pid="$(ps -eo pid=,args= | awk -v target="$MOSAIC_PY_PATH" 'index($0, target) { print $1; exit }')"
+	if [[ -n "$pid" ]]; then
+		set_mosaic_pid "$pid"
 		printf '%s\n' "$pid"
 		return 0
 	fi

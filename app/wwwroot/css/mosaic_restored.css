@@ -716,6 +716,10 @@ body {
     min-height: 24px;
 }
 
+.result-links .ui-link {
+    overflow-wrap: anywhere;
+}
+
 .result-links .ui-link[hidden] {
     display: none;
 }

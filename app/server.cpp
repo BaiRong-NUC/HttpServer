@@ -18,6 +18,7 @@ struct ProxyResult
     std::string body;
     std::string content_type;
     std::string output_url;
+    std::string replicate_output_url;
     char error_buffer[CURL_ERROR_SIZE] = {0};
 };
 
@@ -58,9 +59,13 @@ size_t CaptureHeader(char* buffer, size_t size, size_t nitems, void* userdata)
 
     std::string key = ToLower(Trim(header_line.substr(0, colon_pos)));
     std::string value = Trim(header_line.substr(colon_pos + 1));
-    if (key == "x-replicate-output-url")
+    if (key == "x-output-url")
     {
         result->output_url = value;
+    }
+    else if (key == "x-replicate-output-url")
+    {
+        result->replicate_output_url = value;
     }
     return total_size;
 }
@@ -267,7 +272,7 @@ int main(int argc, char const* argv[])
     }
     int reactor_thread_num = std::max(1, cpu_count / 2);
     int business_thread_num = std::max(1, cpu_count - reactor_thread_num);
-    HttpServer server("./wwwroot", 8085, DEFAULT_INACTIVE_TIMEOUT, reactor_thread_num, true, true, "0.0.0.0",
+    HttpServer server("./wwwroot", 8085, RESTORE_PROXY_INACTIVE_TIMEOUT, reactor_thread_num, true, true, "0.0.0.0",
                       business_thread_num);
     server.Get("/hello",
                [](const HttpRequest& req, HttpResponse& resp)
@@ -377,9 +382,9 @@ int main(int argc, char const* argv[])
             {
                 response.SetHeader("X-Output-Url", proxy_result.output_url);
             }
-            if (!proxy_result.output_url.empty())
+            if (!proxy_result.replicate_output_url.empty())
             {
-                response.SetHeader("X-Replicate-Output-Url", proxy_result.output_url);
+                response.SetHeader("X-Replicate-Output-Url", proxy_result.replicate_output_url);
             }
         });
     server.Listen();

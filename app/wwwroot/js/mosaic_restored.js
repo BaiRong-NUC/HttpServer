@@ -7,7 +7,7 @@ const resultBodyEl = document.getElementById("resultBody");
 const resultInfoEl = document.getElementById("resultInfo");
 const downloadLinkEl = document.getElementById("downloadLink");
 const publicLinkEl = document.getElementById("publicLink");
-const replicateLinkEl = document.getElementById("replicateLink");
+const serverOutputLinkEl = document.getElementById("serverOutputLink");
 const restoreButtonEl = document.getElementById("restoreButton");
 const clearButtonEl = document.getElementById("clearButton");
 const fidelityEl = document.getElementById("fidelity");
@@ -139,8 +139,9 @@ function resetResultArea() {
     downloadLinkEl.removeAttribute("href");
     publicLinkEl.hidden = true;
     publicLinkEl.removeAttribute("href");
-    replicateLinkEl.hidden = true;
-    replicateLinkEl.removeAttribute("href");
+    serverOutputLinkEl.hidden = true;
+    serverOutputLinkEl.removeAttribute("href");
+    serverOutputLinkEl.textContent = "";
 }
 
 function updateButtons() {
@@ -204,7 +205,7 @@ function buildQuery() {
     return params.toString();
 }
 
-function formatResponseInfo(response, publicUrl, replicateUrl) {
+function formatResponseInfo(response, publicUrl) {
     const lines = [
         "[POST /api/restore]",
         `STATUS: ${response.status} ${response.statusText}`,
@@ -215,10 +216,7 @@ function formatResponseInfo(response, publicUrl, replicateUrl) {
     ];
 
     if (publicUrl) {
-        lines.push(`PUBLIC_URL: ${publicUrl}`);
-    }
-    if (replicateUrl) {
-        lines.push(`REPLICATE_URL: ${replicateUrl}`);
+        lines.push(`SERVER_OUTPUT_URL: ${publicUrl}`);
     }
 
     return lines.join("\n");
@@ -243,8 +241,6 @@ async function handleRestore() {
         });
 
         const publicUrl = response.headers.get("X-Output-Url") || "";
-        const replicateUrl =
-            response.headers.get("X-Replicate-Output-Url") || "";
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -276,16 +272,15 @@ async function handleRestore() {
         if (publicUrl) {
             publicLinkEl.href = publicUrl;
         }
-        replicateLinkEl.hidden = !replicateUrl;
-        if (replicateUrl) {
-            replicateLinkEl.href = replicateUrl;
+        serverOutputLinkEl.hidden = !publicUrl;
+        if (publicUrl) {
+            serverOutputLinkEl.href = publicUrl;
+            serverOutputLinkEl.textContent = publicUrl;
+        } else {
+            serverOutputLinkEl.textContent = "";
         }
 
-        resultInfoEl.textContent = formatResponseInfo(
-            response,
-            publicUrl,
-            replicateUrl,
-        );
+        resultInfoEl.textContent = formatResponseInfo(response, publicUrl);
         setStatus("处理完成");
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

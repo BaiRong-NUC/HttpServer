@@ -224,23 +224,23 @@ async def restore(
         OUTPUT_IMAGE.parent.mkdir(parents=True, exist_ok=True)
         OUTPUT_IMAGE.write_bytes(restored_bytes)
 
-    notification_url = output_url
-    if env_flag_enabled("WECHAT_NOTIFY_INCLUDE_URL", default=False):
-        try:
-            public_path = save_public_output_image(restored_bytes)
-            notification_url = f"{public_base_url(request)}{public_path}"
-        except Exception as error:
-            print(f"Failed to save public output image: {error}")
+    public_output_url = ""
+    try:
+        public_path = save_public_output_image(restored_bytes)
+        public_output_url = f"{public_base_url(request)}{public_path}"
+    except Exception as error:
+        print(f"Failed to save public output image: {error}")
 
-    background_tasks.add_task(send_restore_done_notification, notification_url)
+    background_tasks.add_task(send_restore_done_notification, public_output_url)
+
+    headers = {"X-Replicate-Output-Url": output_url}
+    if public_output_url:
+        headers["X-Output-Url"] = public_output_url
 
     return Response(
         content=restored_bytes,
         media_type="image/png",
-        headers={
-            "X-Output-Url": notification_url,
-            "X-Replicate-Output-Url": output_url,
-        },
+        headers=headers,
     )
 
 

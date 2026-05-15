@@ -63,6 +63,7 @@ if(BUILD_APP)
 	file(GLOB_RECURSE APP_WWWROOT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/wwwroot/*)
 	file(GLOB_RECURSE APP_SERVING_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/serving/*)
 	file(GLOB_RECURSE APP_ARTIFACT_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/app/artifacts/*)
+	set(APP_ENV_FILE ${CMAKE_CURRENT_SOURCE_DIR}/app/.env)
 
 	add_custom_target(sync_app_wwwroot ALL
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/wwwroot
@@ -85,6 +86,15 @@ if(BUILD_APP)
 		COMMENT "Sync model artifacts to build/app/artifacts"
 	)
 
+	if(EXISTS ${APP_ENV_FILE})
+		add_custom_target(sync_app_env ALL
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_ENV_FILE} ${CMAKE_BINARY_DIR}/app/.env
+			DEPENDS ${APP_ENV_FILE}
+			COMMENT "Sync app env file to build/app/.env"
+		)
+	endif()
+
 	foreach(APP_CPP_FILE ${APP_CPP_FILES})
 		get_filename_component(APP_TARGET_NAME ${APP_CPP_FILE} NAME_WE)
 		add_executable(${APP_TARGET_NAME} ${APP_CPP_FILE} ${APP_SRC_CPP_FILES})
@@ -98,6 +108,9 @@ if(BUILD_APP)
 		)
 		add_dependencies(${APP_TARGET_NAME} sync_app_wwwroot)
 		add_dependencies(${APP_TARGET_NAME} sync_app_serving sync_app_artifacts)
+		if(TARGET sync_app_env)
+			add_dependencies(${APP_TARGET_NAME} sync_app_env)
+		endif()
 	endforeach()
 endif()
 

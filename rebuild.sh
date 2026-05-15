@@ -9,6 +9,24 @@ LOOP_SCRIPT="$BUILD_APP_DIR/loop.sh"
 BUILD_MODEL_SCRIPT="$BUILD_APP_DIR/serving/run_model.sh"
 SOURCE_MODEL_SCRIPT="./app/serving/run_model.sh"
 
+detect_cxx_compiler() {
+	local candidate=""
+
+	if [[ -n "${CXX:-}" ]] && command -v "$CXX" >/dev/null 2>&1; then
+		echo "$CXX"
+		return 0
+	fi
+
+	for candidate in g++ clang++ c++; do
+		if command -v "$candidate" >/dev/null 2>&1; then
+			echo "$candidate"
+			return 0
+		fi
+	done
+
+	return 1
+}
+
 run_stop_script() {
 	local script_path="$1"
 	local description="$2"
@@ -51,8 +69,17 @@ fi
 # 创建构建目录
 mkdir -p "$BUILD_DIR"
 
+# 检查 C++ 编译器
+if ! CXX_COMPILER="$(detect_cxx_compiler)"; then
+	echo "错误：未找到可用的 C++ 编译器（g++ / clang++ / c++）。"
+	echo "请先安装编译器后重试，例如：sudo apt update && sudo apt install -y g++"
+	exit 1
+fi
+
+echo "使用 C++ 编译器: $CXX_COMPILER"
+
 # 运行 cmake 和 make
-cmake -S . -B "$BUILD_DIR"
+cmake -S . -B "$BUILD_DIR" -DCMAKE_CXX_COMPILER="$CXX_COMPILER"
 cmake --build "$BUILD_DIR" -j"$(nproc)"
 
 echo "重新构建完成！"

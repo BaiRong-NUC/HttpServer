@@ -16,6 +16,9 @@ const upscaleEl = document.getElementById("upscale");
 const faceUpsampleEl = document.getElementById("faceUpsample");
 const backgroundEnhanceEl = document.getElementById("backgroundEnhance");
 
+const DEFAULT_IMAGE_SRC = "/image/test.jpg";
+const DEFAULT_IMAGE_NAME = "test.jpg";
+
 let selectedFile = null;
 let inputObjectUrl = "";
 let outputObjectUrl = "";
@@ -166,6 +169,30 @@ function setSelectedFile(file) {
     resetResultArea();
     updateButtons();
     setStatus("图片已就绪");
+}
+
+async function loadDefaultImage() {
+    try {
+        const response = await fetch(DEFAULT_IMAGE_SRC);
+        if (!response.ok) {
+            throw new Error(`默认图片加载失败: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const file = new File([blob], DEFAULT_IMAGE_NAME, {
+            type: blob.type || "image/jpeg",
+        });
+        setSelectedFile(file);
+        setStatus("默认图片已就绪");
+    } catch (error) {
+        selectedFile = null;
+        inputObjectUrl = DEFAULT_IMAGE_SRC;
+        renderStageImage(inputBodyEl, DEFAULT_IMAGE_SRC, "默认示例图片");
+        fileMetaEl.textContent = "默认示例图片";
+        resetResultArea();
+        updateButtons();
+        setStatus("默认图片加载失败", "error");
+    }
 }
 
 function buildQuery() {
@@ -320,4 +347,4 @@ clearButtonEl.addEventListener("click", () => {
     setSelectedFile(null);
 });
 
-setSelectedFile(null);
+loadDefaultImage();

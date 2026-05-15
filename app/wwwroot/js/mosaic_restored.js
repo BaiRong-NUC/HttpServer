@@ -19,6 +19,7 @@ const backgroundEnhanceEl = document.getElementById("backgroundEnhance");
 let selectedFile = null;
 let inputObjectUrl = "";
 let outputObjectUrl = "";
+let comparePosition = 52;
 
 function formatFileSize(size) {
     if (size < 1024) {
@@ -49,6 +50,73 @@ function renderStageImage(container, src, alt) {
     container.appendChild(image);
 }
 
+function updateComparePosition(compareEl, value) {
+    comparePosition = Number(value);
+    compareEl.style.setProperty("--compare-position", `${comparePosition}%`);
+}
+
+function syncCompareAspect(compareEl, imageEl) {
+    const applyAspect = () => {
+        const { naturalWidth, naturalHeight } = imageEl;
+        if (!naturalWidth || !naturalHeight) {
+            return;
+        }
+        compareEl.style.setProperty(
+            "--compare-aspect-ratio",
+            `${naturalWidth} / ${naturalHeight}`,
+        );
+        compareEl.style.setProperty(
+            "--compare-ratio-number",
+            String(naturalWidth / naturalHeight),
+        );
+    };
+
+    if (imageEl.complete) {
+        applyAspect();
+        return;
+    }
+
+    imageEl.addEventListener("load", applyAspect, { once: true });
+}
+
+function renderCompareStage(container, beforeSrc, afterSrc) {
+    container.innerHTML = "";
+
+    const compareEl = document.createElement("div");
+    compareEl.className = "compare-view";
+    compareEl.innerHTML = `
+        <div class="compare-layer compare-base">
+            <img src="${afterSrc}" alt="修复结果图" />
+        </div>
+        <div class="compare-layer compare-overlay">
+            <img src="${beforeSrc}" alt="原始上传图片" />
+        </div>
+        <div class="compare-divider" aria-hidden="true">
+            <span class="compare-handle"></span>
+        </div>
+        <span class="compare-label compare-label--before">Before</span>
+        <span class="compare-label compare-label--after">After</span>
+        <input
+            class="compare-slider"
+            type="range"
+            min="0"
+            max="100"
+            value="${comparePosition}"
+            aria-label="调整修复前后对比位置"
+        />
+    `;
+
+    const sliderEl = compareEl.querySelector(".compare-slider");
+    const baseImageEl = compareEl.querySelector(".compare-base img");
+    sliderEl.addEventListener("input", (event) => {
+        updateComparePosition(compareEl, event.target.value);
+    });
+
+    syncCompareAspect(compareEl, baseImageEl);
+    updateComparePosition(compareEl, comparePosition);
+    container.appendChild(compareEl);
+}
+
 function renderPlaceholder(container, title, subtitle) {
     container.innerHTML = `
         <div class="placeholder-card">
@@ -61,6 +129,7 @@ function renderPlaceholder(container, title, subtitle) {
 function resetResultArea() {
     revokeUrl(outputObjectUrl);
     outputObjectUrl = "";
+    comparePosition = 52;
     renderPlaceholder(resultBodyEl, "等待处理", "完成后将在此展示结果图");
     resultInfoEl.textContent = "尚未发起请求";
     downloadLinkEl.hidden = true;
@@ -167,7 +236,12 @@ async function handleRestore() {
         const blob = await response.blob();
         revokeUrl(outputObjectUrl);
         outputObjectUrl = URL.createObjectURL(blob);
-        renderStageImage(resultBodyEl, outputObjectUrl, "修复结果图");
+
+        if (inputObjectUrl) {
+            renderCompareStage(resultBodyEl, inputObjectUrl, outputObjectUrl);
+        } else {
+            renderStageImage(resultBodyEl, outputObjectUrl, "修复结果图");
+        }
 
         downloadLinkEl.href = outputObjectUrl;
         downloadLinkEl.hidden = false;

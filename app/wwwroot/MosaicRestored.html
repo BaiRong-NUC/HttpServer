@@ -27,8 +27,8 @@
                     <p class="lead">
                         基于 C++ 代理层与 Python CodeFormer
                         服务的图像修复工作台。 上传图片后，请求会发送到
-                        <strong>/api/restore</strong>，
-                        返回结果后可直接预览、下载或查看外链。
+                        <strong>/api/restore</strong>,
+                        返回结果后可直接预览、下载。处理完毕后会使用微信公众号接口通知用户.
                     </p>
                 </div>
 
@@ -243,34 +243,25 @@
                         </div>
 
                         <div class="result-meta ui-card ui-card--soft">
-                            <div class="result-links">
-                                <a
-                                    id="publicLink"
-                                    class="ui-link"
-                                    href="#"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    hidden
-                                >
-                                    打开服务器图片链接
-                                </a>
-                                <a
-                                    id="serverOutputLink"
-                                    class="ui-link"
-                                    href="#"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    hidden
-                                >
-                                    服务器图片链接
-                                </a>
-                            </div>
-                            <pre
-                                id="resultInfo"
-                                class="ui-output ui-output--compact"
+                            <div
+                                class="result-output ui-output ui-output--compact"
                             >
+                                <div class="result-links">
+                                    <a
+                                        id="publicLink"
+                                        class="ui-link"
+                                        href="#"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        hidden
+                                    >
+                                        打开服务器图片链接
+                                    </a>
+                                </div>
+                                <pre id="resultInfo" class="result-info-text">
 尚未发起请求</pre
-                            >
+                                >
+                            </div>
                         </div>
                     </article>
                 </section>

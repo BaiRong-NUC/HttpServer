@@ -7,7 +7,6 @@ const resultBodyEl = document.getElementById("resultBody");
 const resultInfoEl = document.getElementById("resultInfo");
 const downloadLinkEl = document.getElementById("downloadLink");
 const publicLinkEl = document.getElementById("publicLink");
-const serverOutputLinkEl = document.getElementById("serverOutputLink");
 const restoreButtonEl = document.getElementById("restoreButton");
 const clearButtonEl = document.getElementById("clearButton");
 const fidelityEl = document.getElementById("fidelity");
@@ -139,9 +138,6 @@ function resetResultArea() {
     downloadLinkEl.removeAttribute("href");
     publicLinkEl.hidden = true;
     publicLinkEl.removeAttribute("href");
-    serverOutputLinkEl.hidden = true;
-    serverOutputLinkEl.removeAttribute("href");
-    serverOutputLinkEl.textContent = "";
 }
 
 function updateButtons() {
@@ -205,7 +201,7 @@ function buildQuery() {
     return params.toString();
 }
 
-function formatResponseInfo(response, publicUrl) {
+function formatResponseInfo(response) {
     const lines = [
         "[POST /api/restore]",
         `STATUS: ${response.status} ${response.statusText}`,
@@ -214,10 +210,6 @@ function formatResponseInfo(response, publicUrl) {
         `FACE_UPSAMPLE: ${faceUpsampleEl.checked}`,
         `BACKGROUND_ENHANCE: ${backgroundEnhanceEl.checked}`,
     ];
-
-    if (publicUrl) {
-        lines.push(`SERVER_OUTPUT_URL: ${publicUrl}`);
-    }
 
     return lines.join("\n");
 }
@@ -272,15 +264,8 @@ async function handleRestore() {
         if (publicUrl) {
             publicLinkEl.href = publicUrl;
         }
-        serverOutputLinkEl.hidden = !publicUrl;
-        if (publicUrl) {
-            serverOutputLinkEl.href = publicUrl;
-            serverOutputLinkEl.textContent = publicUrl;
-        } else {
-            serverOutputLinkEl.textContent = "";
-        }
 
-        resultInfoEl.textContent = formatResponseInfo(response, publicUrl);
+        resultInfoEl.textContent = formatResponseInfo(response);
         setStatus("处理完成");
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

@@ -28,6 +28,16 @@ detect_model_script() {
 	fi
 }
 
+detect_mosaic_script() {
+	if [[ -f "$SCRIPT_DIR/serving/mosaic.py" ]]; then
+		echo "$SCRIPT_DIR/serving/mosaic.py"
+	elif [[ -f "$APP_DIR/serving/mosaic.py" ]]; then
+		echo "$APP_DIR/serving/mosaic.py"
+	elif [[ -f "$SCRIPT_DIR/../app/serving/mosaic.py" ]]; then
+		echo "$(cd "$SCRIPT_DIR/../app/serving" && pwd)/mosaic.py"
+	fi
+}
+
 APP_DIR="$(detect_app_dir)"
 PID_DIR="$SCRIPT_DIR"
 LOG_DIR="$APP_DIR/log"
@@ -37,7 +47,7 @@ LOG_FILE="$LOG_DIR/server.log"
 MODEL_LOG_FILE="$LOG_DIR/model_api.log"
 SELF_SCRIPT="$SCRIPT_DIR/$(basename "$0")"
 MODEL_SCRIPT="$(detect_model_script)"
-MOSAIC_PY_PATH="${MOSAIC_PY_PATH:-/home/bairong/C++/MosaicRestored/app/serving/mosaic.py}"
+MOSAIC_PY_PATH="${MOSAIC_PY_PATH:-$(detect_mosaic_script)}"
 MOSAIC_LOG_FILE="$LOG_DIR/mosaic_restored.log"
 
 detect_mosaic_python() {

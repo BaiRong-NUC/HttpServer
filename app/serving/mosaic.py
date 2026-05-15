@@ -46,6 +46,24 @@ class ReplicateFileOutput(Protocol):
     def read(self) -> bytes: ...
 
 
+def env_file_candidates() -> list[Path]:
+    candidates = [
+        SERVICE_DIR / ".env",
+        PROJECT_ROOT / "app" / ".env",
+        PROJECT_ROOT / ".env",
+        Path.cwd() / ".env",
+    ]
+    unique_candidates: list[Path] = []
+    seen_paths: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved in seen_paths:
+            continue
+        seen_paths.add(resolved)
+        unique_candidates.append(candidate)
+    return unique_candidates
+
+
 def first_output(result: Any) -> Any:
     if isinstance(result, Iterator):
         return next(result)
@@ -55,7 +73,9 @@ def first_output(result: Any) -> Any:
 
 
 def load_service_env() -> None:
-    load_dotenv(SERVICE_DIR / ".env")
+    for env_path in env_file_candidates():
+        if env_path.is_file():
+            load_dotenv(env_path)
 
 
 def env_flag_enabled(name: str, default: bool = True) -> bool:
@@ -67,7 +87,10 @@ def env_flag_enabled(name: str, default: bool = True) -> bool:
 
 def ensure_replicate_token() -> None:
     if not os.environ.get("REPLICATE_API_TOKEN"):
-        raise RuntimeError("Missing REPLICATE_API_TOKEN in app/serving/.env")
+        searched_paths = ", ".join(str(path) for path in env_file_candidates())
+        raise RuntimeError(
+            f"Missing REPLICATE_API_TOKEN. Searched env files: {searched_paths}"
+        )
 
 
 def image_suffix(image_bytes: bytes) -> str:

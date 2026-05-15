@@ -88,7 +88,7 @@ if(BUILD_APP)
 
 	if(EXISTS ${APP_ENV_FILE})
 		add_custom_target(sync_app_env ALL
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app
+			COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/serving
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_ENV_FILE} ${CMAKE_BINARY_DIR}/app/serving/.env
 			DEPENDS ${APP_ENV_FILE}
 			COMMENT "Sync app env file to build/app/serving/.env"

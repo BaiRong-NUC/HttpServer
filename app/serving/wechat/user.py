@@ -1,0 +1,99 @@
+import os
+from pathlib import Path
+
+import requests
+from dotenv import load_dotenv
+from .message import Message
+
+
+SERVICE_DIR = Path(__file__).resolve().parents[1]
+_cached_access_token = None
+
+
+class TokenInfo:
+    # refresh参数用于决定是否强制刷新token，默认为False
+    def __init__(self, refresh=False):
+        global _cached_access_token
+
+        load_dotenv(SERVICE_DIR / ".env")
+        self.app_id = os.getenv("APP_ID")
+        self.app_secret = os.getenv("APP_SECRET")
+        self.user_id = os.getenv("USER_ID")
+        self.access_token = None
+
+        if refresh or not (_cached_access_token or os.getenv("ACCESS_TOKEN")):
+            self.refresh_access_token()
+        else:
+            self.access_token = _cached_access_token or os.getenv("ACCESS_TOKEN")
+
+    def refresh_access_token(self):
+        global _cached_access_token
+
+        if not self.app_id or not self.app_secret:
+            raise RuntimeError("Missing APP_ID or APP_SECRET in app/serving/.env")
+
+        access_token_url = f"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={self.app_id}&secret={self.app_secret}"
+        result = requests.get(access_token_url, timeout=10).json()
+        access_token = result.get("access_token")
+
+        if not access_token:
+            errcode = result.get("errcode", -1)
+            errmsg = result.get("errmsg", "")
+            raise RuntimeError(
+                f"Failed to refresh access_token, error code: {errcode}, error message: {errmsg}"
+            )
+
+        self.access_token = access_token
+        _cached_access_token = access_token
+        return self.access_token
+
+
+class User:
+    def __init__(self, refresh_token=False):
+        self.token_info = TokenInfo(refresh=refresh_token)
+        if not self.token_info.user_id:
+            raise RuntimeError("Missing USER_ID in app/serving/.env")
+        self.reset_message()
+
+    def reset_message(self):
+        self.message = Message(self.token_info.access_token, self.token_info.user_id)
+
+    def refresh_access_token(self):
+        self.token_info.refresh_access_token()
+        self.reset_message()
+
+    def send_message(self, content):
+        errcode, error_message = self.message.send_message(content)
+        if errcode == 0:
+            print("WeChat restore notification accepted.")
+            return True
+
+        if errcode in (
+            40001,
+            42001,
+        ):  # 40001: invalid credential, 42001: access_token expired
+            print(
+                f"WeChat access_token is invalid or expired, error code: {errcode}, error message: {error_message}. Refreshing access_token and retrying..."
+            )
+            try:
+                self.refresh_access_token()
+            except RuntimeError as error:
+                print(error)
+                return False
+
+            errcode, error_message = self.message.send_message(content)
+            if errcode == 0:
+                print(
+                    "WeChat restore notification accepted after refreshing access_token."
+                )
+                return True
+
+            print(
+                f"WeChat restore notification was rejected after refreshing access_token, error code: {errcode}, error message: {error_message}"
+            )
+            return False
+
+        print(
+            f"WeChat restore notification was rejected, error code: {errcode}, error message: {error_message}"
+        )
+        return False

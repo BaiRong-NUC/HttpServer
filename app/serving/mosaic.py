@@ -21,7 +21,6 @@ import uvicorn
 
 from wechat.user import User
 
-
 SERVICE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_IMAGE = PROJECT_ROOT / "test" / "output" / "output.png"
@@ -221,4 +220,4 @@ async def restore(
 
 if __name__ == "__main__":
     load_service_env()
-    uvicorn.run(app, host="0.0.0.0", port=8091)
+    uvicorn.run(app, host="127.0.0.1", port=8091)

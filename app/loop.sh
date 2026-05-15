@@ -37,6 +37,9 @@ LOG_FILE="$LOG_DIR/server.log"
 MODEL_LOG_FILE="$LOG_DIR/model_api.log"
 SELF_SCRIPT="$SCRIPT_DIR/$(basename "$0")"
 MODEL_SCRIPT="$(detect_model_script)"
+MOSAIC_PY_PATH="${MOSAIC_PY_PATH:-/home/bairong/C++/MosaicRestored/app/serving/mosaic.py}"
+MOSAIC_LOG_FILE="$LOG_DIR/mosaic_restored.log"
+MOSAIC_PYTHON="${MOSAIC_PYTHON:-${PYTHON:-python3}}"
 
 usage() {
 	echo "Usage: $0 [start|stop|restart|status]"
@@ -65,12 +68,12 @@ with_pid_lock() {
 
 is_supervisor_running() {
 	local pid
-	pid="$(get_supervisor_pid)"
+	pid="$(get_supervisor_pid || true)"
 	if [[ -z "$pid" ]]; then
 		return 1
 	fi
 
-		kill -0 "$pid" >/dev/null 2>&1
+	kill -0 "$pid" >/dev/null 2>&1
 }
 
 read_pid_value_unlocked() {
@@ -96,6 +99,7 @@ write_pid_state_impl() {
 	local supervisor_pid="$1"
 	local server_pid="$2"
 	local model_pid="${3:-$(read_pid_value_unlocked model_pid || true)}"
+	local mosaic_pid="${4:-$(read_pid_value_unlocked mosaic_pid || true)}"
 	local temp_file
 
 	ensure_log_dir
@@ -104,6 +108,7 @@ write_pid_state_impl() {
 supervisor_pid=$supervisor_pid
 server_pid=$server_pid
 model_pid=$model_pid
+mosaic_pid=$mosaic_pid
 EOF
 	mv "$temp_file" "$PID_FILE"
 }
@@ -116,6 +121,14 @@ set_model_pid() {
 	with_pid_lock write_pid_state_impl \
 		"$(read_pid_value_unlocked supervisor_pid || true)" \
 		"$(read_pid_value_unlocked server_pid || true)" \
+		"$1"
+}
+
+set_mosaic_pid() {
+	with_pid_lock write_pid_state_impl \
+		"$(read_pid_value_unlocked supervisor_pid || true)" \
+		"$(read_pid_value_unlocked server_pid || true)" \
+		"$(read_pid_value_unlocked model_pid || true)" \
 		"$1"
 }
 
@@ -144,6 +157,17 @@ get_server_pid() {
 			printf '%s\n' "$pid"
 			return 0
 		fi
+	fi
+
+	return 1
+}
+
+get_mosaic_pid() {
+	local pid
+	pid="$(get_pid_value mosaic_pid || true)"
+	if [[ -n "$pid" ]]; then
+		printf '%s\n' "$pid"
+		return 0
 	fi
 
 	return 1
@@ -205,11 +229,45 @@ start_model_service() {
 	fi
 }
 
+start_mosaic_service() {
+	if [[ ! -f "$MOSAIC_PY_PATH" ]]; then
+		echo "MosaicRestored mosaic.py not found, skipped."
+		return 0
+	fi
+
+	local pid
+	pid="$(get_mosaic_pid || true)"
+	if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+		echo "MosaicRestored service already running (PID $pid)."
+		return 0
+	fi
+
+	ensure_log_dir
+	nohup "$MOSAIC_PYTHON" "$MOSAIC_PY_PATH" >> "$MOSAIC_LOG_FILE" 2>&1 &
+	pid=$!
+	set_mosaic_pid "$pid"
+	echo "Started MosaicRestored service (PID $pid). Logs: $MOSAIC_LOG_FILE"
+}
+
 stop_model_service() {
 	if [[ -n "$MODEL_SCRIPT" && -x "$MODEL_SCRIPT" ]]; then
 		PID_STATE_FILE="$PID_FILE" PID_LOCK_FILE="$PID_LOCK_FILE" MODEL_API_LOG_FILE="$MODEL_LOG_FILE" \
 			"$MODEL_SCRIPT" stop || true
 	fi
+}
+
+stop_mosaic_service() {
+	local pid
+	pid="$(get_mosaic_pid || true)"
+	if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+		kill "$pid" 2>/dev/null || true
+		sleep 1
+		if kill -0 "$pid" 2>/dev/null; then
+			kill -9 "$pid" 2>/dev/null || true
+		fi
+		echo "Stopped MosaicRestored service (PID $pid)."
+	fi
+	set_mosaic_pid ""
 }
 
 show_status() {
@@ -233,14 +291,26 @@ show_status() {
 	else
 		echo "Model service script not found."
 	fi
+
+	local mosaic_pid
+	mosaic_pid="$(get_mosaic_pid || true)"
+	if [[ -n "$mosaic_pid" ]] && kill -0 "$mosaic_pid" >/dev/null 2>&1; then
+		echo "MosaicRestored service is running (PID $mosaic_pid)."
+	elif [[ -n "$mosaic_pid" ]]; then
+		echo "MosaicRestored service PID recorded but not running (PID $mosaic_pid)."
+	else
+		echo "MosaicRestored service not running."
+	fi
 }
 
 do_start() {
 	start_server_supervisor
 	start_model_service
+	start_mosaic_service
 }
 
 do_stop() {
+	stop_mosaic_service
 	stop_model_service
 	stop_server_supervisor
 	echo "Stopped."

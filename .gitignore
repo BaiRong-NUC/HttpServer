@@ -3,4 +3,5 @@ build/
 __pycache__
 .vscode/c_cpp_properties.json
 .vscode/settings.json
+app/wwwroot/Match3Game_New_unity.html
 .env

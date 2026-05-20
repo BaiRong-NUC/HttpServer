@@ -161,17 +161,25 @@ Requests: 664 susceed, 0 failed.
 远端公网地址压测命令：
 
 ```bash
-./webbench -c 100 -t 30 http://38.190.254.70:8085/
+./webbench -c 100 -t 30 http://103.236.55.42:8085/
 ```
 
 本次远端实测结果：
 
 ```text
 Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+
+Request:
+GET / HTTP/1.0
+User-Agent: WebBench 1.5
+Host: 103.236.55.42
+
+
 Runing info: 100 clients, running 30 sec.
 
-Speed=3826 pages/min, 1143870 bytes/sec.
-Requests: 1913 susceed, 0 failed.
+Speed=438782 pages/min, 19256604 bytes/sec.
+Requests: 219391 susceed, 0 failed.
 ```
 
 说明：

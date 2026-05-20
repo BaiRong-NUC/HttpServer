@@ -176,7 +176,7 @@ Requests: 1913 susceed, 0 failed.
 
 说明：
 
-- 这组数据是从当前机器对公网地址 http://38.190.254.70:8085/ 发起的远端压测结果。
+- 这组数据是从当前机器对公网地址 http://103.236.55.42:8085/ 发起的远端压测结果。
 - 本次测试同样使用 100 并发、持续 30 秒，结果包含公网链路和远端服务器环境带来的综合影响。
 
 ### 2. 测试模型接口
@@ -204,7 +204,18 @@ curl -X POST "http://127.0.0.1:8000/predict" \
 
 示例页面：
 
-http://38.190.254.70:8085/http_server.html
+http://www.bairong-nuc.com:8085/http_server.html
+
+nginx 配置：（未备案）
+
+```nginx
+server {
+    listen 80;
+    server_name www.bairong-nuc.com bairong-nuc.com;
+    return 301 http://$host:8085$request_uri;
+}
+
+```
 
 ## 八、扩展方向
 

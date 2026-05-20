@@ -148,15 +148,33 @@ cmake --build build -j
 
 ```text
 Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+
+Request:
+GET / HTTP/1.0
+User-Agent: WebBench 1.5
+Host: 127.0.0.1
+
+
 Runing info: 100 clients, running 30 sec.
 
-Speed=1328 pages/min, 395312 bytes/sec.
-Requests: 664 susceed, 0 failed.
+Speed=687012 pages/min, 59456080 bytes/sec.
+Requests: 343506 susceed, 0 failed.
 ```
 
 说明：
 
 - 这组数据是在本机回环网络下得到的，主要反映当前开发机构建下的本地处理能力。
+
+服务器环境:
+
+- 操作系统：Linux 6.17.0-20-generic x86_64 GNU/Linux
+- CPU：5600X全核 3.7GHz
+- 内存：16 GiB
+- 显卡: v100 16G
+- 构建方式：Debug
+- 压测工具：仓库内置 webbench 1.5
+- 压测目标：当前机器对公网地址 http://103.236.55.42:8085/
 
 远端公网地址压测命令：
 
@@ -178,8 +196,8 @@ Host: 103.236.55.42
 
 Runing info: 100 clients, running 30 sec.
 
-Speed=438782 pages/min, 19256604 bytes/sec.
-Requests: 219391 susceed, 0 failed.
+Speed=7432 pages/min, 2753139 bytes/sec.
+Requests: 3716 susceed, 0 failed.
 ```
 
 说明：
